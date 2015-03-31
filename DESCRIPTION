@@ -1,11 +1,15 @@
 Package: eat
-Type: Package
 Title: An R Package for Data-driven Agent-based Modeling
 Version: 0.1
 Date: 2015-03-31
-Author: c( person("Nay", "John", email = "john.j.nay@gmail.com", role =
+Authors@R: c( person("Nay", "John", email = "john.j.nay@gmail.com", role =
     c("cre", "aut")))
-URL: https://github.com/JohnNay/fsm
-BugReports: https://github.com/JohnNay/fsm/issues
-Description: More about what it does (maybe more than one line)
-License: GPL-3
+URL: https://github.com/JohnNay/eat
+BugReports: https://github.com/JohnNay/eat/issues
+Description: More about what it does (maybe more than one line).
+License: MIT
+Imports: lhs,
+    doParallel,
+    foreach,
+    ggplot2,
+    sensitivity

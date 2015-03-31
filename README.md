@@ -1,5 +1,5 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![Build Status](https://travis-ci.org/JohnNay/eat.png?branch=master)](https://travis-ci.org/JohnNay/eat)
+[![Build Status](https://travis-ci.com/JohnNay/eat.png?branch=master)](https://travis-ci.com/JohnNay/eat)
 
 This R package facilitates data-driven agent-based modeling.eat stands for Empirical Agent Training.
 

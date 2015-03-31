@@ -6,7 +6,7 @@ output:
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-[![Build Status](https://travis-ci.org/JohnNay/eat.png?branch=master)](https://travis-ci.org/JohnNay/eat)
+[![Build Status](https://travis-ci.com/JohnNay/eat.png?branch=master)](https://travis-ci.com/JohnNay/eat)
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(

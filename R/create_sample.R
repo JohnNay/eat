@@ -29,7 +29,7 @@ create_set <- function(input_values, input_names, sample_count, constraints){
     input.sets <- rbind(input.sets,
                         create_sample(input_values, input_names, sample_count))  
     # Discard input factor sets that violate constraints:
-    input.sets <- keep_satisfied(input.sets, )
+    input.sets <- keep_satisfied(input.sets, constraints)
   }
   input.sets
 }

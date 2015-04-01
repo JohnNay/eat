@@ -6,19 +6,25 @@
 #'and a list of input values.
 #'
 #'
-#'@param abm A function that takes as input values for each of the
+#'@param abm A function that takes as input values for each of the 
 #'  \code{input_values}
 #'@param input_values List
-#'@param out Character vector length one to be passed an argument to the
+#'@param out Character vector length one to be passed an argument to the 
 #'  \code{abm} function to specify what outcome measure to use.
 #'@param sample_count  Optional Numeric vector length one. Default is 100.
+#'@param constraints Optional Character vector that is either "none" or is using
+#'  only variable names that are specified in the input_values List argument.
+#'  This character vector is evaluated in an environment created for the sampled
+#'  data on the variables, and its evaluation results in a Logical vector that
+#'  that subsets sampled.
 #'@param sobol_nboot Optional Numeric vector length one. Default is 1000.
 #'@param iterations Optional numeric vector length one.
 #'@param parallel Optional logical vector length one. Default is FALSE.
 #'  
-#'@return Returns a sobol objects that can be plotted by functions 
+#'@return Returns a sobol objects that can be plotted by functions
 #'  
 #' @examples
+#' # Unconstrained Analysis
 #' fake_abm <- function(params, out) {
 #'   x1 <- params[1]
 #'   x2 <- params[2]
@@ -30,12 +36,25 @@
 #'                                   ARGS = list(min = 0, max = 1)))
 #' sobol_sa(fake_abm, inputs, "sq")
 #' 
+#' # Constrained Analysis
+#' fake_abm <- function(params, out) {
+#'   x1 <- params[1]
+#'   x2 <- params[2]
+#'   if (out=="sq") return(x1^2 + x2 + rnorm(1, 0))
+#'   if (out=="ident") return(x1 + x2 + rnorm(1, 0))
+#' }
+#' inputs <- lapply(list(param1 = NA, param2 = NA), 
+#'                  function(x) list(random_function = "qunif",
+#'                                   ARGS = list(min = 0, max = 1)))
+#' sobol_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.5 & param2 < 0.5")
+#' 
 #'@export
 
 sobol_sa <- function(abm, 
                      input_values,
                      out, 
-                     sample_count = 100, 
+                     sample_count = 100,
+                     constraints = "none",
                      sobol_nboot = 1000, 
                      iterations = NULL,
                      parallel = FALSE){
@@ -44,8 +63,8 @@ sobol_sa <- function(abm,
   input_names <- names(input_values)
   
   # Create two samples, removing samples violating constraints, until you have enough:
-  input.sets.1 <- create_set(input_values, input_names, sample_count)
-  input.sets.2 <- create_set(input_values, input_names, sample_count)
+  input.sets.1 <- create_set(input_values, input_names, sample_count, constraints)
+  input.sets.2 <- create_set(input_values, input_names, sample_count, constraints)
   
   # Make sets the same size:
   rows <- min(nrow(input.sets.1), nrow(input.sets.2))

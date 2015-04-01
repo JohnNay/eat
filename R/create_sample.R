@@ -5,18 +5,31 @@
 #'@param input_values List
 #'@param input_names Character vector
 #'@param sample_count Numeric vector length one.
+#'@param constraints Character vector that is either "none" of is using only
+#'  variable names that are specified in the input_values List argument. This
+#'  character vector is evaluated in an environment created for the sampled data
+#'  on the variables, and its evaluation results in a Logical vector that that
+#'  subsets sampled.
 #'  
 #'@return Returns a data.frame of samples.
 #'@export
-create_set <- function(input_values, input_names, sample_count){
+create_set <- function(input_values, input_names, sample_count, constraints){
+  
   input.sets <- create_sample(input_values, input_names, sample_count)
-  input.sets <- keep_satisfied(input.sets)
+  
+  if(constraints == "none") {
+    constraints <- rep(TRUE, nrow(input.sets))
+  } else {
+    constraints <- with(input.sets, eval(parse(text=constraints)))
+  }
+  input.sets <- keep_satisfied(input.sets, constraints)
+  
   while(nrow(input.sets) < sample_count) { 
     # Create input factor sets by latin hypercube sampling:
     input.sets <- rbind(input.sets,
                         create_sample(input_values, input_names, sample_count))  
     # Discard input factor sets that violate constraints:
-    input.sets <- keep_satisfied(input.sets)
+    input.sets <- keep_satisfied(input.sets, )
   }
   input.sets
 }
@@ -47,11 +60,19 @@ create_sample <- function(input_values, input_names, sample_count) {
 #'
 #' @param sampled Output of create sample_sample
 #' 
-#'@return Returns a data.frame of samples.
+#'@return Returns a data.frame of samples thats the same or less rows as input.
+#'
+#'@examples
+#'fake_constraints <- "param1 < 0.5 & param2 > 0.5"
+#'fake_data <- data.frame(param1 = runif(100), param2 = runif(100))
+#'fake_constraints <- with(fake_data, eval(parse(text=fake_constraints)))
+#'keep_satisfied(fake_data, fake_constraints)
+#'
 #'  @export
-keep_satisfied <- function(sampled){
-  # TODO: add any constraints
-  constraints <- rep(TRUE, nrow(sampled))
-  data.frame(sampled[constraints, , drop=FALSE])
+
+keep_satisfied <- function(sampled, constraints){
+  result <- data.frame(sampled[constraints, , drop=FALSE])
+  stopifnot(nrow(result) <= nrow(sampled))
+  result
 }
 

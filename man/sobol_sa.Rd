@@ -4,8 +4,8 @@
 \alias{sobol_sa}
 \title{Conduct a Sobol Sensitivity Analysis of a Simulation Model}
 \usage{
-sobol_sa(abm, input_values, out, sample_count = 100, sobol_nboot = 1000,
-  iterations = NULL, parallel = FALSE)
+sobol_sa(abm, input_values, out, sample_count = 100, constraints = "none",
+  sobol_nboot = 1000, iterations = NULL, parallel = FALSE)
 }
 \arguments{
 \item{abm}{A function that takes as input values for each of the
@@ -17,6 +17,12 @@ sobol_sa(abm, input_values, out, sample_count = 100, sobol_nboot = 1000,
 \code{abm} function to specify what outcome measure to use.}
 
 \item{sample_count}{Optional Numeric vector length one. Default is 100.}
+
+\item{constraints}{Optional Character vector that is either "none" or is using
+only variable names that are specified in the input_values List argument.
+This character vector is evaluated in an environment created for the sampled
+data on the variables, and its evaluation results in a Logical vector that
+that subsets sampled.}
 
 \item{sobol_nboot}{Optional Numeric vector length one. Default is 1000.}
 
@@ -35,6 +41,7 @@ This is function of the \strong{eat} package. It takes an abm in function form
 and a list of input values.
 }
 \examples{
+# Unconstrained Analysis
 fake_abm <- function(params, out) {
   x1 <- params[1]
   x2 <- params[2]
@@ -45,5 +52,17 @@ inputs <- lapply(list(param1 = NA, param2 = NA),
                  function(x) list(random_function = "qunif",
                                   ARGS = list(min = 0, max = 1)))
 sobol_sa(fake_abm, inputs, "sq")
+
+# Constrained Analysis
+fake_abm <- function(params, out) {
+  x1 <- params[1]
+  x2 <- params[2]
+  if (out=="sq") return(x1^2 + x2 + rnorm(1, 0))
+  if (out=="ident") return(x1 + x2 + rnorm(1, 0))
+}
+inputs <- lapply(list(param1 = NA, param2 = NA),
+                 function(x) list(random_function = "qunif",
+                                  ARGS = list(min = 0, max = 1)))
+sobol_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.5 & param2 < 0.5")
 }
 

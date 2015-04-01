@@ -6,11 +6,11 @@
 \alias{keep_satisfied}
 \title{Create set of samples by sampling with LHS and then checking constraints.}
 \usage{
-create_set(input_values, input_names, sample_count)
+create_set(input_values, input_names, sample_count, constraints)
 
 create_sample(input_values, input_names, sample_count)
 
-keep_satisfied(sampled)
+keep_satisfied(sampled, constraints)
 }
 \arguments{
 \item{input_values}{List}
@@ -19,6 +19,12 @@ keep_satisfied(sampled)
 
 \item{sample_count}{Numeric vector length one.}
 
+\item{constraints}{Character vector that is either "none" of is using only
+ variable names that are specified in the input_values List argument. This
+ character vector is evaluated in an environment created for the sampled data
+ on the variables, and its evaluation results in a Logical vector that that
+ subsets sampled.}
+
 \item{sampled}{Output of create sample_sample}
 }
 \value{
@@ -26,7 +32,7 @@ Returns a data.frame of samples.
 
 Returns a data.frame of samples.
 
-Returns a data.frame of samples.
+Returns a data.frame of samples thats the same or less rows as input.
 }
 \description{
 \code{create_set} creates sample that stay within constraints.
@@ -37,4 +43,10 @@ Returns a data.frame of samples.
 
 \item \code{keep_satisfied}: Stay within constraints.
 }}
+\examples{
+fake_constraints <- "param1 < 0.5 & param2 > 0.5"
+fake_data <- data.frame(param1 = runif(100), param2 = runif(100))
+fake_constraints <- with(fake_data, eval(parse(text=fake_constraints)))
+keep_satisfied(fake_data, fake_constraints)
+}
 

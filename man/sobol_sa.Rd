@@ -5,7 +5,7 @@
 \title{Conduct a Sobol Sensitivity Analysis of a Simulation Model}
 \usage{
 sobol_sa(abm, input_values, out, sample_count = 100, constraints = "none",
-  sobol_nboot = 1000, iterations = NULL, parallel = FALSE,
+  sobol_nboot = 1000, iterations = NULL, parallel = FALSE, cores = NULL,
   verbose = TRUE)
 }
 \arguments{
@@ -30,6 +30,9 @@ that subsets sampled.}
 \item{iterations}{Optional numeric vector length one.}
 
 \item{parallel}{Optional logical vector length one. Default is FALSE.}
+
+\item{cores}{Optional Numeric vector length one. Default is
+parallel::detectCores().}
 
 \item{verbose}{Optional logical vector.}
 }

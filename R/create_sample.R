@@ -1,6 +1,6 @@
-#'Create set of samples by sampling with LHS
+#'Create set of samples by sampling with LHS and then checking constraints.
 #'
-#'\code{create_set} creates sample.
+#'\code{create_set} creates sample that stay within constraints.
 #'
 #'@param input_values List
 #'@param input_names Character vector
@@ -22,11 +22,7 @@ create_set <- function(input_values, input_names, sample_count){
 }
 
 ################################################################################
-#' @describeIn create_set Stay within constraints.
-#' 
-#'@param input_values List
-#'@param input_names Character vector
-#'@param sample_count Numeric vector length one.
+#' @describeIn create_set Create a sample.
 #'
 #'@return Returns a data.frame of samples.
 #'  @export

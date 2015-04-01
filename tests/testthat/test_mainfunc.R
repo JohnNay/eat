@@ -1,4 +1,3 @@
-library(eat)
 context("Sobol SA function")
 
 test_that("sobol_sa() returns correct object", {

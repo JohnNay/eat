@@ -4,7 +4,7 @@
 \alias{create_sample}
 \alias{create_set}
 \alias{keep_satisfied}
-\title{Create set of samples by sampling with LHS}
+\title{Create set of samples by sampling with LHS and then checking constraints.}
 \usage{
 create_set(input_values, input_names, sample_count)
 
@@ -20,12 +20,6 @@ keep_satisfied(sampled)
 \item{sample_count}{Numeric vector length one.}
 
 \item{sampled}{Output of create sample_sample}
-
-\item{input_values}{List}
-
-\item{input_names}{Character vector}
-
-\item{sample_count}{Numeric vector length one.}
 }
 \value{
 Returns a data.frame of samples.
@@ -35,11 +29,11 @@ Returns a data.frame of samples.
 Returns a data.frame of samples.
 }
 \description{
-\code{create_set} creates sample.
+\code{create_set} creates sample that stay within constraints.
 }
 \section{Functions}{
 \itemize{
-\item \code{create_sample}: Stay within constraints.
+\item \code{create_sample}: Create a sample.
 
 \item \code{keep_satisfied}: Stay within constraints.
 }}

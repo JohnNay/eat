@@ -13,6 +13,7 @@ Depends:
     stats
 License: MIT + file LICENSE
 LazyData: true
+Suggests: testthat
 Imports: lhs,
     doParallel,
     foreach,

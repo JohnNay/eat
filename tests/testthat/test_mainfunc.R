@@ -1,6 +1,7 @@
+library(eat)
 context("Sobol SA function")
 
-test_that("sobol_sa() returns correct object", {
+testthat::test_that("sobol_sa() returns correct object", {
   fake_abm <- function(params, out) {
     x1 <- params[1]
     x2 <- params[2]
@@ -10,6 +11,6 @@ test_that("sobol_sa() returns correct object", {
   inputs <- lapply(list(param1 = NA, param2 = NA), 
                    function(x) list(random_function = "qunif",
                                     ARGS = list(min = 0, max = 1)))
-  expect_is(sobol_sa(fake_abm, inputs, "sq"), "sobol2007")
+  testthat::expect_is(sobol_sa(fake_abm, inputs, "sq"), "sobol2007")
 })
 

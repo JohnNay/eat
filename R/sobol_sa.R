@@ -20,6 +20,7 @@
 #'@param sobol_nboot Optional Numeric vector length one. Default is 1000.
 #'@param iterations Optional numeric vector length one.
 #'@param parallel Optional logical vector length one. Default is FALSE.
+#'@param verbose Optional logical vector.
 #'  
 #'@return Returns a sobol objects that can be plotted by functions
 #'  
@@ -46,7 +47,7 @@
 #' inputs <- lapply(list(param1 = NA, param2 = NA), 
 #'                  function(x) list(random_function = "qunif",
 #'                                   ARGS = list(min = 0, max = 1)))
-#' sobol_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.5 & param2 < 0.5")
+#' sobol_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.1 & param2 < 0.9")
 #' 
 #'@export
 
@@ -57,20 +58,24 @@ sobol_sa <- function(abm,
                      constraints = "none",
                      sobol_nboot = 1000, 
                      iterations = NULL,
-                     parallel = FALSE){
+                     parallel = FALSE,
+                     verbose = TRUE){
   
   # Get names of input factors:
   input_names <- names(input_values)
   
   # Create two samples, removing samples violating constraints, until you have enough:
   input.sets.1 <- create_set(input_values, input_names, sample_count, constraints)
+  if(verbose) cat("Done with input set", 1,"\n")
   input.sets.2 <- create_set(input_values, input_names, sample_count, constraints)
+  if(verbose) cat("Done with input set", 2,"\n")
   
   # Make sets the same size:
   rows <- min(nrow(input.sets.1), nrow(input.sets.2))
   input.sets.1  <- input.sets.1[seq(rows), ]
   input.sets.2  <- input.sets.2[seq(rows), ]
   stopifnot(nrow(input.sets.1) == nrow(input.sets.2) & nrow(input.sets.2) > 0)
+  if(verbose) cat("Done making them same size \n")
   
   ##################################################
   # Simulation runs with generated input factor sets:
@@ -78,7 +83,7 @@ sobol_sa <- function(abm,
   sobol_aggregate <- sensitivity::sobol2007(model = NULL, 
                                             X1 = input.sets.1, X2 = input.sets.2, 
                                             nboot = sobol_nboot)
-  
+  if(verbose) cat("Starting simulations \n")
   # simulation results for input factor sets (as matrix)
   if (parallel) {
     doParallel::registerDoParallel(cores = parallel::detectCores())
@@ -92,6 +97,7 @@ sobol_sa <- function(abm,
       abm(as.numeric(sobol_aggregate$X[i, ]), out = out, iterations = iterations)
     })
   }
+  if(verbose) cat("Done with simulations \n")
   # add simulation results (as vector) to sobol object
   sensitivity::tell(sobol_aggregate, sobol_sim)
   sobol_aggregate

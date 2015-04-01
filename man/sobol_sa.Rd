@@ -5,7 +5,8 @@
 \title{Conduct a Sobol Sensitivity Analysis of a Simulation Model}
 \usage{
 sobol_sa(abm, input_values, out, sample_count = 100, constraints = "none",
-  sobol_nboot = 1000, iterations = NULL, parallel = FALSE)
+  sobol_nboot = 1000, iterations = NULL, parallel = FALSE,
+  verbose = TRUE)
 }
 \arguments{
 \item{abm}{A function that takes as input values for each of the
@@ -29,6 +30,8 @@ that subsets sampled.}
 \item{iterations}{Optional numeric vector length one.}
 
 \item{parallel}{Optional logical vector length one. Default is FALSE.}
+
+\item{verbose}{Optional logical vector.}
 }
 \value{
 Returns a sobol objects that can be plotted by functions
@@ -63,6 +66,6 @@ fake_abm <- function(params, out) {
 inputs <- lapply(list(param1 = NA, param2 = NA),
                  function(x) list(random_function = "qunif",
                                   ARGS = list(min = 0, max = 1)))
-sobol_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.5 & param2 < 0.5")
+sobol_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.1 & param2 < 0.9")
 }
 

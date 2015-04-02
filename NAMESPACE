@@ -3,6 +3,8 @@
 export(create_sample)
 export(create_set)
 export(keep_satisfied)
+export(pc_sa)
+export(plot_pc)
 export(plot_sobol_fo)
 export(plot_sobol_total)
 export(sobol_sa)

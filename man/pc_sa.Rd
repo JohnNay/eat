@@ -37,6 +37,9 @@ parallel::detectCores().}
 \item{verbose}{Optional logical vector.}
 
 \item{rank}{Optional logical vector.}
+
+\item{method}{Optional character vector that is either "src" (Standardized
+ Regression Coefficient) or "pcc" (Partial Correlation Coefficient)}
 }
 \value{
 Returns a sensitivity object that can be plotted by functions.

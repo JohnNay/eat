@@ -20,10 +20,12 @@
 #'@param nboot Optional Numeric vector length one. Default is 1000.
 #'@param iterations Optional numeric vector length one.
 #'@param parallel Optional logical vector length one. Default is FALSE.
-#'@param cores Optional Numeric vector length one. Default is
+#'@param cores Optional Numeric vector length one. Default is 
 #'  parallel::detectCores().
 #'@param verbose Optional logical vector.
 #'@param rank Optional logical vector.
+#'@param method Optional character vector that is either "src" (Standardized
+#'  Regression Coefficient) or "pcc" (Partial Correlation Coefficient)
 #'  
 #'@return Returns a sensitivity object that can be plotted by functions.
 #'  

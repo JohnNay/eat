@@ -3,8 +3,6 @@ correct_bias <- function(x) {
   min_ci <- x[["min. c.i."]]
   max_ci <- x[["max. c.i."]]
   x <- cbind(x_corr = x_corr, min_ci = min_ci, max_ci = max_ci, x)
-  x[x < 0] <- 0
-  x[x > 1] <- 1
   cbind(var = row.names(x), x)
 }
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/sobol_sa_plot.R
 \name{plot_sobol_fo}
 \alias{plot_sobol_fo}
-\title{Plot First-Order Effects from a Sobol Sensitivity Analysis of a Simulation
+\title{Plot First-Order (Main) Effects from a Sobol Sensitivity Analysis of a Simulation
 Model}
 \usage{
 plot_sobol_fo(x, outcome_var = "Outcome")

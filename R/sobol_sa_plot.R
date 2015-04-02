@@ -8,7 +8,7 @@ correct_bias <- function(x) {
   cbind(var = row.names(x), x)
 }
 
-#'Plot First-Order Effects from a Sobol Sensitivity Analysis of a Simulation
+#'Plot First-Order (Main) Effects from a Sobol Sensitivity Analysis of a Simulation
 #'Model
 #'
 #'\code{plot_sobol_fo} plots first-order effects.
@@ -42,7 +42,8 @@ correct_bias <- function(x) {
 plot_sobol_fo <- function(x, outcome_var = "Outcome"){
   ss <- correct_bias(x$S)
   ggplot2::ggplot(ss, ggplot2::aes(x = var, y = x_corr)) + ggplot2::geom_point() +
-    ggplot2::xlab("Variable") + ggplot2::ylab("Estimated Effect") +
+    ggplot2::xlab("Variable") + ggplot2::ylab(
+      paste("Estimated First-Order Percentage Contribution to Variance of", outcome_var)) +
     ggplot2::ggtitle(paste("First Order Effects of Variables on", outcome_var)) +
     ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), width=0.25) +
     ggplot2::ylim(c(0,1))
@@ -82,7 +83,8 @@ plot_sobol_fo <- function(x, outcome_var = "Outcome"){
 plot_sobol_total <- function(x, outcome_var = "Outcome"){
   tt <- correct_bias(x$T)
   ggplot2::ggplot(tt, ggplot2::aes(x = var, y = x_corr)) + ggplot2::geom_point() + 
-    ggplot2::xlab("Variable") + ggplot2::ylab("Estimated Effect") +
+    ggplot2::xlab("Variable") + ggplot2::ylab(
+      paste("Estimated Total Percentage Contribution to Variance of", outcome_var)) +
     ggplot2::ggtitle(paste("Total Sensitivity Effects of Variables on", outcome_var)) +
     ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), width=0.25) + 
     ggplot2::ylim(c(0,1))

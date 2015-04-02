@@ -18,18 +18,19 @@ create_set <- function(input_values, input_names, sample_count, constraints){
   input.sets <- create_sample(input_values, input_names, sample_count)
   
   if(constraints == "none") {
-    constraints <- rep(TRUE, nrow(input.sets))
+    constrained <- rep(TRUE, nrow(input.sets))
   } else {
-    constraints <- with(input.sets, eval(parse(text=constraints)))
+    constrained <- with(input.sets, eval(parse(text=constraints)))
   }
-  input.sets <- keep_satisfied(input.sets, constraints)
+  input.sets <- keep_satisfied(input.sets, constrained)
   
   while(nrow(input.sets) < sample_count) { 
     # Create input factor sets by latin hypercube sampling:
     input.sets <- rbind(input.sets,
                         create_sample(input_values, input_names, sample_count))  
     # Discard input factor sets that violate constraints:
-    input.sets <- keep_satisfied(input.sets, constraints)
+    constrained <- with(input.sets, eval(parse(text=constraints)))
+    input.sets <- keep_satisfied(input.sets, constrained)
   }
   input.sets
 }

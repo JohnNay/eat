@@ -43,5 +43,6 @@ plot_pc <- function(x, outcome_var = "Outcome"){
       paste("Estimated Effect on", outcome_var)) +
     ggplot2::ggtitle(paste("Estimated Effects of Variables on", outcome_var)) +
     ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), width=0.25) +
+    ggplot2::geom_hline(yintercept = 0) +
     ggplot2::ylim(c(-1,1))
 }

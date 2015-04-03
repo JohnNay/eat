@@ -43,7 +43,7 @@ plot_sobol_fo <- function(x, outcome_var = "Outcome"){
   ss <- correct_sobol_bias(x$S)
   ggplot2::ggplot(ss, ggplot2::aes(x = var, y = x_corr)) + ggplot2::geom_point() +
     ggplot2::xlab("Variable") + ggplot2::ylab(
-      paste("Estimated First-Order Percentage Contribution to Variance of", outcome_var)) +
+      paste("Estimated First-Order Contribution to Variance of", outcome_var)) +
     ggplot2::ggtitle(paste("First Order Effects of Variables on", outcome_var)) +
     ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), width=0.25) +
     ggplot2::ylim(c(0,1))
@@ -84,7 +84,7 @@ plot_sobol_total <- function(x, outcome_var = "Outcome"){
   tt <- correct_sobol_bias(x$T)
   ggplot2::ggplot(tt, ggplot2::aes(x = var, y = x_corr)) + ggplot2::geom_point() + 
     ggplot2::xlab("Variable") + ggplot2::ylab(
-      paste("Estimated Total Percentage Contribution to Variance of", outcome_var)) +
+      paste("Estimated Total Contribution to Variance of", outcome_var)) +
     ggplot2::ggtitle(paste("Total Sensitivity Effects of Variables on", outcome_var)) +
     ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), width=0.25) + 
     ggplot2::ylim(c(0,1))
@@ -130,7 +130,7 @@ plot_sobol <- function(x, outcome_var = "Outcome"){
                                       ymax = 1.001)) + 
     ggplot2::geom_point(position = ggplot2::position_dodge(width = 0.5)) +
     ggplot2::xlab("Variable") + ggplot2::ylab(
-      paste("Percent Contribution to Variance of", outcome_var)) +
+      paste("Contribution to Variance of", outcome_var)) +
     ggplot2::ggtitle(paste("First Order and Total Effects of Variables on", outcome_var)) +
     ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), 
                            width=0.5, position = ggplot2::position_dodge(width = 0.5)) + 

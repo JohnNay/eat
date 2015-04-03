@@ -1,4 +1,4 @@
-correct_bias <- function(x) {
+correct_sobol_bias <- function(x) {
   x_corr <- x[["original"]] - x[["bias"]]
   min_ci <- x[["min. c.i."]]
   max_ci <- x[["max. c.i."]]
@@ -40,7 +40,7 @@ correct_bias <- function(x) {
 #'@export
 
 plot_sobol_fo <- function(x, outcome_var = "Outcome"){
-  ss <- correct_bias(x$S)
+  ss <- correct_sobol_bias(x$S)
   ggplot2::ggplot(ss, ggplot2::aes(x = var, y = x_corr)) + ggplot2::geom_point() +
     ggplot2::xlab("Variable") + ggplot2::ylab(
       paste("Estimated First-Order Percentage Contribution to Variance of", outcome_var)) +
@@ -81,7 +81,7 @@ plot_sobol_fo <- function(x, outcome_var = "Outcome"){
 #'@export
 
 plot_sobol_total <- function(x, outcome_var = "Outcome"){
-  tt <- correct_bias(x$T)
+  tt <- correct_sobol_bias(x$T)
   ggplot2::ggplot(tt, ggplot2::aes(x = var, y = x_corr)) + ggplot2::geom_point() + 
     ggplot2::xlab("Variable") + ggplot2::ylab(
       paste("Estimated Total Percentage Contribution to Variance of", outcome_var)) +
@@ -121,8 +121,8 @@ plot_sobol_total <- function(x, outcome_var = "Outcome"){
 #' 
 #'@export
 plot_sobol <- function(x, outcome_var = "Outcome"){
-  ss <- cbind(correct_bias(x$S), Effect = "First Order")
-  tt <- cbind(correct_bias(x$T), Effect = "Total")
+  ss <- cbind(correct_sobol_bias(x$S), Effect = "First Order")
+  tt <- cbind(correct_sobol_bias(x$T), Effect = "Total")
   p_dat <- rbind(ss, tt)
   
   ggplot2::ggplot(p_dat, ggplot2::aes(x = var, y = x_corr, 

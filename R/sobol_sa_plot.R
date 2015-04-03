@@ -126,13 +126,14 @@ plot_sobol <- function(x, outcome_var = "Outcome"){
   p_dat <- rbind(ss, tt)
   
   ggplot2::ggplot(p_dat, ggplot2::aes(x = var, y = x_corr, 
-                                      color = Effect)) + 
-    ggplot2::geom_point() +
+                                      color = Effect,
+                                      ymax = 1.001)) + 
+    ggplot2::geom_point(position = ggplot2::position_dodge(width = 0.5)) +
     ggplot2::xlab("Variable") + ggplot2::ylab(
-      paste("Estimated Percentage Contribution to Variance of", outcome_var)) +
+      paste("Percent Contribution to Variance of", outcome_var)) +
     ggplot2::ggtitle(paste("First Order and Total Effects of Variables on", outcome_var)) +
-    ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci, color = Effect), 
-                           width=0.25) + # position = "dodge", 
+    ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), 
+                           width=0.5, position = ggplot2::position_dodge(width = 0.5)) + 
     ggplot2::ylim(c(0,1)) + 
     ggplot2::theme(legend.justification=c(1,1), legend.position=c(1,1))
 }

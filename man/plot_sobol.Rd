@@ -2,16 +2,20 @@
 % Please edit documentation in R/sobol_sa_plot.R
 \name{plot_sobol}
 \alias{plot_sobol}
-\title{Plot First-Order (Main) Effects and Total Effects from a Sobol Sensitivity Analysis of a Simulation
-Model in the Same Plot}
+\title{Plot First-Order (Main) Effects and Total Effects from a Sobol Sensitivity
+Analysis of a Simulation Model in the Same Plot}
 \usage{
-plot_sobol(x, outcome_var = "Outcome")
+plot_sobol(x, outcome_var = "Outcome", legend_pos = c("topright",
+  "bottomright", "bottomleft", "topleft"))
 }
 \arguments{
 \item{x}{An object created by \code{sobol_sa}. \code{input_values}}
 
 \item{outcome_var}{Optional character vector for labeling the outcome variable
- in the plot. Default is "Outcome".}
+in the plot. Default is "Outcome".}
+
+\item{legend_pos}{Charcter vector that sets the position of the legend to one
+ of: "topright", "bottomright", "bottomleft", or "topleft".}
 }
 \value{
 Returns a ggplot2 plot.

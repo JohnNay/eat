@@ -90,19 +90,21 @@ plot_sobol_total <- function(x, outcome_var = "Outcome"){
     ggplot2::ylim(c(0,1))
 }
 
-#'Plot First-Order (Main) Effects and Total Effects from a Sobol Sensitivity Analysis of a Simulation
-#'Model in the Same Plot
+#'Plot First-Order (Main) Effects and Total Effects from a Sobol Sensitivity
+#'Analysis of a Simulation Model in the Same Plot
 #'
 #'\code{plot_sobol} plots first-order and total effects.
 #'
-#'This is function of the \strong{eat} package. \code{sobol_sa} conducts a
-#'global variance decomposition, and then \code{plot_sobol_fo} can be used to
+#'This is function of the \strong{eat} package. \code{sobol_sa} conducts a 
+#'global variance decomposition, and then \code{plot_sobol_fo} can be used to 
 #'plot it.
 #'
 #'
 #'@param x An object created by \code{sobol_sa}. \code{input_values}
 #'@param outcome_var Optional character vector for labeling the outcome variable
 #'  in the plot. Default is "Outcome".
+#'@param legend_pos Charcter vector that sets the position of the legend to one
+#'  of: "topright", "bottomright", "bottomleft", or "topleft".
 #'  
 #'@return Returns a ggplot2 plot.
 #'  
@@ -120,7 +122,14 @@ plot_sobol_total <- function(x, outcome_var = "Outcome"){
 #' # plot_sobol(s)
 #' 
 #'@export
-plot_sobol <- function(x, outcome_var = "Outcome"){
+plot_sobol <- function(x, outcome_var = "Outcome", 
+                       legend_pos = c("topright", "bottomright", "bottomleft", "topleft")){
+  legend_pos <- match.arg(legend_pos)
+  if(legend_pos == "topright") pos <- c(1,1)
+  if(legend_pos == "bottomright") pos <- c(1,0)
+  if(legend_pos == "bottomleft") pos <- c(0,0)
+  if(legend_pos == "topleft") pos <- c(0,1)
+  
   ss <- cbind(correct_sobol_bias(x$S), Effect = "First Order")
   tt <- cbind(correct_sobol_bias(x$T), Effect = "Total")
   p_dat <- rbind(ss, tt)
@@ -135,5 +144,5 @@ plot_sobol <- function(x, outcome_var = "Outcome"){
     ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), 
                            width=0.5, position = ggplot2::position_dodge(width = 0.5)) + 
     ggplot2::ylim(c(0,1)) + 
-    ggplot2::theme(legend.justification=c(1,1), legend.position=c(1,1))
+    ggplot2::theme(legend.justification = pos, legend.position = pos)
 }

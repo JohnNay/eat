@@ -14,7 +14,7 @@ plot_sobol(x, outcome_var = "Outcome", legend_pos = c("topright",
 \item{outcome_var}{Optional character vector for labeling the outcome variable
 in the plot. Default is "Outcome".}
 
-\item{legend_pos}{Charcter vector that sets the position of the legend to one
+\item{legend_pos}{Character vector that sets the position of the legend to one
  of: "topright", "bottomright", "bottomleft", or "topleft".}
 }
 \value{

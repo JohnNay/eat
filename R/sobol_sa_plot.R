@@ -103,7 +103,7 @@ plot_sobol_total <- function(x, outcome_var = "Outcome"){
 #'@param x An object created by \code{sobol_sa}. \code{input_values}
 #'@param outcome_var Optional character vector for labeling the outcome variable
 #'  in the plot. Default is "Outcome".
-#'@param legend_pos Charcter vector that sets the position of the legend to one
+#'@param legend_pos Character vector that sets the position of the legend to one
 #'  of: "topright", "bottomright", "bottomleft", or "topleft".
 #'  
 #'@return Returns a ggplot2 plot.

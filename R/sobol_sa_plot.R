@@ -140,7 +140,7 @@ plot_sobol <- function(x, outcome_var = "Outcome",
     ggplot2::geom_point(position = ggplot2::position_dodge(width = 0.5)) +
     ggplot2::xlab("Variable") + ggplot2::ylab(
       paste("Contribution to Variance of", outcome_var)) +
-    ggplot2::ggtitle(paste("First Order and Total Effects of Variables on", outcome_var)) +
+    ggplot2::ggtitle(paste("First Order and Total Effects on", outcome_var)) +
     ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), 
                            width=0.5, position = ggplot2::position_dodge(width = 0.5)) + 
     ggplot2::ylim(c(0,1)) + 

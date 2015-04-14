@@ -144,5 +144,8 @@ plot_sobol <- function(x, outcome_var = "Outcome",
     ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), 
                            width=0.5, position = ggplot2::position_dodge(width = 0.5)) + 
     ggplot2::ylim(c(0,1)) + 
-    ggplot2::theme(legend.justification = pos, legend.position = pos)
+    ggplot2::theme_bw() +
+    ggplot2::theme(legend.justification = pos, legend.position = pos, 
+          legend.background = ggplot2::element_rect(fill = "white"),
+          legend.key = ggplot2::element_rect(fill = "white"))
 }

@@ -35,12 +35,12 @@ correct_bias <- function(x) {
 #' 
 #'@export
 
-plot_pc <- function(x, outcome_var = "Outcome"){
+plot_pc <- function(x, outcome_var = "Outcome", 
+                    xlab = "Variable"){
   ss <- correct_bias(x[[7]]) # $SRRC, $SRC, $PRRC, $PRC
   
   ggplot2::ggplot(ss, ggplot2::aes(x = var, y = x_corr)) + ggplot2::geom_point() +
-    ggplot2::xlab("Variable") + ggplot2::ylab(
-      paste("Estimated Effect on", outcome_var)) +
+    ggplot2::xlab(xlab) + ggplot2::ylab("Partial Correlation Coefficient ") +
     ggplot2::ggtitle(paste("Estimated Effects on", outcome_var)) +
     ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), width=0.25) +
     ggplot2::geom_hline(yintercept = 0) +

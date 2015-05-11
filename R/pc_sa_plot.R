@@ -17,6 +17,7 @@ correct_bias <- function(x) {
 #'@param x An object created by \code{pc_sa}. 
 #'@param outcome_var Optional character vector for labeling the outcome variable
 #'  in the plot. Default is "Outcome".
+#'@param xlab Optional character vector for labeling the variables.
 #'  
 #'@return Returns a ggplot2 plot.
 #'  

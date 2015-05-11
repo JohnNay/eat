@@ -5,7 +5,8 @@
 \title{Estimate Agent Model}
 \usage{
 training(trainData, features, Formula, k, sampling = FALSE,
-  package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"))
+  package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
+  parallel = FALSE)
 }
 \arguments{
 \item{trainData}{data.frame dataset with individual decisions.}
@@ -19,6 +20,8 @@ training(trainData, features, Formula, k, sampling = FALSE,
 \item{sampling}{= FALSE}
 
 \item{package}{optional charac vector length one: "caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}
+
+\item{parallel}{= FALSE}
 }
 \value{
 Returns a list.

@@ -8,17 +8,21 @@
 #' @param k numeric vector length one
 #' @param sampling = FALSE
 #' @param package optional charac vector length one: "caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"
+#' @param parallel = FALSE
 #'
 #'@return Returns a list.
 
 training <- function(trainData, features, Formula, k, sampling = FALSE,
-                     package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn")){
+                     package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
+                     parallel = FALSE){
   # sampling == TRUE samples equal numbers of observations from each game structure
   
   package <- match.arg(package)
   
-  num_cores <- parallel::detectCores() - 1
-  doParallel::registerDoParallel(cores = num_cores)
+  if(parallel){
+    num_cores <- parallel::detectCores() - 1
+    doParallel::registerDoParallel(cores = num_cores)
+  }
   
   stopifnot(length(features) == k)
   # TODO: add error checking for terms in Formula == length(features) == k

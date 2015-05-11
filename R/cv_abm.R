@@ -11,7 +11,10 @@
 #' @param features list
 #' @param Formula list
 #' @param k numeric vector length one
-#' @param agg_patterns data.frame
+#' @param agg_patterns data.frame with rows (observational unit being the group)
+#' and columns: (a.) all those needed for the prediction with the specified formula (with same names as the vars in the form) 
+#' (b.) a column named "action" with the proportion of the action taken in that group,
+#'  (c.) columns named paste(seq(tseries_len)) with the mean/median levels (STAT) of the action for each time period.
 #' @param abm_simulate function with model, features, and parameters args
 #' @param tseries_len optional numeric vector length one
 #' @param package optional charac vector length one: "caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"
@@ -31,17 +34,69 @@
 #'@return Returns an S4 object of class cv_abm.
 #'
 #' @examples
-#' # Create data:
-#'cdata <- data.frame(period = rep(1:10, 1000),
-#'                    outcome = rep(1:2, 5000),
+#' # Helper fuction:
+#'period_vec_create <- function(datasubset, periods, 
+#'                              STAT = "mean"){
+#'  period_vec <- rep(NA, length(periods))
+#'  for (i in seq(periods)){
+#'    if (nrow(datasubset[datasubset$period==i, ]) > 0){ 
+#'      period_vec[i] <- do.call(STAT, 
+#'                               list(x = as.numeric(datasubset[datasubset$period==i, which(names(datasubset) %in% "outcome")]), 
+#'                                    na.rm = TRUE))
+#'      # period_vec[i] <- mean(datasubset[datasubset$period==i, which(names(datasubset) %in% "decision_p")], na.rm = TRUE)
+#'    } else{
+#'      period_vec[i] <- NA
+#'    }
+#'  }
+#'  stopifnot(length(period_vec)==periods)
+#'  period_vec
+#'}
+#'# Create data:
+#'cdata <- data.frame(period = rep(seq(10), 1000),
+#'                    outcome = rep(0:1, 5000),
 #'                    my.decision1 = sample(1:0, 10000, TRUE),
-#'                    other.decision1 = sample(1:0, 10000, TRUE))
-#' # Create ABM
-#' simulate_abm <- function(model, features, parameters, tseries_len, noise, threshold = 0.5, iterations = 1250, STAT = "mean"){
-#'  matrixOut <- data.frame()
-#'  list(dynamics = dynamics, action_avg = action_avg, simdata = matrixOut)
-#'  } 
+#'                    other.decision1 = sample(1:0, 10000, TRUE),
+#'                    group = c(rep(1, 5000), rep(2, 5000)))
+#'time_len <- 2
+#'agg_patterns <- data.frame(group = c(1,2),
+#'                           action = c( mean(as.numeric(cdata[cdata$group==1, "outcome"])),
+#'                                       mean(as.numeric(cdata[cdata$group==2, "outcome"]))),
+#'                           c(period_vec_create(cdata[cdata$group==1, ], time_len)[1],
+#'                             period_vec_create(cdata[cdata$group==2, ], time_len)[1]),
+#'                           c(period_vec_create(cdata[cdata$group==1, ], time_len)[2],
+#'                             period_vec_create(cdata[cdata$group==2, ], time_len)[2]))
+#'names(agg_patterns)[3:4] <- c("1", "2")
 #'
+#'# Create ABM:
+#'simulate_abm <- function(model, features, parameters, time_len, noise, 
+#'                         threshold = 0.5, iterations = 1250, STAT = "mean"){
+#'  matrixOut <- data.frame(period = rep(1:10, 1000),
+#'                          outcome = rep(0:1, 5000),
+#'                          my.decision1 = sample(1:0, 10000, TRUE),
+#'                          other.decision1 = sample(1:0, 10000, TRUE))
+#'  action_avg <- mean(matrixOut$outcome, na.rm=TRUE) 
+#'  dynamics <- period_vec_create(matrixOut, time_len)
+#'  list(dynamics = dynamics, action_avg = action_avg, simdata = matrixOut)
+#'} 
+#'# Create features and formula lists:
+#'k <- 1
+#'features <- as.list(rep(NA, k)) # create list to fill
+#'features[[1]] <- c("my.decision1", "other.decision1")
+#'Formula <- as.list(rep(NA, k)) # create list to fill
+#'Formula[[1]] <- "outcome ~ my.decision1 + other.decision1"
+#'# Call cv_abm():
+#'res <- cv_abm(cdata, features, Formula, k, agg_patterns,
+#'              abm_simulate = simulate_abm,
+#'              tseries_len = time_len,
+#'              package = "caretglm",
+#'              sampling = FALSE,
+#'              STAT = "mean",
+#'              saving = FALSE, filename = NULL,
+#'              abm_vars  = list(noise = 0.25, threshold = 0.50),
+#'              validate = c("lgocv"), 
+#'              drop_nzv = FALSE, 
+#'              verbose = TRUE,
+#'              predict_test_par = FALSE)
 #'
 #'@export
 
@@ -78,8 +133,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
   STAT <- match.arg(STAT)
   
   predicted_patterns <- lapply(as.list(rep(NA, max(data$group))), 
-                           function(x) list(predicted=NA, actual=NA, null_model=NA,
-                                            dynamics=rep(NA, tseries_len), simdata=data.frame()))
+                               function(x) list(predicted=NA, actual=NA, null_model=NA,
+                                                dynamics=rep(NA, tseries_len), simdata=data.frame()))
   
   #     group_folds <- sample(seq(folds), length(unique(data$group)), replace=TRUE) # try to allocate each obs to one of k folds
   #     while(length(unique(group_folds)) != folds){
@@ -144,16 +199,18 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     
     if(verbose) cat("Training data has ", nrow(training_data), " rows. And has groups ", sort(unique(training_data$group)), ".\n", sep="")
     msg <- paste0(msg, "Training data has ", nrow(training_data), " rows. And has groups ", sort(unique(training_data$group)), ".\n")
-                  
+    
     model <- training(training_data, features, training_Formula, k, sampling = sampling, package = package) # TRAINING
     
     if(verbose) cat("\nFinished training model on training data (all data but fold ", i, ").\n", sep="")
     msg <- paste0(msg,"\nFinished training model on training data (all data but fold ", i, ").\n")
-                  
+    
     test <- data[data$fold_ass==i, ] # use just i for TESTING
     
     predict_test <- function(noise1, threshold1, par){
-        if (par){
+      if (par){
+        num_cores <- parallel::detectCores() - 1
+        doParallel::registerDoParallel(cores = num_cores)
         
         foreach::`%dopar%`(foreach::foreach(x = sort(unique(data$group))), {
           if (x %in% sort(unique(test$group))){
@@ -183,7 +240,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     
     if(verbose) cat("Test data has ", nrow(test), " rows. And has groups ", sort(unique(test$group)), ".\n", sep="")
     msg <- paste0(msg, "Test data has ", nrow(test), " rows. And has groups ", sort(unique(test$group)), ".\n")
-                  
+    
     stopifnot((nrow(test) + nrow(training_data)) == nrow(data))
     
     if(missing(abm_vars)) {
@@ -216,7 +273,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
         dynamic_action_error <- rep(NA, nrow(agg_patterns))
         for (l in unique(training_data$group)){
           dynamic_action_error[l] <- squared_loss(abm_dynamics[l, ], 
-                                                as.numeric(agg_patterns[l, which(names(agg_patterns) %in% paste(1:tseries_len))]))
+                                                  as.numeric(agg_patterns[l, which(names(agg_patterns) %in% paste(1:tseries_len))]))
         }
         if(any(is.na(dynamic_action_error[-unique(test$group)])))
           stop(paste("Fitness function tried to return an NA value for dynamic action error with param values as", parameter))
@@ -255,13 +312,11 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       
       if(verbose) cat("\nOptimal value of noise is ", solution[1], ". Optimal value of threshold is ", solution[2],".\n", sep="")
       msg <- paste0(msg,"\nOptimal value of noise is ", solution[1], ". Optimal value of threshold is ", solution[2],".\n")
-                    
+      
       # build abm with predictive models trained on all data but i then predict on i data
       if(verbose) cat("Starting to do ABM simulations to predict test data.\n") # TESTING
       msg <- paste0(msg, "Starting to do ABM simulations to predict test data.\n")
       
-      num_cores <- parallel::detectCores() - 1
-      doParallel::registerDoParallel(cores = num_cores)
       predicted_test <- predict_test(noise1 = solution[1], threshold1 = solution[2],
                                      par = predict_test_par)
       
@@ -273,7 +328,6 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       
     } else {
       
-      doParallel::registerDoParallel(cores = parallel::detectCores()-1)
       predicted_test <- predict_test(noise1 = abm_vars$noise, threshold1 = abm_vars$threshold,
                                      par = predict_test_par)
       
@@ -289,7 +343,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     msg <- paste0(msg, "Finished ABM simulations.\n")
     
     for(x in sort(unique(test$group))){
-      predicted_patterns[[x]]$actual <- mean(ifelse(test[test$group==x, ]$my.decision=="action", 1, 0))
+      predicted_patterns[[x]]$actual <- agg_patterns[x, "action"]
       
       if(verbose) cat("Predicted: ", predicted_patterns[[x]]$predicted, ". Actual: ", predicted_patterns[[x]]$actual, ".\n", sep="")
       if(verbose) cat("Predicted Dynamics: ", predicted_patterns[[x]]$dynamics, ".\n Actual Dynamics: ", 

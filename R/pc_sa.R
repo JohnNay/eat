@@ -76,7 +76,7 @@ pc_sa <- function(abm,
   # Get names of input factors:
   input_names <- names(input_values)
   
-  if(parallel==TRUE & missing(cores)) cores <- parallel::detectCores() - 1
+  if(parallel & missing(cores)) cores <- parallel::detectCores() - 1
   
   # Create two samples, removing samples violating constraints, until you have enough:
   input.set <- create_set(input_values, input_names, sample_count, constraints)

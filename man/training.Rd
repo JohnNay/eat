@@ -6,28 +6,36 @@
 \usage{
 training(trainData, features, Formula, k, sampling = FALSE,
   package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
-  parallel = FALSE)
+  parallel = FALSE, cv_type = c("cv", "repeatedcv"))
 }
 \arguments{
-\item{trainData}{data.frame dataset with individual decisions.}
+\item{trainData}{data.frame with each row (obervational unit) being an individual decision. With
+a column called "group" specifying which group of \code{agg_patterns} each obseravtion is in.}
 
-\item{features}{list}
+\item{features}{list of the variables (columns in \code{data}) to be used in the prediction
+\code{Formula}. As many elements in the list (character vectors) as we want discrete models for
+different times.}
 
-\item{Formula}{list}
+\item{Formula}{list of character vectors that specify a formula, e.g. \code{"y ~ x"}, that makes
+sense in the context of the \code{features} and \code{data}. As many elements in the list
+as discrete models for different times.}
 
-\item{k}{numeric vector length one}
+\item{k}{numeric vector length one specifying the number of models for different times.}
 
-\item{sampling}{= FALSE}
+\item{sampling}{optional logical vector length one, default is \code{FALSE}.}
 
-\item{package}{optional charac vector length one: "caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}
+\item{package}{optional character vector length one, default is
+\code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.}
 
-\item{parallel}{= FALSE}
+\item{parallel}{optional logical vector length one, default is \code{FALSE}.}
+
+\item{cv_type}{optional character vector length one, default is \code{c("cv", "repeatedcv")}.}
 }
 \value{
-Returns a list.
+Returns a \code{list} length \code{k}.
 }
 \description{
-\code{training} uses a caret:train algorithm to estimate an
+\code{training} uses a \code{caret::train} or \code{stats::glm} algorithm to estimate an
 individual-level model
 }
 

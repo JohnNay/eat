@@ -10,61 +10,79 @@ cv_abm(data, features, Formula, k, agg_patterns, abm_simulate,
   saving = FALSE, filename = NULL, abm_vars = NULL, abm_optim = c("GA",
   "DE"), validate = c("lgocv", "cv"), folds = ifelse(validate == "lgocv",
   max(data$group), 10), repeat_cv = 1, drop_nzv = TRUE, verbose = TRUE,
-  predict_test_par = FALSE)
+  predict_test_par = FALSE, parallel_training = FALSE)
 }
 \arguments{
-\item{data}{data.frame full dataset with all individual decisions with}
+\item{data}{data.frame with each row (obervational unit) being an individual decision. With
+a column called "group" specifying which group of \code{agg_patterns} each obseravtion is in.}
 
-\item{features}{list}
+\item{features}{list of the variables (columns in \code{data}) to be used in the prediction
+\code{Formula}. As many elements in the list (character vectors) as we want discrete models for
+different times.}
 
-\item{Formula}{list}
+\item{Formula}{list of character vectors that specify a formula, e.g. \code{"y ~ x"}, that makes
+sense in the context of the \code{features} and \code{data}. As many elements in the list
+as discrete models for different times.}
 
-\item{k}{numeric vector length one}
+\item{k}{numeric vector length one specifying the number of models for different times.}
 
-\item{agg_patterns}{data.frame with rows (observational unit being the group)
-and columns: (a.) all those needed for the prediction with the specified formula (with same names as the vars in the form)
-(b.) a column named "action" with the proportion of the action taken in that group,
- (c.) columns named paste(seq(tseries_len)) with the mean/median levels (STAT) of the action for each time period.}
+\item{agg_patterns}{data.frame with rows (observational unit) being the group
+and columns: (a.) those aggregate level variables needed for the prediction with the
+specified \code{formula} (with same names as the variables in the formula); (b.) a column
+named "action" with the proportion of the relevant action taken in that group;
+ (c.) columns named \code{paste(seq(tseries_len))} with the mean/median levels (\code{STAT})
+ of the action for each time period.}
 
-\item{abm_simulate}{function with model, features, and parameters args}
+\item{abm_simulate}{function with model, features, and parameters as arguments. Output of the
+function is a list with three named elements: \code{dynamics, action_avg, simdata}. Where
+\code{dynamics} is a vector length \code{tseries_len}, \code{action_avg} is a vector
+length one, and \code{simdata} is a \code{data.frame}.}
 
-\item{tseries_len}{optional numeric vector length one}
+\item{tseries_len}{optional numeric vector length one specifying how many time periods
+to use for model training and testing.}
 
-\item{package}{optional charac vector length one: "caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}
+\item{package}{optional character vector length one, default is
+\code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.}
 
-\item{sampling}{optional logical vector, FALSE}
+\item{sampling}{optional logical vector length one, default is \code{FALSE}.}
 
-\item{STAT}{optional charac vector length one: "mean", "median"}
+\item{STAT}{optional character vector length one, default is \code{c("mean", "median")}.}
 
-\item{saving}{= FALSE}
+\item{saving}{optional logical vector length one, default is \code{FALSE}.}
 
-\item{filename}{= NULL}
+\item{filename}{optional character vector length one, default is \code{NULL}.}
 
-\item{abm_vars}{a list if not null}
+\item{abm_vars}{a list if not \code{null}.}
 
-\item{abm_optim}{= c("GA", "DE")}
+\item{abm_optim}{optional character vector length one, default is \code{c("GA", "DE")}.}
 
-\item{validate}{= c("lgocv", "cv")}
+\item{validate}{optional character vector length one, default is \code{c("lgocv", "cv")}.}
 
-\item{folds}{= ifelse(validate == "lgocv", max(data$group), 10)}
+\item{folds}{optional numeric vector length one, default is
+\code{ifelse(validate == "lgocv", max(data$group), 10)}.}
 
-\item{repeat_cv}{= 1}
+\item{repeat_cv}{optional numeric vector length one, default is \code{1}.}
 
-\item{drop_nzv}{= TRUE}
+\item{drop_nzv}{optional logical vector length one, default is \code{TRUE}.}
 
-\item{verbose}{= TRUE}
+\item{verbose}{optional logical vector length one, default is \code{TRUE}.}
 
-\item{predict_test_par}{= FALSE}
+\item{predict_test_par}{optional logical vector length one, default is \code{FALSE}.}
+
+\item{parallel_training}{optional logical vector length one, default is \code{FALSE}.
+This is passed to \code{\link{training}}.}
 }
 \value{
-Returns an S4 object of class cv_abm.
+Returns an S4 object of class \linkS4class{cv_abm}. With slots for
+\code{call = "language", predicted_patterns = "list", timing = "numeric", and
+diagnostics = "character"}.
 }
 \description{
 \code{cv_abm} uses cross-validation to test an ABM's predictive power.
 }
 \details{
 The function returns an S4 object.
-See \linkS4class{cv_abm} for the details of the slots
+See \linkS4class{cv_abm} for the details of the \code{slots}
 (objects) that this type of object will have.
 }
 \examples{

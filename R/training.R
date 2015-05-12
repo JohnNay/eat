@@ -1,24 +1,24 @@
 #' Estimate an Agent Model
 #'
-#'\code{training} uses a caret:train algorithm to estimate an
+#'\code{training} uses a \code{caret::train} or \code{stats::glm} algorithm to estimate an
 #' individual-level model
 #'
-#'@param trainData data.frame dataset with individual decisions.
-#' @param features list
-#' @param Formula list
-#' @param k numeric vector length one
-#' @param sampling = FALSE
-#' @param package optional charac vector length one: "caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"
-#' @param parallel = FALSE
+#' @param trainData data.frame with each row (obervational unit) being an individual decision. With 
+#' a column called "group" specifying which group of \code{agg_patterns} each obseravtion is in.
+#' @param parallel optional logical vector length one, default is \code{FALSE}.
+#' @param cv_type optional character vector length one, default is \code{c("cv", "repeatedcv")}.
+#' @inheritParams cv_abm
 #'
-#'@return Returns a list.
+#'@return Returns a \code{list} length \code{k}.
 
 training <- function(trainData, features, Formula, k, sampling = FALSE,
                      package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
-                     parallel = FALSE){
+                     parallel = FALSE,
+                     cv_type = c("cv", "repeatedcv")){
   # sampling == TRUE samples equal numbers of observations from each game structure
   
   package <- match.arg(package)
+  cv_type <- match.arg(cv_type)
   
   if(parallel){
     num_cores <- parallel::detectCores() - 1
@@ -84,7 +84,7 @@ training <- function(trainData, features, Formula, k, sampling = FALSE,
     eGrid <- expand.grid(.alpha = (1:10) * 0.1, 
                          .lambda = seq(2, 0.005, by=-0.01))
     
-    Control <- trainControl(method = "repeatedcv",
+    Control <- caret::trainControl(method = cv_type,
                             repeats = 3,
                             verboseIter =TRUE,
                             allowParallel=TRUE)
@@ -99,7 +99,7 @@ training <- function(trainData, features, Formula, k, sampling = FALSE,
       set.seed(77) # ensures that the same resampling sets are used, facilitates model comparison on the same data
       model[[i]] <- caret::train(
         eval(parse(text=Formula[[i]])), 
-        data=data_use,
+        data = data_use,
         method =  'glmnet',
         family =  "binomial",
         trControl = Control
@@ -119,16 +119,16 @@ training <- function(trainData, features, Formula, k, sampling = FALSE,
                           my.decision = trainData[trainData$period==i, which(names(trainData) %in% c("my.decision"))])
       }
       model[[i]] <- glm(
-        eval(parse(text=Formula[[i]])), family =  binomial(link="logit"), data=data_use
+        eval(parse(text=Formula[[i]])), family = binomial(link="logit"), data = data_use
       )
       cat("Done with", i, "out of", k, "models.\n") 
     }
-  }
+  } 
   ###############################################################################
   ###############################################################################
   if(package=="caretnnet"){
         ctrl <- caret::trainControl(
-          method = "cv", # if we want repeated cv, change this to "repeatedcv"
+          method = cv_type,
           number = 8,
           allowParallel = TRUE,
           verboseIter = TRUE)
@@ -163,7 +163,7 @@ training <- function(trainData, features, Formula, k, sampling = FALSE,
     grid$visible_dropout <- 0
 
     ctrl <- caret::trainControl(
-      method = "cv", # if we want repeated cv, change this to "repeatedcv"
+      method = cv_type,
       number = 10,
       allowParallel = TRUE,
       verboseIter = TRUE)

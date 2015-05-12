@@ -54,11 +54,9 @@ setMethod("show", "cv_abm",
 setMethod("summary", "cv_abm",
                    function(object, digits = 3) {
                      cat("                                    \n")
-                     cat("           CV_ABM Results:          \n")
+                     cat("           Cross Validated Predictions:          \n")
                      cat("                                    \n")
-                     
-                     
-                     
+                     cat(object@diagnostics)
                      invisible(object)
                    }
 )

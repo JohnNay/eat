@@ -3,35 +3,51 @@
 #'\code{cv_abm} uses cross-validation to test an ABM's predictive power.
 #'
 #'The function returns an S4 object.
-#' See \linkS4class{cv_abm} for the details of the slots
+#' See \linkS4class{cv_abm} for the details of the \code{slots}
 #'(objects) that this type of object will have.
 #'
-#'@param data data.frame full dataset with all individual decisions with 
-# a column called "group" specifying which group of agg_patterns each obseravtion is in.
-#' @param features list
-#' @param Formula list
-#' @param k numeric vector length one
-#' @param agg_patterns data.frame with rows (observational unit being the group)
-#' and columns: (a.) all those needed for the prediction with the specified formula (with same names as the vars in the form) 
-#' (b.) a column named "action" with the proportion of the action taken in that group,
-#'  (c.) columns named paste(seq(tseries_len)) with the mean/median levels (STAT) of the action for each time period.
-#' @param abm_simulate function with model, features, and parameters args
-#' @param tseries_len optional numeric vector length one
-#' @param package optional charac vector length one: "caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"
-#' @param sampling optional logical vector, FALSE
-#' @param STAT optional charac vector length one: "mean", "median"
-#' @param saving = FALSE
-#' @param filename = NULL
-#' @param abm_vars a list if not null
-#' @param abm_optim = c("GA", "DE")
-#' @param validate = c("lgocv", "cv")
-#' @param folds = ifelse(validate == "lgocv", max(data$group), 10)
-#' @param repeat_cv = 1
-#' @param drop_nzv = TRUE
-#' @param verbose = TRUE
-#' @param predict_test_par = FALSE
+#' @param data data.frame with each row (obervational unit) being an individual decision. With 
+#' a column called "group" specifying which group of \code{agg_patterns} each obseravtion is in.
+#' @param features list of the variables (columns in \code{data}) to be used in the prediction
+#' \code{Formula}. As many elements in the list (character vectors) as we want discrete models for 
+#' different times.
+#' @param Formula list of character vectors that specify a formula, e.g. \code{"y ~ x"}, that makes
+#' sense in the context of the \code{features} and \code{data}. As many elements in the list 
+#' as discrete models for different times.
+#' @param k numeric vector length one specifying the number of models for different times.
+#' @param agg_patterns data.frame with rows (observational unit) being the group
+#' and columns: (a.) those aggregate level variables needed for the prediction with the 
+#' specified \code{formula} (with same names as the variables in the formula); (b.) a column 
+#' named "action" with the proportion of the relevant action taken in that group;
+#'  (c.) columns named \code{paste(seq(tseries_len))} with the mean/median levels (\code{STAT}) 
+#'  of the action for each time period.
+#' @param abm_simulate function with model, features, and parameters as arguments. Output of the 
+#' function is a list with three named elements: \code{dynamics, action_avg, simdata}. Where
+#' \code{dynamics} is a vector length \code{tseries_len}, \code{action_avg} is a vector
+#' length one, and \code{simdata} is a \code{data.frame}.
+#' @param tseries_len optional numeric vector length one specifying how many time periods
+#' to use for model training and testing.
+#' @param package optional character vector length one, default is 
+#' \code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.
+#' @param sampling optional logical vector length one, default is \code{FALSE}.
+#' @param STAT optional character vector length one, default is \code{c("mean", "median")}.
+#' @param saving optional logical vector length one, default is \code{FALSE}.
+#' @param filename optional character vector length one, default is \code{NULL}.
+#' @param abm_vars a list if not \code{null}.
+#' @param abm_optim optional character vector length one, default is \code{c("GA", "DE")}.
+#' @param validate optional character vector length one, default is \code{c("lgocv", "cv")}.
+#' @param folds optional numeric vector length one, default is 
+#' \code{ifelse(validate == "lgocv", max(data$group), 10)}.
+#' @param repeat_cv optional numeric vector length one, default is \code{1}.
+#' @param drop_nzv optional logical vector length one, default is \code{TRUE}.
+#' @param verbose optional logical vector length one, default is \code{TRUE}.
+#' @param predict_test_par optional logical vector length one, default is \code{FALSE}.
+#' @param parallel_training optional logical vector length one, default is \code{FALSE}.
+#' This is passed to \code{\link{training}}.
 #'
-#'@return Returns an S4 object of class cv_abm.
+#'@return Returns an S4 object of class \linkS4class{cv_abm}. With slots for 
+#'\code{call = "language", predicted_patterns = "list", timing = "numeric", and
+#'diagnostics = "character"}.
 #'
 #' @examples
 #' # Helper fuction:
@@ -115,7 +131,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
                    repeat_cv = 1, # TODO: add repeat_cv functionality
                    drop_nzv = TRUE, 
                    verbose = TRUE,
-                   predict_test_par = FALSE){
+                   predict_test_par = FALSE,
+                   parallel_training = FALSE){
   # sampling == TRUE samples equal numbers of observations from each game structure
   # @agg_patterns data.frame with the global game params for each of the 16 games
   
@@ -201,7 +218,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     if(verbose) cat("Training data has ", nrow(training_data), " rows. And has groups ", sort(unique(training_data$group)), ".\n", sep="")
     msg <- paste0(msg, "Training data has ", nrow(training_data), " rows. And has groups ", sort(unique(training_data$group)), ".\n")
     
-    model <- training(training_data, features, training_Formula, k, sampling = sampling, package = package) # TRAINING
+    model <- training(training_data, features, training_Formula, k, sampling = sampling, package = package,
+                      parallel = parallel_training) # TRAINING
     
     if(verbose) cat("\nFinished training model on training data (all data but fold ", i, ").\n", sep="")
     msg <- paste0(msg,"\nFinished training model on training data (all data but fold ", i, ").\n")

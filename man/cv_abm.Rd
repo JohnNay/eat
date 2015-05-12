@@ -4,11 +4,12 @@
 \alias{cv_abm}
 \title{Estimate and Test an ABM}
 \usage{
-cv_abm(data, features, Formula, k, agg_patterns, abm_simulate,
-  tseries_len = 8, package = c("caretglm", "caretglmnet", "glm",
-  "caretnnet", "caretdnn"), sampling = FALSE, STAT = c("mean", "median"),
-  saving = FALSE, filename = NULL, abm_vars = NULL, abm_optim = c("GA",
-  "DE"), validate = c("lgocv", "cv"), folds = ifelse(validate == "lgocv",
+cv_abm(data, features, Formula, k, agg_patterns, abm_simulate, iters,
+  tseries_len, tp = rep(tseries_len, nrow(agg_patterns)),
+  package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
+  sampling = FALSE, STAT = c("mean", "median"), saving = FALSE,
+  filename = NULL, abm_vars = NULL, abm_optim = c("GA", "DE"),
+  validate = c("lgocv", "cv"), folds = ifelse(validate == "lgocv",
   max(data$group), 10), repeat_cv = 1, drop_nzv = TRUE, verbose = TRUE,
   predict_test_par = FALSE, parallel_training = FALSE)
 }
@@ -38,8 +39,15 @@ function is a list with three named elements: \code{dynamics, action_avg, simdat
 \code{dynamics} is a vector length \code{tseries_len}, \code{action_avg} is a vector
 length one, and \code{simdata} is a \code{data.frame}.}
 
-\item{tseries_len}{optional numeric vector length one specifying how many time periods
-to use for model training and testing.}
+\item{iters}{numeric vector length one specifying number of iterations to simulate ABM for.}
+
+\item{tseries_len}{numeric vector length one specifying maximum number of time periods
+to use for model training and testing. If some groups have less than the maximum then
+you need to provide a vector to the \code{tp} argument.}
+
+\item{tp}{optional numeric vector length number of rows of \code{agg_patterns} specifying how
+long the time series for each group should be. Default is
+\code{rep(tseries_len, nrow(agg_patterns))}.}
 
 \item{package}{optional character vector length one, default is
 \code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.}

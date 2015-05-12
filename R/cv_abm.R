@@ -25,8 +25,13 @@
 #' function is a list with three named elements: \code{dynamics, action_avg, simdata}. Where
 #' \code{dynamics} is a vector length \code{tseries_len}, \code{action_avg} is a vector
 #' length one, and \code{simdata} is a \code{data.frame}.
-#' @param tseries_len optional numeric vector length one specifying how many time periods
-#' to use for model training and testing.
+#' @param iters numeric vector length one specifying number of iterations to simulate ABM for.
+#' @param tseries_len numeric vector length one specifying maximum number of time periods
+#' to use for model training and testing. If some groups have less than the maximum then
+#' you need to provide a vector to the \code{tp} argument.
+#' @param tp optional numeric vector length number of rows of \code{agg_patterns} specifying how
+#' long the time series for each group should be. Default is 
+#' \code{rep(tseries_len, nrow(agg_patterns))}.
 #' @param package optional character vector length one, default is 
 #' \code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.
 #' @param sampling optional logical vector length one, default is \code{FALSE}.
@@ -119,7 +124,9 @@
 
 cv_abm <- function(data, features, Formula, k, agg_patterns,
                    abm_simulate, # function with model, features, and parameters args
-                   tseries_len = 8,
+                   iters,
+                   tseries_len,
+                   tp = rep(tseries_len, nrow(agg_patterns)),
                    package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
                    sampling = FALSE,
                    STAT = c("mean", "median"),
@@ -139,6 +146,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
   # iterations= parameter[1]*15000 inside the fitness() for GA optimization
   # because more noise (parameter[1]), more iterations are needed to determine how good that param set is
   if(saving & missing(filename)) stop("If you are saving the file you need to supply a 'filename'.")
+  stopifnot(length(tp)==nrow(agg_patterns))
   
   msg <- ""
   start_time <- as.numeric(proc.time()[[1]])
@@ -151,7 +159,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
   STAT <- match.arg(STAT)
   
   predicted_patterns <- lapply(as.list(rep(NA, max(data$group))), 
-                               function(x) list(predicted=NA, actual=NA, null_model=NA,
+                               function(x) list(predicted=NA, actual=NA,
                                                 dynamics=rep(NA, tseries_len), simdata=data.frame()))
   
   #     group_folds <- sample(seq(folds), length(unique(data$group)), replace=TRUE) # try to allocate each obs to one of k folds
@@ -235,8 +243,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
           if (x %in% sort(unique(test$group))){
             abm_simulate(model=model, features=features, 
                          parameters=as.numeric(agg_patterns[x, ]), # have to convert df row to numeric vector
-                         time_len = tseries_len,
-                         noise = noise1, threshold = threshold1, iterations=35000,
+                         time_len = tp[x],
+                         noise = noise1, threshold = threshold1, iterations = iters,
                          STAT = STAT)
           } else {
             NA # foreaching through all unique(data$group) so result of predict_test is a list length of number of groups
@@ -247,8 +255,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
           if (x %in% sort(unique(test$group))){
             abm_simulate(model=model, features=features, 
                          parameters=as.numeric(agg_patterns[x, ]), # have to convert df row to numeric vector
-                         time_len = tseries_len,
-                         noise = noise1, threshold = threshold1, iterations=35000,
+                         time_len = tp[x],
+                         noise = noise1, threshold = threshold1, iterations = iters,
                          STAT = STAT)
           } else {
             NA # foreaching through all unique(data$group) so result of predict_test is a list length of number of groups
@@ -274,8 +282,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
         for (u in unique(training_data$group)){ # make prediction for each of the groups 
           abm_results <- abm_simulate(model= model, features = features, 
                                       parameters = as.numeric(agg_patterns[u, ]),
-                                      time_len = tseries_len,
-                                      noise = parameter[1], threshold = parameter[2], iterations = parameter[1]*17000,
+                                      time_len = tp[u],
+                                      noise = parameter[1], threshold = parameter[2], iterations = parameter[1]*iters,
                                       STAT = STAT) 
           if(is.na(abm_results$action_avg)) 
             stop(paste("Fitness function tried to return an NA value for avg action of group", u, "with param values as", parameter))
@@ -283,22 +291,27 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
             stop(paste("Fitness function tried to return an NA value for dynamic action of group", u, 
                        "at time", which(is.na(abm_results$dynamics)) , "with param values as", parameter))
           abm_predicted[u] <- abm_results$action_avg
-          abm_dynamics[u, ] <- abm_results$dynamics
+          abm_dynamics[u, seq(tp[u])] <- abm_results$dynamics
         }
         # leaving out groups in vec unique(test$group) in this comparison because it not used for the training, its the test.
         avg_action_error <- squared_loss(abm_predicted[-unique(test$group)], agg_patterns[-unique(test$group), which(names(agg_patterns) %in% "action")]) 
         if(is.na(avg_action_error)) 
           stop(paste("Fitness function tried to return an NA value for avg action error with param values as", parameter))
         dynamic_action_error <- rep(NA, nrow(agg_patterns))
+        
         for (l in unique(training_data$group)){
-          dynamic_action_error[l] <- squared_loss(abm_dynamics[l, ], 
-                                                  as.numeric(agg_patterns[l, which(names(agg_patterns) %in% paste(1:tseries_len))]))
+          dynamic_action_error[l] <- squared_loss(abm_dynamics[l, seq(tp[l])], 
+                                                  as.numeric(agg_patterns[l, which(names(agg_patterns) %in% paste(seq(tp[l])))]))
         }
+        
         if(any(is.na(dynamic_action_error[-unique(test$group)])))
-          stop(paste("Fitness function tried to return an NA value for dynamic action error with param values as", parameter))
+          stop(paste("Fitness function tried to return an NA value for dynamic action error with param values as", 
+                     paste(parameter, collapse = ", ")))
         result <- -(avg_action_error + mean(dynamic_action_error[-unique(test$group)], na.rm=TRUE)) # MSE of the avg action + mean of the MSE's of the time series of all training data groups
-        if(is.na(result)) stop(paste("Fitness function tried to return an NA value with param values as", parameter))
-        if(length(result) != 1) stop(paste("Fitness function returned a result that is not of length one with param values as", parameter))
+        if(is.na(result)) stop(paste("Fitness function tried to return an NA value with param values as",
+                                     paste(parameter, collapse = ", ")))
+        if(length(result) != 1) stop(paste("Fitness function returned a result that is not of length one with param values as", 
+                                           paste(parameter, collapse = ", ")))
         result
       }
       
@@ -365,15 +378,11 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       predicted_patterns[[x]]$actual <- agg_patterns[x, "action"]
       
       if(verbose) cat("Predicted: ", predicted_patterns[[x]]$predicted, ". Actual: ", predicted_patterns[[x]]$actual, ".\n", sep="")
-      if(verbose) cat("Predicted Dynamics: ", predicted_patterns[[x]]$dynamics, ".\n Actual Dynamics: ", 
-                      as.numeric(agg_patterns[x, which(names(agg_patterns) %in% paste(1:tseries_len))]), ".\n", sep="")
-      if(verbose) cat("Null model predictions.\n")
+      if(verbose) cat("Predicted Dynamics: ", predicted_patterns[[x]]$dynamics[1:tp[x]], ".\n Actual Dynamics: ", 
+                      as.numeric(agg_patterns[x, which(names(agg_patterns) %in% paste(1:(tp[x])))]), ".\n", sep="")
       msg <- paste0(msg, "Predicted: ", predicted_patterns[[x]]$predicted, ". Actual: ", predicted_patterns[[x]]$actual, ".\n",
-                    "Predicted Dynamics: ", paste(predicted_patterns[[x]]$dynamics, collapse = ", "), ".\n Actual Dynamics: ", 
-                    paste(as.numeric(agg_patterns[x, which(names(agg_patterns) %in% paste(1:tseries_len))]), collapse = ", "), ".\n",
-                    "Null model predictions.\n")
-      
-      predicted_patterns[[x]]$null_model <- mean(ifelse(training_data$my.decision=="action", 1, 0))
+                    "Predicted Dynamics: ", paste(predicted_patterns[[x]]$dynamics[1:tp[x]], collapse = ", "), ".\n Actual Dynamics: ", 
+                    paste(as.numeric(agg_patterns[x, which(names(agg_patterns) %in% paste(1:(tp[x])))]), collapse = ", "), ".\n")
     }
     
     if (saving) {

@@ -11,11 +11,11 @@
 #'
 #' @export
 
-setClass("cv_abm",
-         slots = c(call = "language",
-                   predicted_patterns = "list",
-                   timing = "numeric",
-                   diagnostics = "character")
+setClass(Class = "cv_abm",
+                  slots = c(call = "language",
+                            predicted_patterns = "list",
+                            timing = "numeric",
+                            diagnostics = "character")
 )
 
 ################################################################################
@@ -25,7 +25,7 @@ setClass("cv_abm",
 #'  @export
 
 setMethod("print", "cv_abm",
-          function(x, ...) str(x)
+                   function(x, ...) str(x)
 )
 
 ################################################################################
@@ -33,12 +33,12 @@ setMethod("print", "cv_abm",
 #'  @export
 
 setMethod("show", "cv_abm",
-          function(object) {
-                  cat("An object of class \"cv_abm\"\n")
-                  cat("\nCall:\n", deparse(object@call), "\n\n",sep="")
-                  cat("Available slots:\n")
-                  print(slotNames(object))
-          }
+                   function(object) {
+                     cat("An object of class \"cv_abm\"\n")
+                     cat("\nCall:\n", deparse(object@call), "\n\n",sep="")
+                     cat("Available slots:\n")
+                     print(slotNames(object))
+                   }
 )
 
 ################################################################################
@@ -52,13 +52,13 @@ setMethod("show", "cv_abm",
 #'  @export
 
 setMethod("summary", "cv_abm",
-          function(object, digits = 3) {
-                  cat("                                    \n")
-                  cat("           CV_ABM Results:          \n")
-                  cat("                                    \n")
-
-                  
-
-                  invisible(object)
-          }
+                   function(object, digits = 3) {
+                     cat("                                    \n")
+                     cat("           CV_ABM Results:          \n")
+                     cat("                                    \n")
+                     
+                     
+                     
+                     invisible(object)
+                   }
 )

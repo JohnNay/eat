@@ -1,6 +1,7 @@
-#' Estimate Agent Model
+#' Estimate an Agent Model
 #'
-#'\code{training} uses caret to estimate a model
+#'\code{training} uses a caret:train algorithm to estimate an
+#' individual-level model
 #'
 #'@param trainData data.frame dataset with individual decisions.
 #' @param features list

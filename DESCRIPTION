@@ -10,6 +10,7 @@ Description: An R Package for Data-driven Agent-based Modeling.
     eat == Empirical Agent Training.
 Depends:
     R (>= 3.1.1),
+    methods,
     stats
 License: MIT + file LICENSE
 LazyData: true

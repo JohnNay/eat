@@ -131,5 +131,6 @@ res <- cv_abm(cdata, features, Formula, k, agg_patterns,
              drop_nzv = FALSE,
              verbose = TRUE,
              predict_test_par = FALSE)
+cat(res@diagnostics)
 }
 

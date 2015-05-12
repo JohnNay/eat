@@ -97,6 +97,7 @@
 #'              drop_nzv = FALSE, 
 #'              verbose = TRUE,
 #'              predict_test_par = FALSE)
+#'cat(res@@diagnostics)
 #'
 #'@export
 
@@ -145,7 +146,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
   if(length(group_folds) != length(unique(data$group))) stop("Assignment of groups to folds didnt work.")
   if(length(unique(group_folds)) != folds) stop("Assignment of groups to folds didnt work.")
   if(verbose) cat("Group folds:", group_folds ,"\n")
-  msg <- paste0(msg, "Group folds:", group_folds ,"\n")
+  msg <- paste0(msg, "Group folds:", paste(group_folds, collapse = ", "), "\n")
   
   # create a vector same length as data with assignments of each row to a fold:
   fold_ass <- rep(NA, nrow(data))
@@ -166,12 +167,12 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     if (length(nzvs) > 0){
       to_drop <- colnames(training_data)[which(names(training_data) %in% features[[k]])[nzvs]]
       if(verbose) cat("We should be dropping", length(to_drop), "feature(s), which is (are):", to_drop, "\n")
-      msg <- paste0(msg, "We should be dropping", length(to_drop), "feature(s), which is (are):", to_drop, "\n")
+      msg <- paste0(msg, "We should be dropping", length(to_drop), "feature(s), which is (are):", paste(to_drop, collapse = ", "), "\n")
       
       if(drop_nzv){
         # just names in features[[k]] so we dont drop group, folds and training vars
-        if(verbose) cat("Dropping", length(to_drop), "feature(s), which is (are):", to_drop, "\n")
-        msg <- paste0(msg, "Dropping", length(to_drop), "feature(s), which is (are):", to_drop, "\n")
+        if(verbose) cat("Dropping", length(to_drop), "feature(s), which is (are):", paste(to_drop, collapse = ", "), "\n")
+        msg <- paste0(msg, "Dropping", length(to_drop), "feature(s), which is (are):", paste(to_drop, collapse = ", "), "\n")
         
         # TODO: check that the features to be droppped are ACTUALLY IN the formula. If they arent then skip this next expr.
         for (m in seq(k)) {
@@ -350,8 +351,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
                       as.numeric(agg_patterns[x, which(names(agg_patterns) %in% paste(1:tseries_len))]), ".\n", sep="")
       if(verbose) cat("Null model predictions.\n")
       msg <- paste0(msg, "Predicted: ", predicted_patterns[[x]]$predicted, ". Actual: ", predicted_patterns[[x]]$actual, ".\n",
-                    "Predicted Dynamics: ", predicted_patterns[[x]]$dynamics, ".\n Actual Dynamics: ", 
-                    as.numeric(agg_patterns[x, which(names(agg_patterns) %in% paste(1:tseries_len))]), ".\n",
+                    "Predicted Dynamics: ", paste(predicted_patterns[[x]]$dynamics, collapse = ", "), ".\n Actual Dynamics: ", 
+                    paste(as.numeric(agg_patterns[x, which(names(agg_patterns) %in% paste(1:tseries_len))]), collapse = ", "), ".\n",
                     "Null model predictions.\n")
       
       predicted_patterns[[x]]$null_model <- mean(ifelse(training_data$my.decision=="action", 1, 0))

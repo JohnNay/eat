@@ -2,7 +2,7 @@
 % Please edit documentation in R/training.R
 \name{training}
 \alias{training}
-\title{Estimate Agent Model}
+\title{Estimate an Agent Model}
 \usage{
 training(trainData, features, Formula, k, sampling = FALSE,
   package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
@@ -27,6 +27,7 @@ training(trainData, features, Formula, k, sampling = FALSE,
 Returns a list.
 }
 \description{
-\code{training} uses caret to estimate a model
+\code{training} uses a caret:train algorithm to estimate an
+individual-level model
 }
 

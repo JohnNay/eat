@@ -21,10 +21,17 @@
 #' named "action" with the proportion of the relevant action taken in that group;
 #'  (c.) columns named \code{paste(seq(tseries_len))} with the mean/median levels (\code{STAT}) 
 #'  of the action for each time period.
-#' @param abm_simulate function with model, features, and parameters as arguments. Output of the 
-#' function is a list with three named elements: \code{dynamics, action_avg, simdata}. Where
+#' @param abm_simulate function with these arguments: model, features, parameters, tuning_parameters,
+#' iterations, time_len, STAT = c("mean", "median"). Output of thefunction is a list with three named 
+#' elements: \code{dynamics, action_avg, simdata}. Where
 #' \code{dynamics} is a vector length \code{tseries_len}, \code{action_avg} is a vector
 #' length one, and \code{simdata} is a \code{data.frame}.
+#' @param abm_vars a list with either (1.) a numeric vector named "lower" and a numeric vector 
+#' named "upper" each the length of the number of tuning_params of ABM (the names of the elements
+#'  of these vecs should be the names of the variables and they should be in the same order that
+#'  the \code{abm_simulate} function uses them); or (2.) a numeric vector named "value" the 
+#'  length of the number of tuning_params of ABM (variables should be in the same order that
+#'  the \code{abm_simulate} function uses them).
 #' @param iters numeric vector length one specifying number of iterations to simulate ABM for.
 #' @param tseries_len numeric vector length one specifying maximum number of time periods
 #' to use for model training and testing. If some groups have less than the maximum then
@@ -38,7 +45,6 @@
 #' @param STAT optional character vector length one, default is \code{c("mean", "median")}.
 #' @param saving optional logical vector length one, default is \code{FALSE}.
 #' @param filename optional character vector length one, default is \code{NULL}.
-#' @param abm_vars a list if not \code{null}.
 #' @param abm_optim optional character vector length one, default is \code{c("GA", "DE")}.
 #' @param validate optional character vector length one, default is \code{c("lgocv", "cv")}.
 #' @param folds optional numeric vector length one, default is 
@@ -124,6 +130,7 @@
 
 cv_abm <- function(data, features, Formula, k, agg_patterns,
                    abm_simulate, # function with model, features, and parameters args
+                   abm_vars,
                    iters,
                    tseries_len,
                    tp = rep(tseries_len, nrow(agg_patterns)),
@@ -131,7 +138,6 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
                    sampling = FALSE,
                    STAT = c("mean", "median"),
                    saving = FALSE, filename = NULL,
-                   abm_vars  = NULL, # a list if not null
                    abm_optim = c("GA", "DE"), 
                    validate = c("lgocv", "cv"), 
                    folds = ifelse(validate == "lgocv", max(data$group), 10), 
@@ -234,7 +240,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     
     test <- data[data$fold_ass==i, ] # use just i for TESTING
     
-    predict_test <- function(noise1, threshold1, par){
+    predict_test <- function(tuning_params, par){
       if (par){
         num_cores <- parallel::detectCores() - 1
         doParallel::registerDoParallel(cores = num_cores)
@@ -244,7 +250,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
             abm_simulate(model=model, features=features, 
                          parameters=as.numeric(agg_patterns[x, ]), # have to convert df row to numeric vector
                          time_len = tp[x],
-                         noise = noise1, threshold = threshold1, iterations = iters,
+                         tuning_parameters = tuning_params, 
+                         iterations = iters,
                          STAT = STAT)
           } else {
             NA # foreaching through all unique(data$group) so result of predict_test is a list length of number of groups
@@ -256,7 +263,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
             abm_simulate(model=model, features=features, 
                          parameters=as.numeric(agg_patterns[x, ]), # have to convert df row to numeric vector
                          time_len = tp[x],
-                         noise = noise1, threshold = threshold1, iterations = iters,
+                         tuning_parameters = tuning_params,  
+                         iterations = iters,
                          STAT = STAT)
           } else {
             NA # foreaching through all unique(data$group) so result of predict_test is a list length of number of groups
@@ -270,7 +278,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     
     stopifnot((nrow(test) + nrow(training_data)) == nrow(data))
     
-    if(missing(abm_vars)) {
+    if(is.null(abm_vars$value)) {
       if(verbose) cat("Starting to do ABM optimization with training data.\n") # TRAINING
       msg <- paste0(msg, "Starting to do ABM optimization with training data.\n")
       
@@ -282,8 +290,9 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
         for (u in unique(training_data$group)){ # make prediction for each of the groups 
           abm_results <- abm_simulate(model= model, features = features, 
                                       parameters = as.numeric(agg_patterns[u, ]),
+                                      tuning_parameters = parameter,
                                       time_len = tp[u],
-                                      noise = parameter[1], threshold = parameter[2], iterations = parameter[1]*iters,
+                                      iterations = iters,
                                       STAT = STAT) 
           if(is.na(abm_results$action_avg)) 
             stop(paste("Fitness function tried to return an NA value for avg action of group", u, "with param values as", parameter))
@@ -322,15 +331,15 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       
       if(abm_optim == "GA"){
         ga_solution <- GA::ga(type = "real-valued", fitness = fitness,
-                              min = c(0.25, 0.46), max = c(0.35, 0.51),
+                              min = abm_vars$lower, max = abm_vars$upper,
                               popSize = popSize, run = 3, maxfitness = 0,
-                              names = c("noise", "threshold"),
+                              names = names(abm_vars$lower),
                               parallel = TRUE)
         solution <- ga_solution@solution[1, ]
       }
       if(abm_optim == "DE"){
         fitness_min <- function(parameter) -fitness(parameter) # this optimization routine minimizes objective function
-        de_solution <- DEoptim::DEoptim(fitness_min, lower = c(0.2, 0.45), upper = c(0.4, 0.55), 
+        de_solution <- DEoptim::DEoptim(fitness_min, lower = abm_vars$lower, upper = abm_vars$upper, 
                                         control = DEoptim::DEoptim.control(parallelType = 2,
                                                                            foreachArgs = list(.packages = c("caret", "dplyr", "DEoptim"),
                                                                                               .export = c("agg_patterns", "training_data",
@@ -349,7 +358,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       if(verbose) cat("Starting to do ABM simulations to predict test data.\n") # TESTING
       msg <- paste0(msg, "Starting to do ABM simulations to predict test data.\n")
       
-      predicted_test <- predict_test(noise1 = solution[1], threshold1 = solution[2],
+      predicted_test <- predict_test(tuning_params = solution,
                                      par = predict_test_par)
       
       for(x in sort(unique(test$group))){
@@ -360,7 +369,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       
     } else {
       
-      predicted_test <- predict_test(noise1 = abm_vars$noise, threshold1 = abm_vars$threshold,
+      predicted_test <- predict_test(tuning_params = abm_vars$value,
                                      par = predict_test_par)
       
       for(x in sort(unique(test$group))){ 

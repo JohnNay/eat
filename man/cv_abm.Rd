@@ -4,14 +4,14 @@
 \alias{cv_abm}
 \title{Estimate and Test an ABM}
 \usage{
-cv_abm(data, features, Formula, k, agg_patterns, abm_simulate, iters,
+cv_abm(data, features, Formula, k, agg_patterns, abm_simulate, abm_vars, iters,
   tseries_len, tp = rep(tseries_len, nrow(agg_patterns)),
   package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
   sampling = FALSE, STAT = c("mean", "median"), saving = FALSE,
-  filename = NULL, abm_vars = NULL, abm_optim = c("GA", "DE"),
-  validate = c("lgocv", "cv"), folds = ifelse(validate == "lgocv",
-  max(data$group), 10), repeat_cv = 1, drop_nzv = TRUE, verbose = TRUE,
-  predict_test_par = FALSE, parallel_training = FALSE)
+  filename = NULL, abm_optim = c("GA", "DE"), validate = c("lgocv", "cv"),
+  folds = ifelse(validate == "lgocv", max(data$group), 10), repeat_cv = 1,
+  drop_nzv = TRUE, verbose = TRUE, predict_test_par = FALSE,
+  parallel_training = FALSE)
 }
 \arguments{
 \item{data}{data.frame with each row (obervational unit) being an individual decision. With
@@ -34,10 +34,18 @@ named "action" with the proportion of the relevant action taken in that group;
  (c.) columns named \code{paste(seq(tseries_len))} with the mean/median levels (\code{STAT})
  of the action for each time period.}
 
-\item{abm_simulate}{function with model, features, and parameters as arguments. Output of the
-function is a list with three named elements: \code{dynamics, action_avg, simdata}. Where
+\item{abm_simulate}{function with these arguments: model, features, parameters, tuning_parameters,
+iterations, time_len, STAT = c("mean", "median"). Output of thefunction is a list with three named
+elements: \code{dynamics, action_avg, simdata}. Where
 \code{dynamics} is a vector length \code{tseries_len}, \code{action_avg} is a vector
 length one, and \code{simdata} is a \code{data.frame}.}
+
+\item{abm_vars}{a list with either (1.) a numeric vector named "lower" and a numeric vector
+named "upper" each the length of the number of tuning_params of ABM (the names of the elements
+ of these vecs should be the names of the variables and they should be in the same order that
+ the \code{abm_simulate} function uses them); or (2.) a numeric vector named "value" the
+ length of the number of tuning_params of ABM (variables should be in the same order that
+ the \code{abm_simulate} function uses them).}
 
 \item{iters}{numeric vector length one specifying number of iterations to simulate ABM for.}
 
@@ -59,8 +67,6 @@ long the time series for each group should be. Default is
 \item{saving}{optional logical vector length one, default is \code{FALSE}.}
 
 \item{filename}{optional character vector length one, default is \code{NULL}.}
-
-\item{abm_vars}{a list if not \code{null}.}
 
 \item{abm_optim}{optional character vector length one, default is \code{c("GA", "DE")}.}
 

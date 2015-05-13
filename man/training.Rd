@@ -5,6 +5,7 @@
 \title{Estimate an Agent Model}
 \usage{
 training(trainData, features, Formula, k, sampling = FALSE,
+  sampling_size = 1000, outcome_var_name = "my.decision",
   package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
   parallel = FALSE, cv_type = c("cv", "repeatedcv"))
 }
@@ -13,16 +14,26 @@ training(trainData, features, Formula, k, sampling = FALSE,
 a column called "group" specifying which group of \code{agg_patterns} each obseravtion is in.}
 
 \item{features}{list of the variables (columns in \code{data}) to be used in the prediction
-\code{Formula}. As many elements in the list (character vectors) as we want discrete models for
-different times.}
+\code{Formula}. As many elements in the list as we want discrete models for
+different times. Each element of the list is a character vector, with each element of the
+character vector being a feature to use for training an individual-level model.}
 
-\item{Formula}{list of character vectors that specify a formula, e.g. \code{"y ~ x"}, that makes
-sense in the context of the \code{features} and \code{data}. As many elements in the list
-as discrete models for different times.}
+\item{Formula}{list where each element is a length one character vector that specifies
+a formula, e.g. \code{y ~ x}. The character vector makes sense in the context of the
+\code{features} and \code{data}. There are as many elements in the list as there are
+discrete models for different times.}
 
 \item{k}{numeric vector length one specifying the number of models for different times.}
 
 \item{sampling}{optional logical vector length one, default is \code{FALSE}.}
+
+\item{sampling_size}{optional numeric vector length one specifying how many observations
+from each group that \code{\link{training}} should sample to train the model, default is 1000.
+Only applicable when \code{sampling} argument is set to \code{TRUE}.}
+
+\item{outcome_var_name}{optional character vector length one, default is \code{"my.decision"}.
+\code{\link{training}} uses it to sample to train the model with a balanced sampling based
+on \code{outcome_var_name}. Only applicable when \code{sampling} argument is set to \code{TRUE}.}
 
 \item{package}{optional character vector length one, default is
 \code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.}

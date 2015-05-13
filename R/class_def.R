@@ -57,6 +57,8 @@ setMethod("summary", "cv_abm",
                      cat("           Cross Validated Predictions:          \n")
                      cat("                                    \n")
                      cat(object@diagnostics)
+                     
+                     cat("\n\nThis process took", object@timing, "seconds.")
                      invisible(object)
                    }
 )

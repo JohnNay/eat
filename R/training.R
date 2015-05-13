@@ -11,7 +11,8 @@
 #'
 #'@return Returns a \code{list} length \code{k}.
 
-training <- function(trainData, features, Formula, k, sampling = FALSE,
+training <- function(trainData, features, Formula, k, 
+                     sampling = FALSE, sampling_size = 1000, outcome_var_name = "my.decision",
                      package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
                      parallel = FALSE,
                      cv_type = c("cv", "repeatedcv")){
@@ -30,27 +31,26 @@ training <- function(trainData, features, Formula, k, sampling = FALSE,
     
   model <- as.list(rep(NA, k))
   
+  if (sampling){
+    training_index <- TRUE
+    for(i in unique(trainData$group)){
+      prop_for_train <- 1/(nrow(trainData[trainData$group==i, ])/sampling_size)
+      train_index <- caret::createDataPartition(trainData[trainData$group==i, outcome_var_name], 
+                                                p = prop_for_train, list=FALSE)
+      training_index <- append(training_index, seq(nrow(trainData[trainData$group==i, ])) %in% train_index)
+    }
+    training_index <- training_index[-1]
+    trainData <- trainData[training_index, ]
+  }
+  
   ###############################################################################
   ###############################################################################
   if(package=="caretglm"){
     
-    if (sampling == TRUE){
-      training_index <- TRUE
-      for(i in unique(trainData$group)){
-        # prop for training so we have 1000 obs from each group
-        prop_for_train <- 1/(nrow(trainData[trainData$group==i, ])/1000)
-        train_index <- caret::createDataPartition(trainData[trainData$group==i, "my.decision"], 
-                                                  p = prop_for_train, list=FALSE)
-        training_index <- append(training_index, seq(nrow(trainData[trainData$group==i, ])) %in% train_index)
-      }
-      training_index <- training_index[-1]
-      trainData <- trainData[training_index, ]
-    }
-    
     if (k == 1){
       model[[k]] <- caret::train(
         eval(parse(text=Formula[[k]])), 
-        data=trainData,
+        data = trainData,
         method =  'glm',
         family =  binomial(link="logit"),
         trControl = caret::trainControl(method = "none")
@@ -131,7 +131,7 @@ training <- function(trainData, features, Formula, k, sampling = FALSE,
           method = cv_type,
           number = 8,
           allowParallel = TRUE,
-          verboseIter = TRUE)
+          verboseIter = FALSE)
     for( i in seq(k)){
       if(i==k) {
         data_use <- cbind(trainData[trainData$period>=i, which(names(trainData) %in% features[[i]])],

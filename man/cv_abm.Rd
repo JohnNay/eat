@@ -7,23 +7,27 @@
 cv_abm(data, features, Formula, k, agg_patterns, abm_simulate, abm_vars, iters,
   tseries_len, tp = rep(tseries_len, nrow(agg_patterns)),
   package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
-  sampling = FALSE, STAT = c("mean", "median"), saving = FALSE,
-  filename = NULL, abm_optim = c("GA", "DE"), validate = c("lgocv", "cv"),
-  folds = ifelse(validate == "lgocv", max(data$group), 10), repeat_cv = 1,
-  drop_nzv = TRUE, verbose = TRUE, predict_test_par = FALSE,
-  parallel_training = FALSE)
+  sampling = FALSE, sampling_size = 1000,
+  outcome_var_name = "my.decision", STAT = c("mean", "median"),
+  saving = FALSE, filename = NULL, abm_optim = c("GA", "DE"),
+  validate = c("lgocv", "cv"), folds = ifelse(validate == "lgocv",
+  max(data$group), 10), repeat_cv = 1, drop_nzv = TRUE, verbose = TRUE,
+  predict_test_par = FALSE, parallel_training = FALSE)
 }
 \arguments{
 \item{data}{data.frame with each row (obervational unit) being an individual decision. With
-a column called "group" specifying which group of \code{agg_patterns} each obseravtion is in.}
+a column called "group" specifying which group of \code{agg_patterns} each obseravtion is in,
+and a column named "period" specifying at what time period each behavior was taken.}
 
 \item{features}{list of the variables (columns in \code{data}) to be used in the prediction
-\code{Formula}. As many elements in the list (character vectors) as we want discrete models for
-different times.}
+\code{Formula}. As many elements in the list as we want discrete models for
+different times. Each element of the list is a character vector, with each element of the
+character vector being a feature to use for training an individual-level model.}
 
-\item{Formula}{list of character vectors that specify a formula, e.g. \code{"y ~ x"}, that makes
-sense in the context of the \code{features} and \code{data}. As many elements in the list
-as discrete models for different times.}
+\item{Formula}{list where each element is a length one character vector that specifies
+a formula, e.g. \code{y ~ x}. The character vector makes sense in the context of the
+\code{features} and \code{data}. There are as many elements in the list as there are
+discrete models for different times.}
 
 \item{k}{numeric vector length one specifying the number of models for different times.}
 
@@ -35,16 +39,16 @@ named "action" with the proportion of the relevant action taken in that group;
  of the action for each time period.}
 
 \item{abm_simulate}{function with these arguments: model, features, parameters, tuning_parameters,
-iterations, time_len, STAT = c("mean", "median"). Output of thefunction is a list with three named
+iterations, time_len, STAT = c("mean", "median"). Output of the function is a list with three named
 elements: \code{dynamics, action_avg, simdata}. Where
 \code{dynamics} is a vector length \code{tseries_len}, \code{action_avg} is a vector
-length one, and \code{simdata} is a \code{data.frame}.}
+length one, and \code{simdata} is a \code{data.frame} with the results of the simulation.}
 
 \item{abm_vars}{a list with either (1.) a numeric vector named "lower" and a numeric vector
 named "upper" each the length of the number of tuning_params of ABM (the names of the elements
  of these vecs should be the names of the variables and they should be in the same order that
  the \code{abm_simulate} function uses them); or (2.) a numeric vector named "value" the
- length of the number of tuning_params of ABM (variables should be in the same order that
+ length of the number of tuning_params of the ABM (variables should be in the same order that
  the \code{abm_simulate} function uses them).}
 
 \item{iters}{numeric vector length one specifying number of iterations to simulate ABM for.}
@@ -61,6 +65,14 @@ long the time series for each group should be. Default is
 \code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.}
 
 \item{sampling}{optional logical vector length one, default is \code{FALSE}.}
+
+\item{sampling_size}{optional numeric vector length one specifying how many observations
+from each group that \code{\link{training}} should sample to train the model, default is 1000.
+Only applicable when \code{sampling} argument is set to \code{TRUE}.}
+
+\item{outcome_var_name}{optional character vector length one, default is \code{"my.decision"}.
+\code{\link{training}} uses it to sample to train the model with a balanced sampling based
+on \code{outcome_var_name}. Only applicable when \code{sampling} argument is set to \code{TRUE}.}
 
 \item{STAT}{optional character vector length one, default is \code{c("mean", "median")}.}
 
@@ -109,40 +121,41 @@ period_vec_create <- function(datasubset, periods,
      period_vec[i] <- do.call(STAT,
                               list(x = as.numeric(datasubset[datasubset$period==i, which(names(datasubset) \%in\% "outcome")]),
                                    na.rm = TRUE))
-     # period_vec[i] <- mean(datasubset[datasubset$period==i, which(names(datasubset) \%in\% "decision_p")], na.rm = TRUE)
-   } else{
-     period_vec[i] <- NA
-   }
+   # period_vec[i] <- mean(datasubset[datasubset$period==i, which(names(datasubset) \%in\% "decision_p")], na.rm = TRUE)
+ } else{
+   period_vec[i] <- NA
  }
- stopifnot(length(period_vec)==periods)
- period_vec
+}
+stopifnot(length(period_vec)==periods)
+period_vec
 }
 # Create data:
 cdata <- data.frame(period = rep(seq(10), 1000),
                    outcome = rep(0:1, 5000),
-                   my.decision1 = sample(1:0, 10000, TRUE),
-                   other.decision1 = sample(1:0, 10000, TRUE),
-                   group = c(rep(1, 5000), rep(2, 5000)))
+                 my.decision1 = sample(1:0, 10000, TRUE),
+                 other.decision1 = sample(1:0, 10000, TRUE),
+                 group = c(rep(1, 5000), rep(2, 5000)))
 time_len <- 2
 agg_patterns <- data.frame(group = c(1,2),
-                          action = c( mean(as.numeric(cdata[cdata$group==1, "outcome"])),
-                                      mean(as.numeric(cdata[cdata$group==2, "outcome"]))),
-                          c(period_vec_create(cdata[cdata$group==1, ], time_len)[1],
-                            period_vec_create(cdata[cdata$group==2, ], time_len)[1]),
-                          c(period_vec_create(cdata[cdata$group==1, ], time_len)[2],
-                            period_vec_create(cdata[cdata$group==2, ], time_len)[2]))
+                        action = c( mean(as.numeric(cdata[cdata$group==1, "outcome"])),
+                                    mean(as.numeric(cdata[cdata$group==2, "outcome"]))),
+                        c(period_vec_create(cdata[cdata$group==1, ], time_len)[1],
+                          period_vec_create(cdata[cdata$group==2, ], time_len)[1]),
+                        c(period_vec_create(cdata[cdata$group==1, ], time_len)[2],
+                          period_vec_create(cdata[cdata$group==2, ], time_len)[2]))
 names(agg_patterns)[3:4] <- c("1", "2")
 
 # Create ABM:
-simulate_abm <- function(model, features, parameters, time_len, noise,
-                        threshold = 0.5, iterations = 1250, STAT = "mean"){
- matrixOut <- data.frame(period = rep(1:10, 1000),
-                         outcome = rep(0:1, 5000),
-                         my.decision1 = sample(1:0, 10000, TRUE),
-                         other.decision1 = sample(1:0, 10000, TRUE))
- action_avg <- mean(matrixOut$outcome, na.rm=TRUE)
- dynamics <- period_vec_create(matrixOut, time_len)
- list(dynamics = dynamics, action_avg = action_avg, simdata = matrixOut)
+simulate_abm <- function(model, features, parameters, time_len,
+                        tuning_parameters,
+                      iterations = 1250, STAT = "mean"){
+matrixOut <- data.frame(period = rep(1:10, 1000),
+                       outcome = rep(0:1, 5000),
+                       my.decision1 = sample(1:0, 10000, TRUE),
+                       other.decision1 = sample(1:0, 10000, TRUE))
+action_avg <- mean(matrixOut$outcome, na.rm=TRUE)
+dynamics <- period_vec_create(matrixOut, time_len)
+list(dynamics = dynamics, action_avg = action_avg, simdata = matrixOut)
 }
 # Create features and formula lists:
 k <- 1
@@ -153,16 +166,16 @@ Formula[[1]] <- "outcome ~ my.decision1 + other.decision1"
 # Call cv_abm():
 res <- cv_abm(cdata, features, Formula, k, agg_patterns,
              abm_simulate = simulate_abm,
+             abm_vars = list(values = c(0.3, 0.5)),
+             iters = 1000,
              tseries_len = time_len,
+             tp = c(1, 2),
              package = "caretglm",
-             sampling = FALSE,
              STAT = "mean",
              saving = FALSE, filename = NULL,
-             abm_vars  = list(noise = 0.25, threshold = 0.50),
-             validate = c("lgocv"),
+             validate = "lgocv",
              drop_nzv = FALSE,
-             verbose = TRUE,
              predict_test_par = FALSE)
-cat(res@diagnostics)
+summary(res)
 }
 

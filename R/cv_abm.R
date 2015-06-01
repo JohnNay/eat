@@ -168,6 +168,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
   start_time <- as.numeric(proc.time()[[1]])
   call <- match.call()
   
+  # Make sure the 'data' has the features that the formula needs:
+  if (!all(features[[1]] %in% colnames(data))) stop("Not all of the features specified are in the data provided.")
   
   abm_optim <- match.arg(abm_optim)
   validate <- match.arg(validate)
@@ -178,6 +180,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
                                function(x) list(predicted=NA, actual=NA,
                                                 dynamics=rep(NA, tseries_len), simdata=data.frame()))
   
+  # The non-caret version of creating fold assignments:
   #     group_folds <- sample(seq(folds), length(unique(data$group)), replace=TRUE) # try to allocate each obs to one of k folds
   #     while(length(unique(group_folds)) != folds){
   #       group_folds <- sample(seq(folds), length(unique(data$group)), replace=TRUE) # keep trying to allocate each obs to one of k folds
@@ -192,11 +195,11 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
   # create a vector same length as data with assignments of each row to a fold:
   fold_ass <- rep(NA, nrow(data))
   for (s in seq(nrow(data))) fold_ass[s] <- group_folds[data[s, "group"]]
-  if(length(fold_ass) != nrow(data)) stop("Creating a vector same length as data with assignments of each row to a fold didnt work.")
+  if (length(fold_ass) != nrow(data)) stop("Creating a vector same length as data with assignments of each row to a fold didnt work.")
   data <- cbind(data, fold_ass = fold_ass)
   
   # In the ith fold, the elements of folds that equal i are in the test set, and the remainder are in the training set.
-  for(i in seq(folds)){ #for (i in sort(unique(data$group))){
+  for(i in seq(folds)){
     if(verbose) cat("\n--------- + Starting with training data (all data but fold ", i, "). + ---------\n", sep="")
     msg <- paste0(msg, "\n--------- + Starting with training data (all data but fold ", i, "). + ---------\n")
     training_data <- data[data$fold_ass!=i, ] # use all data but i for TRAINING
@@ -210,7 +213,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       if(verbose) cat("We should be dropping", length(to_drop), "feature(s), which is (are):", to_drop, "\n")
       msg <- paste0(msg, "We should be dropping", length(to_drop), "feature(s), which is (are):", paste(to_drop, collapse = ", "), "\n")
       
-      if(drop_nzv){
+      if (drop_nzv){
         # just names in features[[k]] so we dont drop group, folds and training vars
         if(verbose) cat("Dropping", length(to_drop), "feature(s), which is (are):", paste(to_drop, collapse = ", "), "\n")
         msg <- paste0(msg, "Dropping", length(to_drop), "feature(s), which is (are):", paste(to_drop, collapse = ", "), "\n")
@@ -239,7 +242,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       }
     }
     
-    if(verbose) cat("Training data has ", nrow(training_data), " rows. And has groups ", sort(unique(training_data$group)), ".\n", sep="")
+    if (verbose) cat("Training data has ", nrow(training_data), " rows. And has groups ", sort(unique(training_data$group)), ".\n", sep="")
     msg <- paste0(msg, "Training data has ", nrow(training_data), " rows. And has groups ", sort(unique(training_data$group)), ".\n")
     
     model <- training(training_data, features, training_Formula, k, 
@@ -290,8 +293,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     
     stopifnot((nrow(test) + nrow(training_data)) == nrow(data))
     
-    if(is.null(abm_vars$value)) {
-      if(verbose) cat("Starting to do ABM optimization with training data.\n") # TRAINING
+    if (is.null(abm_vars$value)) {
+      if (verbose) cat("Starting to do ABM optimization with training data.\n") # TRAINING
       msg <- paste0(msg, "Starting to do ABM optimization with training data.\n")
       
       squared_loss <- function(x, s) sqrt(mean((x - s)^2, na.rm=TRUE))
@@ -363,17 +366,17 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
         solution <- de_solution$optim$bestmem
       }
       
-      if(verbose) cat("\nOptimal value of noise is ", solution[1], ". Optimal value of threshold is ", solution[2],".\n", sep="")
+      if (verbose) cat("\nOptimal value of noise is ", solution[1], ". Optimal value of threshold is ", solution[2],".\n", sep="")
       msg <- paste0(msg,"\nOptimal value of noise is ", solution[1], ". Optimal value of threshold is ", solution[2],".\n")
       
       # build abm with predictive models trained on all data but i then predict on i data
-      if(verbose) cat("Starting to do ABM simulations to predict test data.\n") # TESTING
+      if (verbose) cat("Starting to do ABM simulations to predict test data.\n") # TESTING
       msg <- paste0(msg, "Starting to do ABM simulations to predict test data.\n")
       
       predicted_test <- predict_test(tuning_params = solution,
                                      par = predict_test_par)
       
-      for(x in sort(unique(test$group))){
+      for (x in sort(unique(test$group))) {
         predicted_patterns[[x]]$predicted <- predicted_test[[x]]$action_avg
         predicted_patterns[[x]]$dynamics <- predicted_test[[x]]$dynamics
         predicted_patterns[[x]]$simdata <- predicted_test[[x]]$simdata
@@ -392,7 +395,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       
     }
     
-    if(verbose) cat("Finished ABM simulations.\n")
+    if (verbose) cat("Finished ABM simulations.\n")
     msg <- paste0(msg, "Finished ABM simulations.\n")
     
     for(x in sort(unique(test$group))){
@@ -407,9 +410,9 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     }
     
     if (saving) {
-      if(verbose) cat("Saving file.\n")
+      if (verbose) cat("Saving file.\n")
       msg <- paste0(msg, "Saving file.\n")
-      save(predicted_patterns, file=filename)
+      save(predicted_patterns, file = filename)
     }
   }
   

@@ -1,5 +1,5 @@
 library(eat)
-context("Sobol SA function")
+context("Test sobol SA function")
 
 testthat::test_that("sobol_sa() returns correct object", {
   fake_abm <- function(params, out) {
@@ -13,4 +13,6 @@ testthat::test_that("sobol_sa() returns correct object", {
                                     ARGS = list(min = 0, max = 1)))
   testthat::expect_is(sobol_sa(fake_abm, inputs, "sq"), "sobol2007")
 })
+
+
 

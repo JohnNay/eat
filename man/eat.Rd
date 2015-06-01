@@ -16,8 +16,7 @@ we have settled on one or a few with good performance:
 \enumerate{
 \item \code{\link{create_sample}}
 \item \code{\link{sobol_sa}}
-\item \code{\link{plot_sobol_fo}}
-\item \code{\link{plot_sobol_total}}
+\item \code{\link{pc_sa}}
 }
 }
 

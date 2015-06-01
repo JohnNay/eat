@@ -34,7 +34,7 @@ discrete models for different times.}
 \item{agg_patterns}{data.frame with rows (observational unit) being the group
 and columns: (a.) those aggregate level variables needed for the prediction with the
 specified \code{formula} (with same names as the variables in the formula); (b.) a column
-named "action" with the proportion of the relevant action taken in that group;
+named "action" with the proportion of the relevant outcome action taken in that group;
  (c.) columns named \code{paste(seq(tseries_len))} with the mean/median levels (\code{STAT})
  of the action for each time period.}
 

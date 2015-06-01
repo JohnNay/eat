@@ -56,6 +56,13 @@
 #'                                   ARGS = list(min = 0, max = 1)))
 #' pc_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.1 & param2 < 0.9")
 #' 
+#' @references 
+#' G. Pujol et al., Sensitivity: Sensitivity Analysis (2014), 
+#' (available at http://cran.r-project.org/web/packages/sensitivity/index.html).
+#' 
+#' A. Saltelli, K. Chan, E. M. Scott, 
+#' Sensitivity Analysis (Wiley, Chichester, 2009).
+#' 
 #'@export
 
 pc_sa <- function(abm, 

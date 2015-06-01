@@ -28,7 +28,7 @@ keep_satisfied(sampled, constraints)
 \item{sampled}{Output of create sample_sample}
 }
 \value{
-Returns a data.frame of samples.
+Returns a \code{data.frame} of samples.
 
 Returns a data.frame of samples.
 
@@ -48,5 +48,12 @@ fake_constraints <- "param1 < 0.5 & param2 > 0.5"
 fake_data <- data.frame(param1 = runif(100), param2 = runif(100))
 fake_constraints <- with(fake_data, eval(parse(text=fake_constraints)))
 keep_satisfied(fake_data, fake_constraints)
+}
+\references{
+B. Beachkofski, R. Grandhi, in 43rd AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics, and Materials Conference
+(American Institute of Aeronautics; Astronautics, 2002; http://arc.aiaa.org/doi/abs/10.2514/6.2002-1274).
+
+ R. Carnell, Lhs Latin Hypercube Samples (2012),
+(available at http://cran.r-project.org/web/packages/lhs/index.html).
 }
 

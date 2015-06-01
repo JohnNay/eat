@@ -11,7 +11,8 @@
 #'  on the variables, and its evaluation results in a Logical vector that that
 #'  subsets sampled.
 #'  
-#'@return Returns a data.frame of samples.
+#'@return Returns a \code{data.frame} of samples.
+#'
 #'@export
 create_set <- function(input_values, input_names, sample_count, constraints){
   
@@ -32,6 +33,7 @@ create_set <- function(input_values, input_names, sample_count, constraints){
     constrained <- with(input.sets, eval(parse(text=constraints)))
     input.sets <- keep_satisfied(input.sets, constrained)
   }
+  
   input.sets
 }
 
@@ -39,7 +41,16 @@ create_set <- function(input_values, input_names, sample_count, constraints){
 #' @describeIn create_set Create a sample.
 #'
 #'@return Returns a data.frame of samples.
+#'
+#'@references
+#'B. Beachkofski, R. Grandhi, in 43rd AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics, and Materials Conference 
+#'(American Institute of Aeronautics; Astronautics, 2002; http://arc.aiaa.org/doi/abs/10.2514/6.2002-1274).
+#'
+#'  R. Carnell, Lhs Latin Hypercube Samples (2012), 
+#' (available at http://cran.r-project.org/web/packages/lhs/index.html).
+#' 
 #'  @export
+
 create_sample <- function(input_values, input_names, sample_count) {
   # will create values from 0 to 1 and must be transformed afterwards, if need be.
   
@@ -52,6 +63,7 @@ create_sample <- function(input_values, input_names, sample_count) {
     input_values[[i]]$ARGS$p <- as.vector(lhs_design[ ,i])
     do.call(input_values[[i]]$random_function, input_values[[i]]$ARGS) # input_values[[i]]$min, input_values[[i]]$max
   })
+  
   names(lhs_design) <- input_names
   data.frame(lhs_design)
 }

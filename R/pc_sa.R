@@ -1,10 +1,26 @@
+# Calculation of R2 for the original data: this function is from:
+# J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models: 
+# A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
+get_rsquare <- function(x, y, on.ranks) {
+  data <- data.frame(Y = y, x)
+  if (on.ranks) {
+    for (i in 1:ncol(data)) {
+      data[,i] <- rank(data[,i])
+    }
+  }
+  i = 1:nrow(data)
+  d <- data[i, ]
+  lm.Y <- stats::lm(formula(paste(colnames(d)[1], "~", paste(colnames(d)[-1], collapse = "+"))), data = d)
+  summary(lm.Y)$r.squared
+}
+
 #'Partial Correlation Analysis of a Simulation Model
 #'
 #'\code{pc_sa} conducts a partial correlation analysis.
 #'
 #'This is function of the \strong{eat} package. It takes an abm in function form
-#'and a list of input values.
-#'
+#'and a list of input values. Helper function for extracting R-sqaured
+#'is from Thiele et al. (2014).
 #'
 #'@param abm A function that takes as input values for each of the 
 #'  \code{input_values}
@@ -63,6 +79,9 @@
 #' A. Saltelli, K. Chan, E. M. Scott, 
 #' Sensitivity Analysis (Wiley, Chichester, 2009).
 #' 
+#' J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models: 
+#' A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
+#' 
 #'@export
 
 pc_sa <- function(abm, 
@@ -79,6 +98,8 @@ pc_sa <- function(abm,
                   method = c("src", "pcc")){
   
   method <- match.arg(method)
+  start_time <- as.numeric(proc.time()[[1]])
+  call <- match.call()
   
   # Get names of input factors:
   input_names <- names(input_values)
@@ -109,11 +130,18 @@ pc_sa <- function(abm,
   
   if (method == "src"){
     result <- sensitivity::src(X = input.set, y = pc_sim, nboot = nboot, rank = rank)
+    r_squared <- get_rsquare(x = input.set, y = pc_sim, 
+                             on.ranks = rank)
   }
   
   if (method == "pcc"){
     result <- sensitivity::pcc(X = input.set, y = pc_sim, nboot = nboot, rank = rank)
+    r_squared <- "Not relevant to this method. Only relevant to the 'src' method."
   }
   
-  result
+  new("pcSA",
+      call = call,
+      result = result, 
+      r_squared = r_squared,
+      timing = as.numeric(proc.time()[[1]]) - start_time)
 }

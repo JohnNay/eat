@@ -50,10 +50,12 @@ fake_constraints <- with(fake_data, eval(parse(text=fake_constraints)))
 keep_satisfied(fake_data, fake_constraints)
 }
 \references{
-B. Beachkofski, R. Grandhi, in 43rd AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics, and Materials Conference
-(American Institute of Aeronautics; Astronautics, 2002; http://arc.aiaa.org/doi/abs/10.2514/6.2002-1274).
+B. Beachkofski, R. Grandhi, in 43rd AIAA/ASME/ASCE/AHS/ASC
+Structures, Structural Dynamics, and Materials Conference (American Institute
+of Aeronautics; Astronautics, 2002;
+http://arc.aiaa.org/doi/abs/10.2514/6.2002-1274).
 
- R. Carnell, Lhs Latin Hypercube Samples (2012),
-(available at http://cran.r-project.org/web/packages/lhs/index.html).
+R. Carnell, Lhs Latin Hypercube Samples (2012), (available at
+http://cran.r-project.org/web/packages/lhs/index.html).
 }
 

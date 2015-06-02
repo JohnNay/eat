@@ -2,11 +2,11 @@ setClassUnion("numericOrchar", members = c("numeric", "character"))
 
 ################################################################################
 #' An S4 class to return the results of sensitivity analyses
-#'
+#' 
 #' @slot call Language from the call of the function \code{\link{cv_abm}}.
 #' @slot result c("src", "pcc") s3 classes from \code{sensitivity} package.
 #' @slot r_squared Numeric vector length one.
-#' @slot timing Numeric vector length one with the total elapsed time it took
+#' @slot timing Numeric vector length one with the total elapsed time it took 
 #'   \code{\link{cv_abm}} to execute.
 #'
 #' @export
@@ -51,13 +51,13 @@ correct_bias <- function(x) {
   cbind(var = row.names(x), x)
 }
 ################################################################################
-#' Plots pcSA S4 object, a Partial Correlation Analysis of a Simulation Model
-#' @describeIn pcSA
-#'
-#'This is function of the \strong{eat} package. \code{pc_sa} conducts a
-#'a partial correlation analysis.
-#'
-#'@param x The result slot of an object created by \code{pc_sa}. 
+#'Plots pcSA S4 object, a Partial Correlation Analysis of a Simulation Model
+#'@describeIn pcSA
+#'  
+#'  This is function of the \strong{eat} package. \code{pc_sa} conducts a a
+#'  partial correlation analysis.
+#'  
+#'@param x The result slot of an object created by \code{pc_sa}.
 #'@param outcome_var Optional character vector for labeling the outcome variable
 #'  in the plot. Default is "Outcome".
 #'@param xlab Optional character vector for labeling the variables.
@@ -77,10 +77,11 @@ correct_bias <- function(x) {
 #' s <- pc_sa(fake_abm, inputs, "sq")
 #' plot(s)
 #' 
-#' @references 
-#' J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models: 
-#' A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
-#' 
+#'@references J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter
+#'Estimation and Sensitivity Analysis of Agent-Based Models: A Cookbook Using
+#'NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11
+#'(2014).
+#'
 #'@export
 
 setMethod("plot", "pcSA",

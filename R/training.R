@@ -1,15 +1,19 @@
-#' Estimate an Agent Model
+#'Estimate an Agent Model
 #'
-#'\code{training} uses a \code{caret::train} or \code{stats::glm} algorithm to estimate an
-#' individual-level model
+#'\code{training} uses a \code{caret::train} or \code{stats::glm} algorithm to 
+#'estimate an individual-level model
 #'
-#' @param trainData data.frame with each row (obervational unit) being an individual decision. With 
-#' a column called "group" specifying which group of \code{agg_patterns} each obseravtion is in.
-#' @param parallel optional logical vector length one, default is \code{FALSE}.
-#' @param cv_type optional character vector length one, default is \code{c("cv", "repeatedcv")}.
-#' @inheritParams cv_abm
-#'
-#'@return Returns a \code{list} length \code{k}.
+#'@param trainData \code{data.frame} with each row (obervational unit) being an 
+#'  individual agent decision. With a column called "group" specifying which 
+#'  group of \code{agg_patterns} each obseravtion is in.
+#'@param parallel optional logical vector length one, default is \code{FALSE}. 
+#'  Uses \code{doParallel::registerDoParallel()}
+#'@param cv_type optional character vector length one, default is \code{c("cv", 
+#'  "repeatedcv")}. Passed on to \code{caret::trainControl()}.
+#'@inheritParams cv_abm
+#'  
+#'@return Returns a \code{list} length \code{k} where each element of the list 
+#'  is an estimated model (estimated agent decision function).
 
 training <- function(trainData, features, Formula, k, 
                      sampling = FALSE, sampling_size = 1000, outcome_var_name = "my.decision",
@@ -109,7 +113,7 @@ training <- function(trainData, features, Formula, k,
   } 
   ###############################################################################
   ###############################################################################
-  if(package=="glm"){ # TODO: add in more methods here
+  if(package=="glm"){
     for( i in seq(k)){
       if(i==k) {
         data_use <- cbind(trainData[trainData$period>=i, which(names(trainData) %in% features[[i]])],

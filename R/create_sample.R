@@ -5,14 +5,14 @@
 #'@param input_values List
 #'@param input_names Character vector
 #'@param sample_count Numeric vector length one.
-#'@param constraints Character vector that is either "none" of is using only
-#'  variable names that are specified in the input_values List argument. This
+#'@param constraints Character vector that is either "none" of is using only 
+#'  variable names that are specified in the input_values List argument. This 
 #'  character vector is evaluated in an environment created for the sampled data
-#'  on the variables, and its evaluation results in a Logical vector that that
+#'  on the variables, and its evaluation results in a Logical vector that that 
 #'  subsets sampled.
 #'  
 #'@return Returns a \code{data.frame} of samples.
-#'
+#'  
 #'@export
 create_set <- function(input_values, input_names, sample_count, constraints){
   
@@ -38,18 +38,19 @@ create_set <- function(input_values, input_names, sample_count, constraints){
 }
 
 ################################################################################
-#' @describeIn create_set Create a sample.
-#'
+#'@describeIn create_set Create a sample.
+#'  
 #'@return Returns a data.frame of samples.
+#'  
+#'@references B. Beachkofski, R. Grandhi, in 43rd AIAA/ASME/ASCE/AHS/ASC
+#'Structures, Structural Dynamics, and Materials Conference (American Institute
+#'of Aeronautics; Astronautics, 2002;
+#'http://arc.aiaa.org/doi/abs/10.2514/6.2002-1274).
 #'
-#'@references
-#'B. Beachkofski, R. Grandhi, in 43rd AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics, and Materials Conference 
-#'(American Institute of Aeronautics; Astronautics, 2002; http://arc.aiaa.org/doi/abs/10.2514/6.2002-1274).
+#'R. Carnell, Lhs Latin Hypercube Samples (2012), (available at
+#'http://cran.r-project.org/web/packages/lhs/index.html).
 #'
-#'  R. Carnell, Lhs Latin Hypercube Samples (2012), 
-#' (available at http://cran.r-project.org/web/packages/lhs/index.html).
-#' 
-#'  @export
+#'@export
 
 create_sample <- function(input_values, input_names, sample_count) {
   # will create values from 0 to 1 and must be transformed afterwards, if need be.
@@ -69,19 +70,19 @@ create_sample <- function(input_values, input_names, sample_count) {
 }
 
 ################################################################################
-#' @describeIn create_set Stay within constraints.
-#'
-#' @param sampled Output of create sample_sample
-#' 
+#'@describeIn create_set Stay within constraints.
+#'  
+#'@param sampled Output of create sample_sample
+#'  
 #'@return Returns a data.frame of samples thats the same or less rows as input.
-#'
+#'  
 #'@examples
 #'fake_constraints <- "param1 < 0.5 & param2 > 0.5"
 #'fake_data <- data.frame(param1 = runif(100), param2 = runif(100))
 #'fake_constraints <- with(fake_data, eval(parse(text=fake_constraints)))
 #'keep_satisfied(fake_data, fake_constraints)
 #'
-#'  @export
+#'@export
 
 keep_satisfied <- function(sampled, constraints){
   result <- data.frame(sampled[constraints, , drop=FALSE])

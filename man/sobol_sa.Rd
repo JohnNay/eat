@@ -72,18 +72,21 @@ inputs <- lapply(list(param1 = NA, param2 = NA),
 sobol_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.1 & param2 < 0.9")
 }
 \references{
-J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models:
-A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
+J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter
+Estimation and Sensitivity Analysis of Agent-Based Models: A Cookbook Using
+NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11
+(2014).
 
-G. Pujol et al., Sensitivity: Sensitivity Analysis (2014),
-(available at http://cran.r-project.org/web/packages/sensitivity/index.html).
+G. Pujol et al., Sensitivity: Sensitivity Analysis (2014), (available at
+http://cran.r-project.org/web/packages/sensitivity/index.html).
 
-I.M. Sobol, S. Tarantola, D. Gatelli, S.S. Kucherenko and W. Mauntz, 2007, Estimating the approximation
-errors when fixing unessential factors in global sensitivity analysis, Reliability Engineering
-and System Safety, 92, 957–960.
+I.M. Sobol, S. Tarantola, D. Gatelli, S.S. Kucherenko and W. Mauntz, 2007,
+Estimating the approximation errors when fixing unessential factors in global
+sensitivity analysis, Reliability Engineering and System Safety, 92, 957–960.
 
-A. Saltelli, P. Annoni, I. Azzini, F. Campolongo, M. Ratto and S. Tarantola, 2010, Variance based
-sensitivity analysis of model output. Design and estimator for the total sensitivity index, Computer
-Physics Communications 181, 259–270.
+A. Saltelli, P. Annoni, I. Azzini, F. Campolongo, M. Ratto and S. Tarantola,
+2010, Variance based sensitivity analysis of model output. Design and
+estimator for the total sensitivity index, Computer Physics Communications
+181, 259–270.
 }
 

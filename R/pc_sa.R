@@ -19,8 +19,8 @@ get_rsquare <- function(x, y, on.ranks) {
 #'\code{pc_sa} conducts a partial correlation analysis.
 #'
 #'This is function of the \strong{eat} package. It takes an abm in function form
-#'and a list of input values. Helper function for extracting R-sqaured
-#'is from Thiele et al. (2014).
+#'and a list of input values. Helper function for extracting R-sqaured is from 
+#'Thiele et al. (2014).
 #'
 #'@param abm A function that takes as input values for each of the 
 #'  \code{input_values}
@@ -40,7 +40,7 @@ get_rsquare <- function(x, y, on.ranks) {
 #'  parallel::detectCores().
 #'@param verbose Optional logical vector.
 #'@param rank Optional logical vector.
-#'@param method Optional character vector that is either "src" (Standardized
+#'@param method Optional character vector that is either "src" (Standardized 
 #'  Regression Coefficient) or "pcc" (Partial Correlation Coefficient)
 #'  
 #'@return Returns a sensitivity object that can be plotted by functions.
@@ -72,16 +72,17 @@ get_rsquare <- function(x, y, on.ranks) {
 #'                                   ARGS = list(min = 0, max = 1)))
 #' pc_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.1 & param2 < 0.9")
 #' 
-#' @references 
-#' G. Pujol et al., Sensitivity: Sensitivity Analysis (2014), 
-#' (available at http://cran.r-project.org/web/packages/sensitivity/index.html).
-#' 
-#' A. Saltelli, K. Chan, E. M. Scott, 
-#' Sensitivity Analysis (Wiley, Chichester, 2009).
-#' 
-#' J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models: 
-#' A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
-#' 
+#'@references G. Pujol et al., Sensitivity: Sensitivity Analysis (2014), 
+#'  (available at
+#'  http://cran.r-project.org/web/packages/sensitivity/index.html).
+#'  
+#'  A. Saltelli, K. Chan, E. M. Scott, Sensitivity Analysis (Wiley, Chichester, 
+#'  2009).
+#'  
+#'  J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and 
+#'  Sensitivity Analysis of Agent-Based Models: A Cookbook Using NetLogo and R. 
+#'  Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
+#'  
 #'@export
 
 pc_sa <- function(abm, 

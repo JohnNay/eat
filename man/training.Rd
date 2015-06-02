@@ -10,43 +10,54 @@ training(trainData, features, Formula, k, sampling = FALSE,
   parallel = FALSE, cv_type = c("cv", "repeatedcv"))
 }
 \arguments{
-\item{trainData}{data.frame with each row (obervational unit) being an individual decision. With
-a column called "group" specifying which group of \code{agg_patterns} each obseravtion is in.}
+\item{trainData}{\code{data.frame} with each row (obervational unit) being an
+individual agent decision. With a column called "group" specifying which
+group of \code{agg_patterns} each obseravtion is in.}
 
-\item{features}{list of the variables (columns in \code{data}) to be used in the prediction
-\code{Formula}. As many elements in the list as we want discrete models for
-different times. Each element of the list is a character vector, with each element of the
-character vector being a feature to use for training an individual-level model.}
+\item{features}{\code{list} of the variables (columns in \code{data}) to be
+used in the prediction \code{Formula}. As many elements in the \code{list}
+as we want discrete models for different times. Each element of the
+\code{list} is a \code{character vector}, with each element of the
+\code{character vector} being a feature to use for training an
+individual-level model.}
 
-\item{Formula}{list where each element is a length one character vector that specifies
-a formula, e.g. \code{y ~ x}. The character vector makes sense in the context of the
-\code{features} and \code{data}. There are as many elements in the list as there are
-discrete models for different times.}
+\item{Formula}{\code{list} where each element is a length one character vector
+that specifies a formula, e.g. \code{y ~ x}. The character vector makes
+sense in the context of the \code{features} and \code{data}. There are as
+many elements in the list as there are discrete models for different times.}
 
-\item{k}{numeric vector length one specifying the number of models for different times.}
+\item{k}{numeric vector length one specifying the number of models for
+different times.}
 
-\item{sampling}{optional logical vector length one, default is \code{FALSE}.}
+\item{sampling}{optional logical vector length one, default is \code{FALSE}.
+If \code{sampling == TRUE}, we sample equal numbers of observations from
+each 'group'.}
 
-\item{sampling_size}{optional numeric vector length one specifying how many observations
-from each group that \code{\link{training}} should sample to train the model, default is 1000.
-Only applicable when \code{sampling} argument is set to \code{TRUE}.}
+\item{sampling_size}{optional numeric vector length one specifying how many
+observations from each group that \code{\link{training}} should sample to
+train the model, default is 1000. Only applicable when \code{sampling}
+argument is set to \code{TRUE}.}
 
-\item{outcome_var_name}{optional character vector length one, default is \code{"my.decision"}.
-\code{\link{training}} uses it to sample to train the model with a balanced sampling based
-on \code{outcome_var_name}. Only applicable when \code{sampling} argument is set to \code{TRUE}.}
+\item{outcome_var_name}{optional character vector length one, default is
+\code{"my.decision"}. \code{\link{training}} uses it to sample to train the
+model with a balanced sampling based on \code{outcome_var_name}. Only
+applicable when \code{sampling} argument is set to \code{TRUE}.}
 
 \item{package}{optional character vector length one, default is
 \code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.}
 
-\item{parallel}{optional logical vector length one, default is \code{FALSE}.}
+\item{parallel}{optional logical vector length one, default is \code{FALSE}.
+Uses \code{doParallel::registerDoParallel()}}
 
-\item{cv_type}{optional character vector length one, default is \code{c("cv", "repeatedcv")}.}
+\item{cv_type}{optional character vector length one, default is \code{c("cv",
+"repeatedcv")}. Passed on to \code{caret::trainControl()}.}
 }
 \value{
-Returns a \code{list} length \code{k}.
+Returns a \code{list} length \code{k} where each element of the list
+ is an estimated model (estimated agent decision function).
 }
 \description{
-\code{training} uses a \code{caret::train} or \code{stats::glm} algorithm to estimate an
-individual-level model
+\code{training} uses a \code{caret::train} or \code{stats::glm} algorithm to
+estimate an individual-level model
 }
 

@@ -40,8 +40,8 @@ Plots pcSA S4 object, a Partial Correlation Analysis of a Simulation Model
 
 \item \code{show}: An S4 method for showing a pcSA S4 object
 
-\item \code{plot}: This is function of the \strong{eat} package. \code{pc_sa} conducts a
-a partial correlation analysis.
+\item \code{plot}: This is function of the \strong{eat} package. \code{pc_sa} conducts a a
+ partial correlation analysis.
 }}
 \section{Slots}{
 
@@ -69,7 +69,9 @@ s <- pc_sa(fake_abm, inputs, "sq")
 plot(s)
 }
 \references{
-J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models:
-A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
+J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter
+Estimation and Sensitivity Analysis of Agent-Based Models: A Cookbook Using
+NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11
+(2014).
 }
 

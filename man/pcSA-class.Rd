@@ -3,7 +3,7 @@
 \docType{class}
 \name{pcSA-class}
 \alias{pcSA-class}
-\alias{plot,pcSA-method}
+\alias{plot,pcSA,ANY-method}
 \alias{print,pcSA-method}
 \alias{show,pcSA-method}
 \title{An S4 class to return the results of sensitivity analyses}
@@ -12,7 +12,8 @@
 
 \S4method{show}{pcSA}(object)
 
-\S4method{plot}{pcSA}(x, outcome_var = "Outcome", xlab = "Variable")
+\S4method{plot}{pcSA,ANY}(x, outcome_var = "Outcome", xlab = "Variable",
+  ylab = "Partial Correlation Coefficient")
 }
 \arguments{
 \item{x}{The result slot of an object created by \code{pc_sa}.}
@@ -25,6 +26,9 @@
 in the plot. Default is "Outcome".}
 
 \item{xlab}{Optional character vector for labeling the variables.}
+
+\item{ylab}{Optional character vector. Default is "Partial Correlation
+ Coefficient".}
 }
 \value{
 Returns a ggplot2 plot.
@@ -70,8 +74,8 @@ plot(s)
 }
 \references{
 J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter
-Estimation and Sensitivity Analysis of Agent-Based Models: A Cookbook Using
-NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11
-(2014).
+ Estimation and Sensitivity Analysis of Agent-Based Models: A Cookbook Using
+ NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11
+ (2014).
 }
 

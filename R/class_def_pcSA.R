@@ -54,13 +54,15 @@ correct_bias <- function(x) {
 #'Plots pcSA S4 object, a Partial Correlation Analysis of a Simulation Model
 #'@describeIn pcSA
 #'  
-#'  This is function of the \strong{eat} package. \code{pc_sa} conducts a a
+#'  This is function of the \strong{eat} package. \code{pc_sa} conducts a a 
 #'  partial correlation analysis.
 #'  
 #'@param x The result slot of an object created by \code{pc_sa}.
 #'@param outcome_var Optional character vector for labeling the outcome variable
 #'  in the plot. Default is "Outcome".
 #'@param xlab Optional character vector for labeling the variables.
+#'@param ylab Optional character vector. Default is "Partial Correlation
+#'  Coefficient".
 #'  
 #'@return Returns a ggplot2 plot.
 #'  
@@ -77,21 +79,21 @@ correct_bias <- function(x) {
 #' s <- pc_sa(fake_abm, inputs, "sq")
 #' plot(s)
 #' 
-#'@references J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter
-#'Estimation and Sensitivity Analysis of Agent-Based Models: A Cookbook Using
-#'NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11
-#'(2014).
-#'
+#'@references J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter 
+#'  Estimation and Sensitivity Analysis of Agent-Based Models: A Cookbook Using 
+#'  NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11
+#'  (2014).
+#'  
 #'@export
 
 setMethod("plot", "pcSA",
           function(x, outcome_var = "Outcome", 
-                   xlab = "Variable"){
+                   xlab = "Variable", ylab = "Partial Correlation Coefficient"){
             x <- x@result
             ss <- correct_bias(x[[7]]) # $SRRC, $SRC, $PRRC, $PRC
             
             ggplot2::ggplot(ss, ggplot2::aes(x = var, y = x_corr)) + ggplot2::geom_point() +
-              ggplot2::xlab(xlab) + ggplot2::ylab("Partial Correlation Coefficient ") +
+              ggplot2::xlab(xlab) + ggplot2::ylab(ylab) +
               ggplot2::ggtitle(paste("Estimated Effects on", outcome_var)) +
               ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), width=0.25) +
               ggplot2::geom_hline(yintercept = 0) +

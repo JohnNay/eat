@@ -5,44 +5,45 @@
 #'The function returns an S4 object. See \linkS4class{cv_abm} for the details of
 #'the \code{slots} (objects) that this type of object will have.
 #'
-#'@param data \code{data.frame} with each row (obervational unit) being an
-#'  individual decision. With a column named "group" specifying which group of
-#'  \code{agg_patterns} each obseravtion is in, and a column named "period"
+#'@param data \code{data.frame} with each row (obervational unit) being an 
+#'  individual decision. With a column named "group" specifying which group of 
+#'  \code{agg_patterns} each obseravtion is in, and a column named "period" 
 #'  specifying at what time period each behavior was taken.
-#'@param features \code{list} of the variables (columns in \code{data}) to be
-#'  used in the prediction \code{Formula}. As many elements in the \code{list}
-#'  as we want discrete models for different times. Each element of the
+#'@param features \code{list} of the variables (columns in \code{data}) to be 
+#'  used in the prediction \code{Formula}. As many elements in the \code{list} 
+#'  as we want discrete models for different times. Each element of the 
 #'  \code{list} is a \code{character vector}, with each element of the 
-#'  \code{character vector} being a feature to use for training an
+#'  \code{character vector} being a feature to use for training an 
 #'  individual-level model.
 #'@param Formula \code{list} where each element is a length one character vector
-#'  that specifies a formula, e.g. \code{y ~ x}. The character vector makes
-#'  sense in the context of the \code{features} and \code{data}. There are as
+#'  that specifies a formula, e.g. \code{y ~ x}. The character vector makes 
+#'  sense in the context of the \code{features} and \code{data}. There are as 
 #'  many elements in the list as there are discrete models for different times.
-#'@param k numeric vector length one specifying the number of models for
+#'@param k numeric vector length one specifying the number of models for 
 #'  different times.
 #'@param agg_patterns data.frame with rows (observational unit) being the group 
-#'  and columns: (a.) those aggregate level variables needed for the prediction
-#'  with the specified \code{formula} (with same names as the variables in the
-#'  formula); (b.) a column named "action" with the proportion of the relevant
-#'  outcome action taken in that group; (c.) columns named
-#'  \code{paste(seq(tseries_len))} with the mean/median levels (\code{STAT}) of
+#'  and columns: (a.) those aggregate level variables needed for the prediction 
+#'  with the specified \code{formula} (with same names as the variables in the 
+#'  formula); (b.) a column named "action" with the proportion of the relevant 
+#'  outcome action taken in that group; (c.) columns named 
+#'  \code{paste(seq(tseries_len))} with the mean/median levels (\code{STAT}) of 
 #'  the action for each time period.
-#'@param abm_simulate function with these arguments: model, features,
-#'  parameters, tuning_parameters, iterations, time_len, STAT = c("mean",
-#'  "median"). Output of the function is a list with three named elements:
-#'  \code{dynamics, action_avg, simdata}. Where \code{dynamics} is a numeric
+#'@param abm_simulate function with these arguments: \code{model, features, 
+#'  parameters, tuning_parameters, iterations, time_len, STAT = c("mean", 
+#'  "median")}. Output of the function is a list with three named elements: 
+#'  \code{dynamics, action_avg, simdata}. Where \code{dynamics} is a numeric 
 #'  vector length \code{tseries_len}, \code{action_avg} is a numeric vector 
-#'  length one, and \code{simdata} is a \code{data.frame} with the numeric
+#'  length one, and \code{simdata} is a \code{data.frame} with the numeric 
 #'  results of the simulation.
-#'@param abm_vars a list with either (1.) a numeric vector named "lower" and a
-#'  numeric vector named "upper" each the length of the number of tuning_params
-#'  of ABM (the names of the elements of these vecs should be the names of the
-#'  variables and they should be in the same order that the \code{abm_simulate}
-#'  function uses them); or (2.) a numeric vector named "value" the length of
-#'  the number of tuning_params of the ABM (variables should be in the same
-#'  order that the \code{abm_simulate} function uses them).
-#'@param iters numeric vector length one specifying number of iterations to
+#'@param abm_vars a list with either (1.) a numeric vector named "lower" AND a 
+#'  numeric vector named "upper" each the length of the number of tuning_params 
+#'  of ABM (the names of the elements of these vecs should be the names of the 
+#'  variables and they should be in the same order that the \code{abm_simulate} 
+#'  function uses them); or (2.) a numeric vector named "value" the length of 
+#'  the number of tuning_params of the ABM (variables should be in the same 
+#'  order that the \code{abm_simulate} function uses them). Either provide lower
+#'  and upper elements of the list or provide a value element of the list.
+#'@param iters numeric vector length one specifying number of iterations to 
 #'  simulate ABM for.
 #'@param tseries_len numeric vector length one specifying maximum number of time
 #'  periods to use for model training and testing. If some groups have less than
@@ -53,37 +54,37 @@
 #'@param package optional character vector length one, default is 
 #'  \code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.
 #'@param sampling optional logical vector length one, default is \code{FALSE}. 
-#'  If \code{sampling == TRUE}, we sample equal numbers of observations from
+#'  If \code{sampling == TRUE}, we sample equal numbers of observations from 
 #'  each 'group'.
-#'@param sampling_size optional numeric vector length one specifying how many
-#'  observations from each group that \code{\link{training}} should sample to
-#'  train the model, default is 1000. Only applicable when \code{sampling}
+#'@param sampling_size optional numeric vector length one specifying how many 
+#'  observations from each group that \code{\link{training}} should sample to 
+#'  train the model, default is 1000. Only applicable when \code{sampling} 
 #'  argument is set to \code{TRUE}.
-#'@param outcome_var_name optional character vector length one, default is
-#'  \code{"my.decision"}. \code{\link{training}} uses it to sample to train the
-#'  model with a balanced sampling based on \code{outcome_var_name}. Only
+#'@param outcome_var_name optional character vector length one, default is 
+#'  \code{"my.decision"}. \code{\link{training}} uses it to sample to train the 
+#'  model with a balanced sampling based on \code{outcome_var_name}. Only 
 #'  applicable when \code{sampling} argument is set to \code{TRUE}.
-#'@param STAT optional character vector length one, default is \code{c("mean",
+#'@param STAT optional character vector length one, default is \code{c("mean", 
 #'  "median")}.
 #'@param saving optional logical vector length one, default is \code{FALSE}.
 #'@param filename optional character vector length one, default is \code{NULL}.
-#'@param abm_optim optional character vector length one, default is
+#'@param abm_optim optional character vector length one, default is 
 #'  \code{c("GA", "DE")}.
-#'@param validate optional character vector length one, default is
+#'@param validate optional character vector length one, default is 
 #'  \code{c("lgocv", "cv")}.
 #'@param folds optional numeric vector length one, default is 
 #'  \code{ifelse(validate == "lgocv", max(data$group), 10)}.
 #'@param drop_nzv optional logical vector length one, default is \code{FALSE}.
 #'@param verbose optional logical vector length one, default is \code{TRUE}.
-#'@param predict_test_par optional logical vector length one, default is
+#'@param predict_test_par optional logical vector length one, default is 
 #'  \code{FALSE}.
-#'@param parallel_training optional logical vector length one, default is
+#'@param parallel_training optional logical vector length one, default is 
 #'  \code{FALSE}. This is passed to \code{\link{training}}.
 #'  
 #'@return Returns an S4 object of class \linkS4class{cv_abm}. With slots for 
-#'  \code{call = "language", predicted_patterns = "list", timing = "numeric",
+#'  \code{call = "language", predicted_patterns = "list", timing = "numeric", 
 #'  and diagnostics = "character"}.
-#'
+#'  
 #' @examples
 #' # Helper fuction:
 #'period_vec_create <- function(datasubset, periods, 
@@ -304,9 +305,13 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     if(verbose) cat("Test data has ", nrow(test), " rows. And has groups ", sort(unique(test$group)), ".\n", sep="")
     msg <- paste0(msg, "Test data has ", nrow(test), " rows. And has groups ", sort(unique(test$group)), ".\n")
     
-    stopifnot((nrow(test) + nrow(training_data)) == nrow(data))
+    if ((nrow(test) + nrow(training_data)) != nrow(data))
+      stop("(nrow(test) + nrow(training_data)) != nrow(data). So, the function did not divide up the data into test and training right.")
     
     if (is.null(abm_vars$value)) {
+      if (is.null(abm_vars$lower) | is.null(abm_vars$upper)) 
+        stop("'abm_vars$lower' and/or 'abm_vars$upper' was NULL (missing) and 'abm_vars$value' was also missing. Either provide lower and upper or provide value.")
+      
       if (verbose) cat("Starting to do ABM optimization with training data.\n") # TRAINING
       msg <- paste0(msg, "Starting to do ABM optimization with training data.\n")
       

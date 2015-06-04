@@ -43,21 +43,22 @@ outcome action taken in that group; (c.) columns named
 \code{paste(seq(tseries_len))} with the mean/median levels (\code{STAT}) of
 the action for each time period.}
 
-\item{abm_simulate}{function with these arguments: model, features,
+\item{abm_simulate}{function with these arguments: \code{model, features,
 parameters, tuning_parameters, iterations, time_len, STAT = c("mean",
-"median"). Output of the function is a list with three named elements:
+"median")}. Output of the function is a list with three named elements:
 \code{dynamics, action_avg, simdata}. Where \code{dynamics} is a numeric
 vector length \code{tseries_len}, \code{action_avg} is a numeric vector
 length one, and \code{simdata} is a \code{data.frame} with the numeric
 results of the simulation.}
 
-\item{abm_vars}{a list with either (1.) a numeric vector named "lower" and a
+\item{abm_vars}{a list with either (1.) a numeric vector named "lower" AND a
 numeric vector named "upper" each the length of the number of tuning_params
 of ABM (the names of the elements of these vecs should be the names of the
 variables and they should be in the same order that the \code{abm_simulate}
 function uses them); or (2.) a numeric vector named "value" the length of
 the number of tuning_params of the ABM (variables should be in the same
-order that the \code{abm_simulate} function uses them).}
+order that the \code{abm_simulate} function uses them). Either provide lower
+and upper elements of the list or provide a value element of the list.}
 
 \item{iters}{numeric vector length one specifying number of iterations to
 simulate ABM for.}

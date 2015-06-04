@@ -29,8 +29,8 @@ in the plot. Default is "Outcome".}
 \item{legend_pos}{Character vector that sets the position of the legend to one
 of: "topright", "bottomright", "bottomleft", or "topleft".}
 
-\item{ptype}{Optional Character vector for first order, total, or all
- effects c("all", "fo", "total").}
+\item{ptype}{Optional Character vector for first order, total, or all effects
+ c("all", "fo", "total").}
 }
 \value{
 Returns a ggplot2 plot.
@@ -47,11 +47,11 @@ Plots pcSobol S4 object
 \item \code{show}: An S4 method for showing a pcSobol S4 object
 
 \item \code{plot}: Plot First-Order (Main) Effects and Total Effects from a Sobol Sensitivity
-Analysis of a Simulation Model in the Same Plot
+ Analysis of a Simulation Model in the Same Plot
 
 
-This is function of the \strong{eat} package. \code{sobol_sa} conducts a
-global variance decomposition, and then this can be used to plot it.
+ This is function of the \strong{eat} package. \code{sobol_sa} conducts a
+ global variance decomposition, and then this can be used to plot it.
 }}
 \section{Slots}{
 
@@ -77,7 +77,9 @@ s <- sobol_sa(fake_abm, inputs, "sq")
 plot(s)
 }
 \references{
-J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models:
-A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
+J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter
+Estimation and Sensitivity Analysis of Agent-Based Models: A Cookbook Using
+NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11
+(2014).
 }
 

@@ -12,10 +12,10 @@ setClassUnion("numericOrchar", members = c("numeric", "character"))
 #' @export
 
 setClass(Class = "pcSA",
-                  slots = c(call = "language",
-                            result = "ANY", # "pcsens"
-                            r_squared = "numericOrchar",
-                            timing = "numeric")
+         slots = c(call = "language",
+                   result = "ANY", # "pcsens"
+                   r_squared = "numericOrchar",
+                   timing = "numeric")
 )
 
 ################################################################################
@@ -24,7 +24,7 @@ setClass(Class = "pcSA",
 #'  @export
 
 setMethod("print", "pcSA",
-                   function(x, ...) str(x)
+          function(x, ...) str(x)
 )
 
 ################################################################################
@@ -34,12 +34,12 @@ setMethod("print", "pcSA",
 #'  @export
 
 setMethod("show", "pcSA",
-                   function(object) {
-                     cat("An object of class \"pcSA\"\n")
-                     cat("\nCall:\n", deparse(object@call), "\n\n",sep="")
-                     cat("Available slots:\n")
-                     print(slotNames(object))
-                   }
+          function(object) {
+            cat("An object of class \"pcSA\"\n")
+            cat("\nCall:\n", deparse(object@call), "\n\n",sep="")
+            cat("Available slots:\n")
+            print(slotNames(object))
+          }
 )
 
 
@@ -61,8 +61,9 @@ correct_bias <- function(x) {
 #'@param outcome_var Optional character vector for labeling the outcome variable
 #'  in the plot. Default is "Outcome".
 #'@param xlab Optional character vector for labeling the variables.
-#'@param ylab Optional character vector. Default is "Partial Correlation
-#'  Coefficient".
+#'@param ylab Optional character vector. Default is "Partial Rank Correlation
+#'  Coefficient". Could also be "Partial Correlation Coefficient", "Standardized
+#'  Rank Regression Coefficient", and "Standardized Regression Coefficient".
 #'  
 #'@return Returns a ggplot2 plot.
 #'  
@@ -88,9 +89,9 @@ correct_bias <- function(x) {
 
 setMethod("plot", "pcSA",
           function(x, outcome_var = "Outcome", 
-                   xlab = "Variable", ylab = "Partial Correlation Coefficient"){
+                   xlab = "Variable", ylab = "Partial Rank Correlation Coefficient"){
             x <- x@result
-            ss <- correct_bias(x[[7]]) # $SRRC, $SRC, $PRRC, $PRC
+            ss <- correct_bias(x[[7]]) # $SRRC, $SRC, $PRCC, $PCC
             
             ggplot2::ggplot(ss, ggplot2::aes(x = var, y = x_corr)) + ggplot2::geom_point() +
               ggplot2::xlab(xlab) + ggplot2::ylab(ylab) +

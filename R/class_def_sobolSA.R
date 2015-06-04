@@ -1,40 +1,40 @@
 ################################################################################
 #' An S4 class to return the results of sensitivity analyses
-#'
+#' 
 #' @slot call Language from the call of the function \code{\link{cv_abm}}.
 #' @slot result sobol2007 s3 class from \code{sensitivity} package.
-#' @slot timing Numeric vector length one with the total elapsed time it took
+#' @slot timing Numeric vector length one with the total elapsed time it took 
 #'   \code{\link{cv_abm}} to execute.
-#'
+#'   
 #' @export
 
 setClass(Class = "pcSobol",
-                  slots = c(call = "language",
-                            result = "ANY", # "sobol2007"
-                            timing = "numeric")
+         slots = c(call = "language",
+                   result = "ANY", # "sobol2007"
+                   timing = "numeric")
 )
 
 ################################################################################
 #' @describeIn pcSobol An S4 method for printing a pcSobol S4 object
 #' @param ... ignored
-#'  @export
+#' @export
 
 setMethod("print", "pcSobol",
-                   function(x, ...) str(x)
+          function(x, ...) str(x)
 )
 
 ################################################################################
 #' @describeIn pcSobol An S4 method for showing a pcSobol S4 object
 #' @param object S4 pcSA object
-#'  @export
+#' @export
 
 setMethod("show", "pcSobol",
-                   function(object) {
-                     cat("An object of class \"pcSA\"\n")
-                     cat("\nCall:\n", deparse(object@call), "\n\n",sep="")
-                     cat("Available slots:\n")
-                     print(slotNames(object))
-                   }
+          function(object) {
+            cat("An object of class \"pcSA\"\n")
+            cat("\nCall:\n", deparse(object@call), "\n\n",sep="")
+            cat("Available slots:\n")
+            print(slotNames(object))
+          }
 )
 
 correct_sobol_bias <- function(x) {
@@ -47,23 +47,23 @@ correct_sobol_bias <- function(x) {
   cbind(var = row.names(x), x)
 }
 ################################################################################
-#' Plots pcSobol S4 object
-#' @describeIn pcSobol
-#' 
-#'Plot First-Order (Main) Effects and Total Effects from a Sobol Sensitivity
-#'Analysis of a Simulation Model in the Same Plot
-#'
-#'
-#'This is function of the \strong{eat} package. \code{sobol_sa} conducts a 
-#'global variance decomposition, and then this can be used to plot it.
-#'
+#'Plots pcSobol S4 object
+#'@describeIn pcSobol
+#'  
+#'  Plot First-Order (Main) Effects and Total Effects from a Sobol Sensitivity 
+#'  Analysis of a Simulation Model in the Same Plot
+#'  
+#'  
+#'  This is function of the \strong{eat} package. \code{sobol_sa} conducts a 
+#'  global variance decomposition, and then this can be used to plot it.
+#'  
 #'@param x The result slot of an object created by \code{sobol_sa}.
 #'@param outcome_var Optional character vector for labeling the outcome variable
 #'  in the plot. Default is "Outcome".
 #'@param legend_pos Character vector that sets the position of the legend to one
 #'  of: "topright", "bottomright", "bottomleft", or "topleft".
-#'  @param ptype Optional Character vector for first order, total, or all
-#'  effects c("all", "fo", "total").
+#'@param ptype Optional Character vector for first order, total, or all effects
+#'  c("all", "fo", "total").
 #'  
 #'@return Returns a ggplot2 plot.
 #'  
@@ -80,10 +80,11 @@ correct_sobol_bias <- function(x) {
 #' s <- sobol_sa(fake_abm, inputs, "sq")
 #' plot(s)
 #' 
-#' @references 
-#' J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models: 
-#' A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
-#' 
+#'@references J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter
+#'Estimation and Sensitivity Analysis of Agent-Based Models: A Cookbook Using
+#'NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11
+#'(2014).
+#'
 #'@export
 
 setMethod("plot", "pcSobol",

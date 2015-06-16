@@ -166,20 +166,14 @@ setMethod("performance", "cv_abm",
 setMethod("plot", "cv_abm",
           function(x, y, ncol = 4){
             x <- performance(x, output = "plot")
-            ggplot2::ggplot(data = x, ggplot2::aes(x = Time, y = Action, color = Model)) +
+            ggplot2::ggplot(data = x, 
+                            ggplot2::aes(x = Time, y = Action, color = Model)) +
               ggplot2::geom_line(ggplot2::aes(linetype = Model), size = 1) + # stat="smooth", method = "loess", fill=NA, alpha=0.5
               ggplot2::scale_linetype_manual(values=c("solid", "dashed")) + # Change linetypes so predicted is solid and actual is dashed
               ggplot2::facet_wrap(~cors, ncol = ncol) +
               ggplot2::scale_y_continuous(limits=c(0, 1)) +
-              #ggtitle(paste("Predicted and Actual Cooperation Dynamics in", nrow(patterns), "Game Designs")) +
               ggplot2::ylab("") + ggplot2::xlab("") +
               ggplot2::theme_bw() +
-              ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size=5))) + 
-              # Put bottom-right corner of legend box in bottom-right corner of graph
-              ggplot2::theme(legend.justification=c(1,0), legend.position=c(1,0), 
-                    legend.title = ggplot2::element_blank(), 
-                    legend.text = ggplot2::element_text(size = 30),
-                    legend.background = ggplot2::element_rect(fill = "white"),
-                    legend.key = ggplot2::element_rect(fill = "white"),
-                    axis.text = ggplot2::element_text(size=18))
+              ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size=5)))
           })
+

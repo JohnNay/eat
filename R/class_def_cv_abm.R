@@ -62,3 +62,124 @@ setMethod("summary", "cv_abm",
                      invisible(object)
                    }
 )
+
+
+squared_loss <- function(x, s) sqrt(mean((x - s)^2))
+
+################################################################################
+#' Turns cv_abm S4 object into useful outputs for summary or plotting.
+#'   
+#' @param results S4 cv_abm object
+#' @param output Optional character vector length one indicating what the
+#'   desired output is, must be one of: \code{c("MSE", "cor", "cor_pval", "SE",
+#'   "plot")}.
+#'   
+#' @export
+
+setGeneric("performance", function(results, output = c("MSE", "cor", "cor_pval", "SE",
+                                                       "plot")){
+  standardGeneric("performance")
+})
+
+################################################################################
+#' Turns cv_abm S4 object into useful outputs for summary or plotting.
+#' @describeIn cv_abm An S4 method for summarizing a cv_abm S4 object
+#'   
+#' @param results S4 cv_abm object
+#' @param output Optional character vector length one indicating what the
+#'   desired output is, must be one of: \code{c("MSE", "cor", "cor_pval", "SE",
+#'   "plot")}.
+#'   
+#' @export
+setMethod("performance", "cv_abm",
+          function(results, 
+                   output = c("MSE", "cor", "cor_pval", "SE",
+                              "plot")){
+            output <- match.arg(output)
+            tp <- eval(results@call$tp)
+            patterns <- eval(results@call$agg_patterns)
+            # extract the relevant results from the cv_abm object
+            results <- results@predicted_patterns
+            
+            rgames <- rep(NA, sum(tp))
+            sgames <- rep(NA, sum(tp))
+            Time <- rep(NA, sum(tp))
+            Group <- rep(NA, sum(tp))
+            cors <- rep(NA, sum(tp))
+            missings <- 0
+            
+            for(i in seq(nrow(patterns))){
+              index <- sum(c(0,tp)[1:i]) + 1
+              rgames[index:(index + tp[i] - 1)] <- as.numeric(patterns[i, which(names(patterns) %in% paste(seq(tp[i])))])
+              sgames[index:(index + tp[i] - 1)] <- results[[i]]$dynamics[seq(tp[i])]
+              Time[index:(index + tp[i] - 1)] <- seq(tp[i])
+              Group[index:(index + tp[i] - 1)] <- i
+              # make all simulated time period results NA that are NA in the data patterns
+              if (any(is.na(rgames[index:(index + tp[i] - 1)]))){
+                missings <- missings + sum(is.na(rgames[index:(index + tp[i] - 1)]))
+                sgames[index:(index + tp[i] - 1)][is.na(rgames[index:(index + tp[i] - 1)])] <- NA
+                Time[index:(index + tp[i] - 1)][is.na(rgames[index:(index + tp[i] - 1)])] <- NA
+                Group[index:(index + tp[i] - 1)][is.na(rgames[index:(index + tp[i] - 1)])] <- NA
+              }
+              
+              cors[index:(index + tp[i] - 1)] <- paste("Structure ", i, ": cor = ", round(cor(rgames[index:(index + tp[i] - 1)],
+                                                                                              sgames[index:(index + tp[i] - 1)], 
+                                                                                              use = "complete.obs"), 2), 
+                                                       sep="")
+              if (any(is.na(rgames[index:(index + tp[i] - 1)]))){
+                cors[index:(index + tp[i] - 1)][is.na(rgames[index:(index + tp[i] - 1)])] <- NA
+              }
+            }
+            
+            rgames <- rgames[!is.na(rgames)]
+            sgames <- sgames[!is.na(sgames)]
+            Time <- Time[!is.na(Time)]
+            Group <- Group[!is.na(Group)]
+            cors <- cors[!is.na(cors)]
+            stopifnot(length(rgames) == length(sgames) & length(sgames) == sum(tp) - missings)
+            
+            plot_data <- data.frame(Action = c(rgames, sgames), Time = rep(Time, 2), Group = rep(Group, 2), 
+                                    Model = factor(c(rep("Actual", length(rgames)), rep("Predicted", length(sgames)))),
+                                    cors = rep(cors, 2))
+            
+            if(!any(is.na(plot_data[ , "cors"]))){
+              plot_data[ , "cors"] <- factor(plot_data[ , "cors"], levels = gtools::mixedsort(unique(plot_data[ , "cors"])))
+            }
+            switch(output,
+                   MSE = squared_loss(rgames, sgames),
+                   cor = cor(rgames, sgames), # use = "complete.obs"
+                   cor_pval = paste(round(Hmisc::rcorr(rgames, sgames)[[1]][1,2], 2), ", p=", round(Hmisc::rcorr(rgames, sgames)[[3]][1,2], 2), sep=""),
+                   SE = (rgames - sgames)^2,
+                   plot = plot_data) 
+          })
+
+################################################################################
+#' Plots cv_abm S4 object
+#' @describeIn cv_abm An S4 method for summarizing a cv_abm S4 object
+#'   
+#' @param y not used.
+#' @param ncol optional numeric vector length one specifying number of columns
+#'   of the faceted subsetted graphs, i.e. how many columns ggplot2 will use
+#'   when wrapping the structures around.
+#' @export
+
+setMethod("plot", "cv_abm",
+          function(x, y, ncol = 4){
+            x <- performance(x, output = "plot")
+            ggplot2::ggplot(data = x, ggplot2::aes(x = Time, y = Action, color = Model)) +
+              ggplot2::geom_line(ggplot2::aes(linetype = Model), size = 1) + # stat="smooth", method = "loess", fill=NA, alpha=0.5
+              ggplot2::scale_linetype_manual(values=c("solid", "dashed")) + # Change linetypes so predicted is solid and actual is dashed
+              ggplot2::facet_wrap(~cors, ncol = ncol) +
+              ggplot2::scale_y_continuous(limits=c(0, 1)) +
+              #ggtitle(paste("Predicted and Actual Cooperation Dynamics in", nrow(patterns), "Game Designs")) +
+              ggplot2::ylab("") + ggplot2::xlab("") +
+              ggplot2::theme_bw() +
+              ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size=5))) + 
+              # Put bottom-right corner of legend box in bottom-right corner of graph
+              ggplot2::theme(legend.justification=c(1,0), legend.position=c(1,0), 
+                    legend.title = ggplot2::element_blank(), 
+                    legend.text = ggplot2::element_text(size = 30),
+                    legend.background = ggplot2::element_rect(fill = "white"),
+                    legend.key = ggplot2::element_rect(fill = "white"),
+                    axis.text = ggplot2::element_text(size=18))
+          })

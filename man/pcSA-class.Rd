@@ -3,7 +3,7 @@
 \docType{class}
 \name{pcSA-class}
 \alias{pcSA-class}
-\alias{plot,pcSA,ANY-method}
+\alias{plot,pcSA-method}
 \alias{print,pcSA-method}
 \alias{show,pcSA-method}
 \title{An S4 class to return the results of sensitivity analyses}
@@ -12,7 +12,7 @@
 
 \S4method{show}{pcSA}(object)
 
-\S4method{plot}{pcSA,ANY}(x, outcome_var = "Outcome", xlab = "Variable",
+\S4method{plot}{pcSA}(x, outcome_var = "Outcome", xlab = "Variable",
   ylab = "Partial Rank Correlation Coefficient")
 }
 \arguments{

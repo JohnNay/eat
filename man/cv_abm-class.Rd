@@ -3,6 +3,8 @@
 \docType{class}
 \name{cv_abm-class}
 \alias{cv_abm-class}
+\alias{performance,cv_abm-method}
+\alias{plot,cv_abm-method}
 \alias{print,cv_abm-method}
 \alias{show,cv_abm-method}
 \alias{summary,cv_abm-method}
@@ -13,6 +15,11 @@
 \S4method{show}{cv_abm}(object)
 
 \S4method{summary}{cv_abm}(object, digits = 3)
+
+\S4method{performance}{cv_abm}(results, output = c("MSE", "cor", "cor_pval",
+  "SE", "plot"))
+
+\S4method{plot}{cv_abm}(x, y, ncol = 4)
 }
 \arguments{
 \item{x}{S4 cv_abm object}
@@ -23,11 +30,27 @@
 
 \item{digits}{Optional numeric vector length one for how many significant digits to
 print, default is 3.}
+
+\item{results}{S4 cv_abm object}
+
+\item{output}{Optional character vector length one indicating what the
+  desired output is, must be one of: \code{c("MSE", "cor", "cor_pval", "SE",
+  "plot")}.}
+
+\item{y}{not used.}
+
+\item{ncol}{optional numeric vector length one specifying number of columns
+of the faceted subsetted graphs, i.e. how many columns ggplot2 will use
+when wrapping the structures around.}
 }
 \description{
 An S4 class to return the results of using a cv_abm to estimate and test an ABM
 
 Turns cv_abm S4 object into list of summaries for printing and then prints it.
+
+Turns cv_abm S4 object into useful outputs for summary or plotting.
+
+Plots cv_abm S4 object
 }
 \section{Methods (by generic)}{
 \itemize{
@@ -36,6 +59,10 @@ Turns cv_abm S4 object into list of summaries for printing and then prints it.
 \item \code{show}: An S4 method for showing a cv_abm S4 object
 
 \item \code{summary}: An S4 method for summarizing a cv_abm S4 object
+
+\item \code{performance}: An S4 method for summarizing a cv_abm S4 object
+
+\item \code{plot}: An S4 method for summarizing a cv_abm S4 object
 }}
 \section{Slots}{
 

@@ -178,7 +178,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
   if(length(tp) != nrow(agg_patterns)) 
     stop("The length of the 'tp' vector supplied is not the same as the number of rows of the 'agg_patterns' supplied.")
   
-  msg <- ""
+  msg <- "\n\n"
   start_time <- as.numeric(proc.time()[[1]])
   call <- match.call()
   
@@ -204,7 +204,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
   if(length(group_folds) != length(unique(data$group))) stop("Assignment of groups to folds didnt work.")
   if(length(unique(group_folds)) != folds) stop("Assignment of groups to folds didnt work.")
   if(verbose) cat("Group folds:", group_folds ,"\n")
-  msg <- paste0(msg, "Group folds:", paste(group_folds, collapse = ", "), "\n")
+  msg <- paste0(msg, "Group folds: ", paste(group_folds, collapse = ", "), "\n")
   
   # create a vector same length as data with assignments of each row to a fold:
   fold_ass <- rep(NA, nrow(data))
@@ -225,12 +225,12 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     if (length(nzvs) > 0){
       to_drop <- colnames(training_data)[which(names(training_data) %in% features[[k]])[nzvs]]
       if(verbose) cat("We should be dropping", length(to_drop), "feature(s), which is (are):", to_drop, "\n")
-      msg <- paste0(msg, "We should be dropping", length(to_drop), "feature(s), which is (are):", paste(to_drop, collapse = ", "), "\n")
+      msg <- paste0(msg, "We should be dropping ", length(to_drop), " feature(s), which is (are): ", paste(to_drop, collapse = ", "), "\n")
       
       if (drop_nzv){
         # just names in features[[k]] so we dont drop group, folds and training vars
-        if(verbose) cat("Dropping", length(to_drop), "feature(s), which is (are):", paste(to_drop, collapse = ", "), "\n")
-        msg <- paste0(msg, "Dropping", length(to_drop), "feature(s), which is (are):", paste(to_drop, collapse = ", "), "\n")
+        if(verbose) cat("Dropping", length(to_drop), "feature(s), which is (are):", paste(to_drop, collapse = ", "), ".\n")
+        msg <- paste0(msg, "Dropping ", length(to_drop), " feature(s), which is (are): ", paste(to_drop, collapse = ", "), ".\n")
         
         # TODO: check that the features to be droppped are ACTUALLY IN the formula. If they arent then skip this next expr.
         for (m in seq(k)) {
@@ -249,23 +249,23 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
             }
             
             cat("New training formula:", training_Formula[[m]])
-            msg <- paste0(msg, "New training formula:", training_Formula[[m]])
+            msg <- paste0(msg, "New training formula: ", training_Formula[[m]], ".\n")
           }
         }
         
       }
     }
     
-    if (verbose) cat("Training data has ", nrow(training_data), " rows. And has groups ", sort(unique(training_data$group)), ".\n", sep="")
-    msg <- paste0(msg, "Training data has ", nrow(training_data), " rows. And has groups ", sort(unique(training_data$group)), ".\n")
+    if (verbose) cat("Training data has ", nrow(training_data), " rows. And has groups ", paste(sort(unique(training_data$group)), collapse = ", "), ".\n", sep="")
+    msg <- paste0(msg, "Training data has ", nrow(training_data), " rows. And has groups ", paste(sort(unique(training_data$group)), collapse = ", "), ".\n")
     
     model <- training(training_data, features, training_Formula, k, 
                       sampling = sampling, sampling_size = sampling_size, outcome_var_name = outcome_var_name,
                       package = package,
                       parallel = parallel_training) # TRAINING
     
-    if(verbose) cat("\nFinished training model on training data (all data but fold ", i, ").\n", sep="")
-    msg <- paste0(msg,"\nFinished training model on training data (all data but fold ", i, ").\n")
+    if(verbose) cat("\nFinished training agent-level model on training data (all data but fold ", i, ").\n", sep="")
+    msg <- paste0(msg,"\nFinished training agent-level model on training data (all data but fold ", i, ").\n")
     
     test <- data[data$fold_ass==i, ] # use just i for TESTING
     
@@ -302,8 +302,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       }
     }
     
-    if(verbose) cat("Test data has ", nrow(test), " rows. And has groups ", sort(unique(test$group)), ".\n", sep="")
-    msg <- paste0(msg, "Test data has ", nrow(test), " rows. And has groups ", sort(unique(test$group)), ".\n")
+    if(verbose) cat("Test data has ", nrow(test), " rows. And has groups ", paste(sort(unique(test$group)), collapse = ", "), ".\n", sep="")
+    msg <- paste0(msg, "Test data has ", nrow(test), " rows. And has groups ", paste(sort(unique(test$group)), collapse = ", "), ".\n")
     
     if ((nrow(test) + nrow(training_data)) != nrow(data))
       stop("(nrow(test) + nrow(training_data)) != nrow(data). So, the function did not divide up the data into test and training right.")
@@ -336,7 +336,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
           abm_dynamics[u, seq(tp[u])] <- abm_results$dynamics
         }
         # leaving out groups in vec unique(test$group) in this comparison because it not used for the training, its the test.
-        avg_action_error <- squared_loss(abm_predicted[-unique(test$group)], agg_patterns[-unique(test$group), which(names(agg_patterns) %in% "action")]) 
+        avg_action_error <- squared_loss(abm_predicted[-unique(test$group)], 
+                                         agg_patterns[-unique(test$group), which(names(agg_patterns) %in% "action")]) 
         if(is.na(avg_action_error)) 
           stop(paste("Fitness function tried to return an NA value for avg action error with param values as", parameter))
         dynamic_action_error <- rep(NA, nrow(agg_patterns))
@@ -384,8 +385,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
         solution <- de_solution$optim$bestmem
       }
       
-      if (verbose) cat("\nOptimal value of noise is ", solution[1], ". Optimal value of threshold is ", solution[2],".\n", sep="")
-      msg <- paste0(msg,"\nOptimal value of noise is ", solution[1], ". Optimal value of threshold is ", solution[2],".\n")
+      if (verbose) cat("\nOptimal values of parameters are ", paste(solution, collapse = " ,"), ".\n", sep="")
+      msg <- paste0(msg, "\nOptimal values of parameters are ", paste(solution, collapse = " ,"), ".\n")
       
       # build abm with predictive models trained on all data but i then predict on i data
       if (verbose) cat("Starting to do ABM simulations to predict test data.\n") # TESTING
@@ -420,8 +421,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       predicted_patterns[[x]]$actual <- agg_patterns[x, "action"]
       
       if(verbose) cat("Predicted: ", predicted_patterns[[x]]$predicted, ". Actual: ", predicted_patterns[[x]]$actual, ".\n", sep="")
-      if(verbose) cat("Predicted Dynamics: ", predicted_patterns[[x]]$dynamics[1:tp[x]], ".\n Actual Dynamics: ", 
-                      as.numeric(agg_patterns[x, which(names(agg_patterns) %in% paste(1:(tp[x])))]), ".\n", sep="")
+      if(verbose) cat("Predicted Dynamics: ", paste(predicted_patterns[[x]]$dynamics[1:tp[x]], collapse = ", "), ".\n Actual Dynamics: ", 
+                      paste(as.numeric(agg_patterns[x, which(names(agg_patterns) %in% paste(1:(tp[x])))]), collapse = ", "), ".\n", sep="")
       msg <- paste0(msg, "Predicted: ", predicted_patterns[[x]]$predicted, ". Actual: ", predicted_patterns[[x]]$actual, ".\n",
                     "Predicted Dynamics: ", paste(predicted_patterns[[x]]$dynamics[1:tp[x]], collapse = ", "), ".\n Actual Dynamics: ", 
                     paste(as.numeric(agg_patterns[x, which(names(agg_patterns) %in% paste(1:(tp[x])))]), collapse = ", "), ".\n")

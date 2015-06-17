@@ -173,6 +173,10 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
                    parallel_training = FALSE){
   # iterations= parameter[1]*15000 inside the fitness() for GA optimization
   # because more noise (parameter[1]), more iterations are needed to determine how good that param set is
+  
+  # Extract the desired function object while avoiding undesired matching to objects of other types:
+  abm_simulate <- match.fun(abm_simulate, descend = FALSE)
+  
   if(saving & missing(filename)) 
     stop("If saving the file, supply a 'filename'.")
   if(length(tp) != nrow(agg_patterns)) 
@@ -435,11 +439,10 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     }
   }
   
-  object <- new("cv_abm",
-                call = call,
-                predicted_patterns = predicted_patterns,
-                timing = as.numeric(proc.time()[[1]]) - start_time,
-                diagnostics = msg)
-  
-  object
+  new("cv_abm",
+      call = call,
+      predicted_patterns = predicted_patterns,
+      timing = as.numeric(proc.time()[[1]]) - start_time,
+      diagnostics = msg,
+      session = sessionInfo())
 }

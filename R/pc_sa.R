@@ -144,5 +144,6 @@ pc_sa <- function(abm,
       call = call,
       result = result, 
       r_squared = r_squared,
-      timing = as.numeric(proc.time()[[1]]) - start_time)
+      timing = as.numeric(proc.time()[[1]]) - start_time,
+      session = sessionInfo())
 }

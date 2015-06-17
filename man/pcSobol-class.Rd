@@ -61,7 +61,10 @@ Plots pcSobol S4 object
 \item{\code{result}}{sobol2007 s3 class from \code{sensitivity} package.}
 
 \item{\code{timing}}{Numeric vector length one with the total elapsed time it took
-  \code{\link{cv_abm}} to execute.}
+\code{\link{cv_abm}} to execute.}
+
+\item{\code{session}}{the results from calling \code{sessionInfo()} at end of
+  \code{\link{pc_sa}} function.}
 }}
 \examples{
 fake_abm <- function(params, out) {

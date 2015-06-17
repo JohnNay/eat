@@ -5,13 +5,16 @@
 #' @slot result sobol2007 s3 class from \code{sensitivity} package.
 #' @slot timing Numeric vector length one with the total elapsed time it took 
 #'   \code{\link{cv_abm}} to execute.
+#' @slot session the results from calling \code{sessionInfo()} at end of
+#'   \code{\link{pc_sa}} function.
 #'   
 #' @export
 
 setClass(Class = "pcSobol",
          slots = c(call = "language",
                    result = "ANY", # "sobol2007"
-                   timing = "numeric")
+                   timing = "numeric",
+                   session = "ANY")
 )
 
 ################################################################################

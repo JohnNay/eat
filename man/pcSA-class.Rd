@@ -58,7 +58,10 @@ Plots pcSA S4 object, a Partial Correlation Analysis of a Simulation Model
 \item{\code{r_squared}}{Numeric vector length one.}
 
 \item{\code{timing}}{Numeric vector length one with the total elapsed time it took
-  \code{\link{cv_abm}} to execute.}
+\code{\link{cv_abm}} to execute.}
+
+\item{\code{session}}{the results from calling \code{sessionInfo()} at end of
+  \code{\link{pc_sa}} function.}
 }}
 \examples{
 fake_abm <- function(params, out) {

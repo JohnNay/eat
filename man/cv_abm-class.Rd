@@ -8,7 +8,8 @@
 \alias{print,cv_abm-method}
 \alias{show,cv_abm-method}
 \alias{summary,cv_abm-method}
-\title{An S4 class to return the results of using a cv_abm to estimate and test an ABM}
+\title{An S4 class to return the results of using a cv_abm to estimate and test an
+ABM}
 \usage{
 \S4method{print}{cv_abm}(x, ...)
 
@@ -44,7 +45,8 @@ of the faceted subsetted graphs, i.e. how many columns ggplot2 will use
 when wrapping the structures around.}
 }
 \description{
-An S4 class to return the results of using a cv_abm to estimate and test an ABM
+An S4 class to return the results of using a cv_abm to estimate and test an
+ABM
 
 Turns cv_abm S4 object into list of summaries for printing and then prints it.
 
@@ -69,12 +71,16 @@ Plots cv_abm S4 object
 \describe{
 \item{\code{call}}{Language from the call of the function \code{\link{cv_abm}}.}
 
-\item{\code{predicted_patterns}}{List with predicted vec length 1, actual vec length 1,
-null_model vec length 1, dynamics vec, simdata data.frame}
+\item{\code{predicted_patterns}}{List with predicted vec length 1, actual vec length
+1, null_model vec length 1, dynamics vec, simdata data.frame}
 
 \item{\code{timing}}{Numeric vector length one with the total elapsed time it took
 \code{\link{cv_abm}} to execute.}
 
-\item{\code{diagnostics}}{Character vector length one, to be printed with base::cat().}
+\item{\code{diagnostics}}{Character vector length one, to be printed with
+base::cat().}
+
+\item{\code{session}}{the results from calling \code{sessionInfo()} at end of
+  \code{\link{pc_sa}} function.}
 }}
 

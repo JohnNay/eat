@@ -129,6 +129,7 @@ sobol_sa <- function(abm,
   new("pcSobol",
       call = call,
       result = sobol_aggregate, 
-      timing = as.numeric(proc.time()[[1]]) - start_time)
+      timing = as.numeric(proc.time()[[1]]) - start_time,
+      session = sessionInfo())
 }
 

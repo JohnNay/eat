@@ -8,14 +8,17 @@ setClassUnion("numericOrchar", members = c("numeric", "character"))
 #' @slot r_squared Numeric vector length one.
 #' @slot timing Numeric vector length one with the total elapsed time it took 
 #'   \code{\link{cv_abm}} to execute.
-#'
+#' @slot session the results from calling \code{sessionInfo()} at end of
+#'   \code{\link{pc_sa}} function.
+#'   
 #' @export
 
 setClass(Class = "pcSA",
          slots = c(call = "language",
                    result = "ANY", # "pcsens"
                    r_squared = "numericOrchar",
-                   timing = "numeric")
+                   timing = "numeric",
+                   session = "ANY")
 )
 
 ################################################################################

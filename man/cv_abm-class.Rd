@@ -62,9 +62,10 @@ Plots cv_abm S4 object
 
 \item \code{summary}: An S4 method for summarizing a cv_abm S4 object
 
-\item \code{performance}: An S4 method for summarizing a cv_abm S4 object
+\item \code{performance}: An S4 method for extracting performance measures of an
+  cv_abm S4 object
 
-\item \code{plot}: An S4 method for summarizing a cv_abm S4 object
+\item \code{plot}: An S4 method for plotting a cv_abm S4 object
 }}
 \section{Slots}{
 

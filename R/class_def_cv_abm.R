@@ -73,10 +73,10 @@ squared_loss <- function(x, s) sqrt(mean((x - s)^2))
 
 ################################################################################
 #' Turns cv_abm S4 object into useful outputs for summary or plotting.
-#'   
+#' 
 #' @param results S4 cv_abm object
-#' @param output Optional character vector length one indicating what the
-#'   desired output is, must be one of: \code{c("MSE", "cor", "cor_pval", "SE",
+#' @param output Optional character vector length one indicating what the 
+#'   desired output is, must be one of: \code{c("MSE", "cor", "cor_pval", "SE", 
 #'   "plot")}.
 #'   
 #' @export
@@ -88,11 +88,12 @@ setGeneric("performance", function(results, output = c("MSE", "cor", "cor_pval",
 
 ################################################################################
 #' Turns cv_abm S4 object into useful outputs for summary or plotting.
-#' @describeIn cv_abm An S4 method for summarizing a cv_abm S4 object
+#' @describeIn cv_abm An S4 method for extracting performance measures of an
+#'   cv_abm S4 object
 #'   
 #' @param results S4 cv_abm object
-#' @param output Optional character vector length one indicating what the
-#'   desired output is, must be one of: \code{c("MSE", "cor", "cor_pval", "SE",
+#' @param output Optional character vector length one indicating what the 
+#'   desired output is, must be one of: \code{c("MSE", "cor", "cor_pval", "SE", 
 #'   "plot")}.
 #'   
 #' @export
@@ -141,7 +142,8 @@ setMethod("performance", "cv_abm",
             Time <- Time[!is.na(Time)]
             Group <- Group[!is.na(Group)]
             cors <- cors[!is.na(cors)]
-            stopifnot(length(rgames) == length(sgames) & length(sgames) == sum(tp) - missings)
+            if(!(length(rgames) == length(sgames) & length(sgames) == sum(tp) - missings))
+              warning("This plot may not work because it is not true that '(length(rgames) == length(sgames) & length(sgames) == sum(tp) - missings)'. Probably because you did not run the ABM for enough simulations.")
             
             plot_data <- data.frame(Action = c(rgames, sgames), Time = rep(Time, 2), Group = rep(Group, 2), 
                                     Model = factor(c(rep("Actual", length(rgames)), rep("Predicted", length(sgames)))),
@@ -160,11 +162,11 @@ setMethod("performance", "cv_abm",
 
 ################################################################################
 #' Plots cv_abm S4 object
-#' @describeIn cv_abm An S4 method for summarizing a cv_abm S4 object
+#' @describeIn cv_abm An S4 method for plotting a cv_abm S4 object
 #'   
 #' @param y not used.
-#' @param ncol optional numeric vector length one specifying number of columns
-#'   of the faceted subsetted graphs, i.e. how many columns ggplot2 will use
+#' @param ncol optional numeric vector length one specifying number of columns 
+#'   of the faceted subsetted graphs, i.e. how many columns ggplot2 will use 
 #'   when wrapping the structures around.
 #' @export
 

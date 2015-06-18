@@ -3,7 +3,7 @@
 \docType{class}
 \name{cv_abm-class}
 \alias{cv_abm-class}
-\alias{performance,cv_abm-method}
+\alias{performance,cv_abm,character-method}
 \alias{plot,cv_abm-method}
 \alias{print,cv_abm-method}
 \alias{show,cv_abm-method}
@@ -17,8 +17,8 @@ ABM}
 
 \S4method{summary}{cv_abm}(object, digits = 3)
 
-\S4method{performance}{cv_abm}(results, output = c("MSE", "cor", "cor_pval",
-  "SE", "plot"))
+\S4method{performance}{cv_abm,character}(results, output = c("MSE", "cor",
+  "cor_pval", "SE", "plot"))
 
 \S4method{plot}{cv_abm}(x, y, ncol = 4)
 }

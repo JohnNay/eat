@@ -109,7 +109,9 @@ applicable when \code{sampling} argument is set to \code{TRUE}.}
 \item{verbose}{optional logical vector length one, default is \code{TRUE}.}
 
 \item{predict_test_par}{optional logical vector length one, default is
-\code{FALSE}.}
+\code{FALSE}. If you are getting any errors with this function, make sure
+you set args like this to FALSE because debugging in parallel is much
+harder.}
 
 \item{parallel_training}{optional logical vector length one, default is
  \code{FALSE}. This is passed to \code{\link{training}}.}
@@ -137,10 +139,10 @@ time_len <- 2
 agg_patterns <- data.frame(group = c(1,2),
                         action = c( mean(as.numeric(cdata[cdata$group==1, "action"])),
                                     mean(as.numeric(cdata[cdata$group==2, "action"]))),
-                        c(period_vec_create(cdata[cdata$group==1, ], time_len)[1],
-                          period_vec_create(cdata[cdata$group==2, ], time_len)[1]),
-                        c(period_vec_create(cdata[cdata$group==1, ], time_len)[2],
-                          period_vec_create(cdata[cdata$group==2, ], time_len)[2]))
+                        c(eat::period_vec_create(cdata[cdata$group==1, ], time_len)[1],
+                          eat::period_vec_create(cdata[cdata$group==2, ], time_len)[1]),
+                        c(eat::period_vec_create(cdata[cdata$group==1, ], time_len)[2],
+                          eat::period_vec_create(cdata[cdata$group==2, ], time_len)[2]))
 names(agg_patterns)[3:4] <- c("1", "2")
 
 # Create ABM:

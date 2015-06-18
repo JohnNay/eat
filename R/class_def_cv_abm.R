@@ -70,25 +70,24 @@ setMethod("summary", "cv_abm",
                    }
 )
 
-
-squared_loss <- function(x, s) sqrt(mean((x - s)^2))
-
 ################################################################################
-#' Turns cv_abm S4 object into useful outputs for summary or plotting.
+#' Turns modeling related object into useful outputs for summary or plotting.
 #' 
-#' @param results S4 cv_abm object
+#' @param results Modeling related object, e.g. S4 \code{cv_abm} object.
 #' @param output Optional character vector length one indicating what the 
-#'   desired output is, must be one of: \code{c("MSE", "cor", "cor_pval", "SE", 
+#'   desired output is, e.g. \code{c("MSE", "cor", "cor_pval", "SE", 
 #'   "plot")}.
-#'   
-#' @export
 
-setGeneric("performance", function(results, output = c("MSE", "cor", "cor_pval", "SE",
-                                                       "plot")){
+
+setGeneric("performance", function(results, output = character(1)){
   standardGeneric("performance")
 })
 
+
 ################################################################################
+
+squared_loss <- function(x, s) sqrt(mean((x - s)^2))
+
 #' Turns cv_abm S4 object into useful outputs for summary or plotting.
 #' @describeIn cv_abm An S4 method for extracting performance measures of an
 #'   cv_abm S4 object
@@ -99,12 +98,13 @@ setGeneric("performance", function(results, output = c("MSE", "cor", "cor_pval",
 #'   "plot")}.
 #'   
 #' @export
-setMethod("performance", "cv_abm",
+setMethod("performance", c("cv_abm", "character"),
           function(results, 
                    output = c("MSE", "cor", "cor_pval", "SE",
                               "plot")){
+            
             output <- match.arg(output)
-            tp <- eval(results@call$tp)
+            tp <- eval(results@call$tp) # Have to eval() it, o.w., its just a symbol.
             patterns <- eval(results@call$agg_patterns)
             # extract the relevant results from the cv_abm object
             results <- results@predicted_patterns
@@ -124,19 +124,23 @@ setMethod("performance", "cv_abm",
               Group[index:(index + tp[i] - 1)] <- i
               # make all simulated time period results NA that are NA in the data patterns
               if (any(is.na(rgames[index:(index + tp[i] - 1)]))){
+                # keep track of missings
                 missings <- missings + sum(is.na(rgames[index:(index + tp[i] - 1)]))
+                
                 sgames[index:(index + tp[i] - 1)][is.na(rgames[index:(index + tp[i] - 1)])] <- NA
                 Time[index:(index + tp[i] - 1)][is.na(rgames[index:(index + tp[i] - 1)])] <- NA
                 Group[index:(index + tp[i] - 1)][is.na(rgames[index:(index + tp[i] - 1)])] <- NA
               }
               
-              cors[index:(index + tp[i] - 1)] <- paste("Structure ", i, ": cor = ", round(cor(rgames[index:(index + tp[i] - 1)],
-                                                                                              sgames[index:(index + tp[i] - 1)], 
-                                                                                              use = "complete.obs"), 2), 
-                                                       sep="")
-              if (any(is.na(rgames[index:(index + tp[i] - 1)]))){
-                cors[index:(index + tp[i] - 1)][is.na(rgames[index:(index + tp[i] - 1)])] <- NA
-              }
+              cors[index:(index + tp[i] - 1)] <- paste0("Structure ", i)
+              try({
+                cors[index:(index + tp[i] - 1)] <- paste0("Structure ", i, ": cor = ", round(cor(rgames[index:(index + tp[i] - 1)],
+                                                                                                sgames[index:(index + tp[i] - 1)], 
+                                                                                                use = "complete.obs"), 2))
+                if (any(is.na(rgames[index:(index + tp[i] - 1)]))){
+                  cors[index:(index + tp[i] - 1)][is.na(rgames[index:(index + tp[i] - 1)])] <- NA
+                }
+              })
             }
             
             rgames <- rgames[!is.na(rgames)]
@@ -145,7 +149,8 @@ setMethod("performance", "cv_abm",
             Group <- Group[!is.na(Group)]
             cors <- cors[!is.na(cors)]
             if(!(length(rgames) == length(sgames) & length(sgames) == sum(tp) - missings))
-              warning("This plot may not work because it is not true that '(length(rgames) == length(sgames) & length(sgames) == sum(tp) - missings)'. Probably because you did not run the ABM for enough simulations.")
+              warning(paste("This plot may not work because it is not true that '(length(rgames) == length(sgames) & length(sgames) == sum(tp) - missings)'.", 
+                            "Probably because you did not run the ABM for enough simulations."))
             
             plot_data <- data.frame(Action = c(rgames, sgames), Time = rep(Time, 2), Group = rep(Group, 2), 
                                     Model = factor(c(rep("Actual", length(rgames)), rep("Predicted", length(sgames)))),
@@ -154,6 +159,7 @@ setMethod("performance", "cv_abm",
             if(!any(is.na(plot_data[ , "cors"]))){
               plot_data[ , "cors"] <- factor(plot_data[ , "cors"], levels = gtools::mixedsort(unique(plot_data[ , "cors"])))
             }
+            
             switch(output,
                    MSE = squared_loss(rgames, sgames),
                    cor = cor(rgames, sgames), # use = "complete.obs"

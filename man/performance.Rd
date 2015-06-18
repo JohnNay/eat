@@ -2,18 +2,18 @@
 % Please edit documentation in R/class_def_cv_abm.R
 \name{performance}
 \alias{performance}
-\title{Turns cv_abm S4 object into useful outputs for summary or plotting.}
+\title{Turns modeling related object into useful outputs for summary or plotting.}
 \usage{
-performance(results, output = c("MSE", "cor", "cor_pval", "SE", "plot"))
+performance(results, output = character(1))
 }
 \arguments{
-\item{results}{S4 cv_abm object}
+\item{results}{Modeling related object, e.g. S4 \code{cv_abm} object.}
 
 \item{output}{Optional character vector length one indicating what the
-  desired output is, must be one of: \code{c("MSE", "cor", "cor_pval", "SE",
-  "plot")}.}
+desired output is, e.g. \code{c("MSE", "cor", "cor_pval", "SE",
+"plot")}.}
 }
 \description{
-Turns cv_abm S4 object into useful outputs for summary or plotting.
+Turns modeling related object into useful outputs for summary or plotting.
 }
 

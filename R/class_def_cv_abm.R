@@ -40,7 +40,9 @@ setMethod("print", "cv_abm",
 setMethod("show", "cv_abm",
                    function(object) {
                      cat("An object of class \"cv_abm\"\n")
-                     cat("\nCall:\n", deparse(object@call), "\n\n",sep="")
+                     cat("\nCall:\n", 
+                         paste(deparse(object@call), sep = "\n", collapse = "\n"), 
+                         "\n\n", sep="")
                      cat("Available slots:\n")
                      print(slotNames(object))
                    }

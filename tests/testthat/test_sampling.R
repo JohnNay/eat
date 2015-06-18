@@ -1,4 +1,4 @@
-library(datafsm)
+library(eat)
 context("Test sampling helper functions")
 
 test_that("keep_satisfied() returns correct type of object", {

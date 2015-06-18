@@ -1,4 +1,4 @@
-library(datafsm)
+library(eat)
 context("Test cv_abm() function")
 
 test_that("cv_abm() returns correct type of object", {

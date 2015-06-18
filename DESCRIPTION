@@ -1,13 +1,12 @@
 Package: eat
-Title: An R Package for Data-driven Agent-based Modeling
+Title: Empirical Agent Training Software for Data-Driven Modeling
 Version: 0.0.99
-Date: 2015-03-31
+Date: 2015-06-18
 Authors@R: c( person("Nay", "John", email = "john.j.nay@gmail.com", role =
     c("cre", "aut")))
 URL: https://github.com/JohnNay/eat
 BugReports: https://github.com/JohnNay/eat/issues
-Description: An R Package for Data-driven Agent-based Modeling. 
-    eat == Empirical Agent Training.
+Description: Empirical Agent Training Software for Data-Driven Modeling.
 Depends:
     R (>= 3.1.1),
     methods,

@@ -1,16 +1,17 @@
-# Calculation of R2 for the original data: this function is from:
+# Calculation of R^2. this function is adapted from:
 # J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models: 
 # A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
 get_rsquare <- function(x, y, on.ranks) {
   data <- data.frame(Y = y, x)
   if (on.ranks) {
-    for (i in 1:ncol(data)) {
-      data[,i] <- rank(data[,i])
+    for (i in seq(ncol(data))) {
+      data[ ,i] <- rank(data[ ,i])
     }
   }
-  i = 1:nrow(data)
+  i <- seq(nrow(data))
   d <- data[i, ]
-  lm.Y <- stats::lm(formula(paste(colnames(d)[1], "~", paste(colnames(d)[-1], collapse = "+"))), data = d)
+  lm.Y <- stats::lm(formula(paste(colnames(d)[1], "~", paste(colnames(d)[-1], collapse = "+"))), 
+                    data = d)
   summary(lm.Y)$r.squared
 }
 
@@ -107,13 +108,13 @@ pc_sa <- function(abm,
   
   if(parallel & missing(cores)) cores <- parallel::detectCores() - 1
   
-  # Create two samples, removing samples violating constraints, until you have enough:
+  # Create samples, removing samples violating constraints, until you have enough:
   input.set <- create_set(input_values, input_names, sample_count, constraints)
-  if(verbose) cat("Done with input set creation \n")
+  if(verbose) cat("Done with input set creation.\n")
   
   ##################################################
   # Simulation runs with generated input factor sets:
-  if(verbose) cat("Starting simulations \n")
+  if(verbose) cat("Starting simulations.\n")
   # simulation results for input factor sets (as matrix)
   if (parallel) {
     doParallel::registerDoParallel(cores = cores)
@@ -127,7 +128,7 @@ pc_sa <- function(abm,
       abm(as.numeric(input.set[i, ]), out = out, iterations = iterations)
     })
   }
-  if(verbose) cat("Done with simulations \n")
+  if(verbose) cat("Done with simulations.\n")
   
   if (method == "src"){
     result <- sensitivity::src(X = input.set, y = pc_sim, nboot = nboot, rank = rank)

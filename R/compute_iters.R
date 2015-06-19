@@ -28,14 +28,17 @@ coef_var <- function(x){
 #'@param method Optional character vector that is either ...
 #'  
 #'@return Returns a sensitivity object that can be plotted by functions.
-#'  
+#'
 #' @examples
+#' compute_iters()
 #' 
-#'@references 
-#'Lorscheid, I., Heine, B.O., & Meyer, M. (2012). Opening the
-#'"black box" of simulations: increased transparency and effective communication
-#'through the systematic design of experiments. Computational and Mathematical
+#'@references Lorscheid, I., Heine, B.O., & Meyer, M. (2012). Opening the "black
+#'box" of simulations: increased transparency and effective communication 
+#'through the systematic design of experiments. Computational and Mathematical 
 #'Organization Theory, 18 (1), 22–62.
+#'
+#'Hendricks W, Robey K (1936) The sampling distribution of the coefficient of
+#'variation. Ann Math Stat 7:129–132
 #'
 #'@export
 
@@ -80,7 +83,7 @@ compute_iters <- function(abm,
   if(verbose) cat("Done with simulations.\n")
   
   if (method == "coef_var"){
-    result <- 
+    result <- 1
   }
   
   list(call = call,

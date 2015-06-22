@@ -61,9 +61,8 @@ coef_var <- function(x, na.rm = FALSE){
 #' inputs <- lapply(list(.mean = NA, .sd = NA), 
 #' function(x) list(random_function = "qunif",
 #'                ARGS = list(min = 0, max = 1)))
-#'res <- compute_iters(fake, inputs, "hello",
-#'repeats = 1,
-#'                      thresh = 0.8,
+#'res <- compute_iters(fake, inputs, "hello", repeats = 1,
+#'                      thresh = 0.5,
 #'                      initial_iters = 10)
 #'res$result
 #' 
@@ -80,11 +79,11 @@ coef_var <- function(x, na.rm = FALSE){
 compute_iters <- function(abm, 
                           input_values,
                           out, 
-                          sample_count = 30,
+                          sample_count = 50,
                           repeats = 10,
                           thresh = 0.05,
                           initial_iters = 100,
-                          max_iters = 100000,
+                          max_iters = 10000,
                           constraints = "none",
                           parallel = FALSE,
                           cores = NULL,
@@ -135,7 +134,7 @@ compute_iters <- function(abm,
   res_int <- round(mean(res))
   
   list(call = call,
-       result = res_int, 
+       result = res, 
        timing = as.numeric(proc.time()[[1]]) - start_time,
        session = sessionInfo())
 }

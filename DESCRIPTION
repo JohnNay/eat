@@ -22,4 +22,6 @@ Imports: caret,
     formula.tools,
     GA,
     ggplot2,
-    sensitivity
+    sensitivity,
+    gtools,
+    Hmisc

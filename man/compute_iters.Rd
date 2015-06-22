@@ -4,8 +4,8 @@
 \alias{compute_iters}
 \title{Determine Number of Iterations to Simulate a Stochastic Model}
 \usage{
-compute_iters(abm, input_values, out, sample_count = 30, repeats = 10,
-  thresh = 0.05, initial_iters = 100, max_iters = 1e+05,
+compute_iters(abm, input_values, out, sample_count = 50, repeats = 10,
+  thresh = 0.05, initial_iters = 100, max_iters = 10000,
   constraints = "none", parallel = FALSE, cores = NULL, verbose = FALSE,
   measure = c("coef_var"))
 }
@@ -78,9 +78,8 @@ mean(rnorm(iterations, inputs[1], inputs[2]))
 inputs <- lapply(list(.mean = NA, .sd = NA),
 function(x) list(random_function = "qunif",
                ARGS = list(min = 0, max = 1)))
-res <- compute_iters(fake, inputs, "hello",
-repeats = 1,
-                     thresh = 0.8,
+res <- compute_iters(fake, inputs, "hello", repeats = 1,
+                     thresh = 0.5,
                      initial_iters = 10)
 res$result
 }

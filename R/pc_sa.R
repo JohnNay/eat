@@ -23,8 +23,7 @@ get_rsquare <- function(x, y, on.ranks) {
 #'and a list of input values. Helper function for extracting R-sqaured is from 
 #'Thiele et al. (2014).
 #'
-#'@param abm A function that takes as input values for each of the 
-#'  \code{input_values}
+#'@param abm A function that takes each of the \code{input_values} as arguments.
 #'@param input_values List
 #'@param out Character vector length one to be passed an argument to the 
 #'  \code{abm} function to specify what outcome measure to use.

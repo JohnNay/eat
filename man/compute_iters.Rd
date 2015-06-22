@@ -4,18 +4,30 @@
 \alias{compute_iters}
 \title{Determine Number of Iterations to Simulate a Stochastic Model}
 \usage{
-compute_iters(abm, input_values, out, constraints = "none",
-  parallel = FALSE, cores = NULL, verbose = TRUE,
-  method = c("coef_var"))
+compute_iters(abm, input_values, out, sample_count = 30, repeats = 10,
+  thresh = 0.05, initial_iters = 100, max_iters = 1e+05,
+  constraints = "none", parallel = FALSE, cores = NULL, verbose = FALSE,
+  measure = c("coef_var"))
 }
 \arguments{
-\item{abm}{A function that takes as input values for each of the
-\code{input_values}}
+\item{abm}{A function that takes each of the \code{input_values} as arguments.}
 
 \item{input_values}{List}
 
 \item{out}{Character vector length one to be passed an argument to the
 \code{abm} function to specify what outcome measure to use.}
+
+\item{sample_count}{Optional numeric vector length one specifying the number of
+samples for a given \code{iters} value that is being tested.}
+
+\item{repeats}{Optional numeric vector length one specifying the number of
+times to repeat the main loop of this algo.}
+
+\item{thresh}{Optional numeric vector length one}
+
+\item{initial_iters}{Optional numeric vector length one.}
+
+\item{max_iters}{Optional numeric vector length one.}
 
 \item{constraints}{Optional Character vector that is either "none" or is using
 only variable names that are specified in the input_values List argument.
@@ -30,29 +42,55 @@ parallel::detectCores().}
 
 \item{verbose}{Optional logical vector.}
 
-\item{method}{Optional character vector that is either ...}
+\item{measure}{Optional character vector. Right now only measure is
+ \code{c("coef_var")}.}
 }
 \value{
-Returns a sensitivity object that can be plotted by functions.
+List with the result and diagnostic information. List has elements:
+ \code{call; result; timing; and session}.
 }
 \description{
-\code{compute_iters} conducts estimates a sufficient number of iterations for
+\code{compute_iters} estimates a sufficient number of iterations for
 subsequent analysis of a simulation model.
 }
 \details{
-This is function of the \strong{eat} package. It takes an abm in function form
-and a list of input values.
+This is a function of the \strong{eat} package. It takes an abm in function
+form and a list of input values. It returns a list with the result and
+diagnostic information.
+
+\code{\link{cv_abm}} is designed for stochastic simulations, which requires a
+model run (a model run may comprise an arbitrary number of discrete time steps
+specific to the model) to be repeated >1 times with the same global parameter
+settings in order to reduce the variance of outcomes within a specified global
+ABM parameter setting low enough to allow for comparison of outcomes across
+parameter settings, i.e. for learning anything useful about the input-output
+relationships that define the ABM. The size of this experimental noise should
+be analyzed prior to executing simulation experiments and optimization
+routines. Lorscheid, I., Heine, B.O., & Meyer, M. (2012) suggest using the
+coefficient of variation, c_v = s/mu, where s is the standard deviation and mu
+is the mean. Because the coefficient of variation is a dimensionless and
+normalized measure of variance it can be used to investigate the variance of
+multiple simulation outcome variables.
 }
 \examples{
-compute_iters()
+fake <- function(inputs, out, iterations)
+mean(rnorm(iterations, inputs[1], inputs[2]))
+inputs <- lapply(list(.mean = NA, .sd = NA),
+function(x) list(random_function = "qunif",
+               ARGS = list(min = 0, max = 1)))
+res <- compute_iters(fake, inputs, "hello",
+repeats = 1,
+                     thresh = 0.8,
+                     initial_iters = 10)
+res$result
 }
 \references{
 Lorscheid, I., Heine, B.O., & Meyer, M. (2012). Opening the "black
-box" of simulations: increased transparency and effective communication
-through the systematic design of experiments. Computational and Mathematical
-Organization Theory, 18 (1), 22–62.
+ box" of simulations: increased transparency and effective communication
+ through the systematic design of experiments. Computational and Mathematical
+ Organization Theory, 18 (1), 22-62.
 
-Hendricks W, Robey K (1936) The sampling distribution of the coefficient of
-variation. Ann Math Stat 7:129–132
+ Hendricks W, Robey K (1936) The sampling distribution of the coefficient of
+ variation. Ann Math Stat 7:129-132
 }
 

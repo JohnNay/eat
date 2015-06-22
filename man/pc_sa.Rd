@@ -9,8 +9,7 @@ pc_sa(abm, input_values, out, sample_count = 100, constraints = "none",
   verbose = TRUE, rank = TRUE, method = c("src", "pcc"))
 }
 \arguments{
-\item{abm}{A function that takes as input values for each of the
-\code{input_values}}
+\item{abm}{A function that takes each of the \code{input_values} as arguments.}
 
 \item{input_values}{List}
 

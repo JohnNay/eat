@@ -4,8 +4,8 @@
 \alias{compute_iters}
 \title{Determine Number of Iterations to Simulate a Stochastic Model}
 \usage{
-compute_iters(abm, input_values, out, sample_count = 50, repeats = 10,
-  thresh = 0.05, initial_iters = 100, max_iters = 10000,
+compute_iters(abm, input_values, out, sample_count = 30, repeats = 10,
+  thresh = 0.05, initial_iters = 10, max_iters = 1000,
   constraints = "none", parallel = FALSE, cores = NULL, verbose = FALSE,
   measure = c("coef_var"))
 }
@@ -17,17 +17,24 @@ compute_iters(abm, input_values, out, sample_count = 50, repeats = 10,
 \item{out}{Character vector length one to be passed an argument to the
 \code{abm} function to specify what outcome measure to use.}
 
-\item{sample_count}{Optional numeric vector length one specifying the number of
-samples for a given \code{iters} value that is being tested.}
+\item{sample_count}{Optional numeric vector length one specifying the number
+of samples for a given \code{iters} value that is being tested. If
+\code{repeats} is very high then this does not need to be as high.}
 
 \item{repeats}{Optional numeric vector length one specifying the number of
-times to repeat the main loop of this algo.}
+times to repeat the main loop of this algo. If \code{sample_count} is very
+high then this does not need to be as high.}
 
-\item{thresh}{Optional numeric vector length one}
+\item{thresh}{Optional numeric vector length one. This is a hyper-parameter of
+this algorithm and may need to be experimented with by the user.}
 
-\item{initial_iters}{Optional numeric vector length one.}
+\item{initial_iters}{Optional numeric vector length one. Although optional,
+this is very problem dependent and so should usually be set with knowledge
+of the simulation model.}
 
-\item{max_iters}{Optional numeric vector length one.}
+\item{max_iters}{Optional numeric vector length one. Although optional, this
+is very problem dependent and so should usually be set with knowledge of the
+simulation model.}
 
 \item{constraints}{Optional Character vector that is either "none" or is using
 only variable names that are specified in the input_values List argument.
@@ -40,7 +47,8 @@ that subsets sampled.}
 \item{cores}{Optional Numeric vector length one. Default is
 parallel::detectCores().}
 
-\item{verbose}{Optional logical vector.}
+\item{verbose}{Optional logical vector. Default for this algorithm is FALSE
+because messages are created during an inner loop, i.e. very often.}
 
 \item{measure}{Optional character vector. Right now only measure is
  \code{c("coef_var")}.}

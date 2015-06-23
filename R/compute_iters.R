@@ -33,13 +33,20 @@ coef_var <- function(x, na.rm = FALSE){
 #'@param input_values List
 #'@param out Character vector length one to be passed an argument to the 
 #'  \code{abm} function to specify what outcome measure to use.
-#'@param sample_count Optional numeric vector length one specifying the number of
-#'  samples for a given \code{iters} value that is being tested.
-#'@param repeats Optional numeric vector length one specifying the number of
-#'  times to repeat the main loop of this algo.
-#'@param thresh Optional numeric vector length one
-#'@param initial_iters Optional numeric vector length one.
-#'@param max_iters Optional numeric vector length one.
+#'@param sample_count Optional numeric vector length one specifying the number
+#'  of samples for a given \code{iters} value that is being tested. If
+#'  \code{repeats} is very high then this does not need to be as high.
+#'@param repeats Optional numeric vector length one specifying the number of 
+#'  times to repeat the main loop of this algo. If \code{sample_count} is very
+#'  high then this does not need to be as high.
+#'@param thresh Optional numeric vector length one. This is a hyper-parameter of
+#'  this algorithm and may need to be experimented with by the user.
+#'@param initial_iters Optional numeric vector length one. Although optional,
+#'  this is very problem dependent and so should usually be set with knowledge
+#'  of the simulation model.
+#'@param max_iters Optional numeric vector length one. Although optional, this
+#'  is very problem dependent and so should usually be set with knowledge of the
+#'  simulation model.
 #'@param constraints Optional Character vector that is either "none" or is using
 #'  only variable names that are specified in the input_values List argument. 
 #'  This character vector is evaluated in an environment created for the sampled
@@ -48,7 +55,8 @@ coef_var <- function(x, na.rm = FALSE){
 #'@param parallel Optional logical vector length one. Default is FALSE.
 #'@param cores Optional Numeric vector length one. Default is 
 #'  parallel::detectCores().
-#'@param verbose Optional logical vector.
+#'@param verbose Optional logical vector. Default for this algorithm is FALSE
+#'  because messages are created during an inner loop, i.e. very often.
 #'@param measure Optional character vector. Right now only measure is 
 #'  \code{c("coef_var")}.
 #'  
@@ -79,7 +87,7 @@ coef_var <- function(x, na.rm = FALSE){
 compute_iters <- function(abm, 
                           input_values,
                           out, 
-                          sample_count = 50,
+                          sample_count = 30,
                           repeats = 10,
                           thresh = 0.05,
                           initial_iters = 10,
@@ -134,7 +142,7 @@ compute_iters <- function(abm,
   res_int <- round(mean(res))
   
   list(call = call,
-       result = res, 
+       result = res_int, 
        timing = as.numeric(proc.time()[[1]]) - start_time,
        session = sessionInfo())
 }

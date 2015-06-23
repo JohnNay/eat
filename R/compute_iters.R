@@ -64,15 +64,17 @@ coef_var <- function(x, na.rm = FALSE){
 #'  \code{call; result; timing; and session}.
 #'  
 #' @examples
+#' 
 #' fake <- function(inputs, out, iterations) 
 #' mean(rnorm(iterations, inputs[1], inputs[2]))
-#' inputs <- lapply(list(.mean = NA, .sd = NA), 
+#' inputs <- lapply(list(.mean = NA, .sd = NA),
 #' function(x) list(random_function = "qunif",
-#'                ARGS = list(min = 0, max = 1)))
-#'res <- compute_iters(fake, inputs, "hello", repeats = 1,
-#'                      thresh = 0.5,
-#'                      initial_iters = 10)
-#'res$result
+#' ARGS = list(min = 0.1, max = 0.1)))
+#' hist(rnorm(15, 0.1, 0.1))
+#' res <- compute_iters(fake, inputs, "hello", repeats = 1,
+#' thresh = 0.25, max_iters = 100,
+#' initial_iters = 10)
+#' 
 #' 
 #'@references Lorscheid, I., Heine, B.O., & Meyer, M. (2012). Opening the "black
 #'  box" of simulations: increased transparency and effective communication 

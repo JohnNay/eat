@@ -129,7 +129,7 @@ compute_iters <- function(abm,
         measured <- coef_var(output)
       }
       
-      if (iters >= max_iters | measured >= thresh){
+      if (iters >= max_iters | measured <= thresh){
         break
       } else {
         iters <- iters + 1

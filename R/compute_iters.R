@@ -74,7 +74,7 @@ coef_var <- function(x, na.rm = FALSE){
 #' res <- compute_iters(fake, inputs, "hello", repeats = 20,
 #' thresh = 0.25, max_iters = 100,
 #' initial_iters = 10)
-#' plot(res)
+#' plot(res, ylab = "Coefficient of Variation")
 #' 
 #'@references Lorscheid, I., Heine, B.O., & Meyer, M. (2012). Opening the "black
 #'  box" of simulations: increased transparency and effective communication 
@@ -90,8 +90,8 @@ compute_iters <- function(abm,
                           input_values,
                           out, 
                           sample_count = 20,
-                          repeats = 10,
-                          thresh = 0.05,
+                          repeats = 30,
+                          thresh = 0.25,
                           initial_iters = 10,
                           max_iters = 1000,
                           constraints = "none",
@@ -117,14 +117,14 @@ compute_iters <- function(abm,
     
     repeat{
       # Create sample, removing samples violating constraints, until you have one:
-      input.set <- create_set(input_values, input_names, sample_count, constraints)
+      input.set <- create_set(input_values, input_names, 1, constraints)
       if(verbose) cat("Done with input set creation.\n")
       
       if (parallel) {
         doParallel::registerDoParallel(cores = cores)
       } # without registering the backend the %dopar% should just run sequentially as %do%
-      output <- foreach::`%dopar%`(foreach::foreach(i=seq(nrow(input.set)), .combine='c'), {
-        abm(as.numeric(input.set[i, ]), out = out, iterations = iters)
+      output <- foreach::`%dopar%`(foreach::foreach(i = seq(sample_count), .combine='c'), {
+        abm(as.numeric(input.set), out = out, iterations = iters)
       })
       if(verbose) cat("Done with simulations.\n")
       

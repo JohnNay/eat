@@ -64,17 +64,21 @@ setMethod("plot", "computeIters",
                    xlab = "Iterations", ylab = NULL){
             
             measure <- x@measure
-            if (missing(ylab)) ylab <- measure
+            
+            if (missing(ylab)) {
+              ylab <- measure
+            } else {
+              measure <- ylab
+            }
             
             x <- x@plot_data
             
             ggplot2::ggplot(x, 
                             ggplot2::aes(x = iters, y = measured)) + 
               ggplot2::geom_point() +
+              ggplot2::geom_smooth(method = "loess") +
               ggplot2::xlab(xlab) + ggplot2::ylab(ylab) +
               ggplot2::ggtitle(paste("Iterations and", measure, "for", outcome_var)) +
-              #ggplot2::geom_errorbar(ggplot2::aes(ymax = max_ci, ymin = min_ci), width=0.25) +
-              #ggplot2::geom_hline(yintercept = 0) +
               ggplot2::theme_bw()
           }
 )

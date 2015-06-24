@@ -4,8 +4,8 @@
 \alias{compute_iters}
 \title{Determine Number of Iterations to Simulate a Stochastic Model}
 \usage{
-compute_iters(abm, input_values, out, sample_count = 20, repeats = 10,
-  thresh = 0.05, initial_iters = 10, max_iters = 1000,
+compute_iters(abm, input_values, out, sample_count = 20, repeats = 30,
+  thresh = 0.25, initial_iters = 10, max_iters = 1000,
   constraints = "none", parallel = FALSE, cores = NULL, verbose = FALSE,
   measure = c("coef_var"))
 }
@@ -90,7 +90,7 @@ hist(rnorm(15, 0.1, 0.1))
 res <- compute_iters(fake, inputs, "hello", repeats = 20,
 thresh = 0.25, max_iters = 100,
 initial_iters = 10)
-plot(res)
+plot(res, ylab = "Coefficient of Variation")
 }
 \references{
 Lorscheid, I., Heine, B.O., & Meyer, M. (2012). Opening the "black

@@ -61,7 +61,7 @@ coef_var <- function(x, na.rm = FALSE){
 #'  \code{c("coef_var")}.
 #'  
 #'@return List with the result and diagnostic information. List has elements: 
-#'  \code{call; result; timing; and session}.
+#'  \code{call; result; timing; and session}. Timing is in seconds.
 #'  
 #' @examples
 #' 
@@ -71,10 +71,10 @@ coef_var <- function(x, na.rm = FALSE){
 #' function(x) list(random_function = "qunif",
 #' ARGS = list(min = 0.1, max = 0.1)))
 #' hist(rnorm(15, 0.1, 0.1))
-#' res <- compute_iters(fake, inputs, "hello", repeats = 1,
+#' res <- compute_iters(fake, inputs, "hello", repeats = 20,
 #' thresh = 0.25, max_iters = 100,
 #' initial_iters = 10)
-#' 
+#' plot(res)
 #' 
 #'@references Lorscheid, I., Heine, B.O., & Meyer, M. (2012). Opening the "black
 #'  box" of simulations: increased transparency and effective communication 
@@ -89,7 +89,7 @@ coef_var <- function(x, na.rm = FALSE){
 compute_iters <- function(abm, 
                           input_values,
                           out, 
-                          sample_count = 30,
+                          sample_count = 20,
                           repeats = 10,
                           thresh = 0.05,
                           initial_iters = 10,
@@ -102,7 +102,7 @@ compute_iters <- function(abm,
   
   # Preparing: ###
   measure <- match.arg(measure)
-  start_time <- as.numeric(proc.time()[[1]])
+  start_time <- as.numeric(proc.time()[[3]])
   call <- match.call()
   
   # Get names of input factors:
@@ -111,8 +111,9 @@ compute_iters <- function(abm,
   if(parallel & missing(cores)) cores <- parallel::detectCores() - 1
   
   # Main outer loop: ###
-  res <- foreach::`%do%`(foreach::foreach(i=seq(repeats), .combine='c'), {
+  res <- foreach::`%do%`(foreach::foreach(i=seq(repeats), .combine='rbind', .verbose=FALSE), {
     iters <- initial_iters
+    measured <- Inf
     
     repeat{
       # Create sample, removing samples violating constraints, until you have one:
@@ -131,20 +132,29 @@ compute_iters <- function(abm,
         measured <- coef_var(output)
       }
       
-      if (iters >= max_iters | measured <= thresh){
+      if (iters >= max_iters || measured <= thresh){
         break
       } else {
         iters <- iters + 1
       }
     }
     
-    iters
+    c(iters, measured)
   })
   
-  res_int <- round(mean(res))
+  if (dim(res)[1] > 1){
+    res_int <- round(mean(res[ ,1]))
+    plot_data <- data.frame(iters = res[ ,1], measured = res[ ,2])
+  } else {
+    res_int <- round(mean(res[1]))
+    plot_data <- data.frame(iters = res[1], measured = res[2])
+  }
   
-  list(call = call,
-       result = res_int, 
-       timing = as.numeric(proc.time()[[1]]) - start_time,
-       session = sessionInfo())
+  new("computeIters",
+      call = call,
+      measure = measure,
+      result = as.integer(res_int),
+      plot_data = plot_data,
+      timing = as.numeric(proc.time()[[3]]) - start_time,
+      session = sessionInfo())
 }

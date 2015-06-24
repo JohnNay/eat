@@ -4,7 +4,7 @@
 \alias{compute_iters}
 \title{Determine Number of Iterations to Simulate a Stochastic Model}
 \usage{
-compute_iters(abm, input_values, out, sample_count = 30, repeats = 10,
+compute_iters(abm, input_values, out, sample_count = 20, repeats = 10,
   thresh = 0.05, initial_iters = 10, max_iters = 1000,
   constraints = "none", parallel = FALSE, cores = NULL, verbose = FALSE,
   measure = c("coef_var"))
@@ -55,7 +55,7 @@ because messages are created during an inner loop, i.e. very often.}
 }
 \value{
 List with the result and diagnostic information. List has elements:
- \code{call; result; timing; and session}.
+ \code{call; result; timing; and session}. Timing is in seconds.
 }
 \description{
 \code{compute_iters} estimates a sufficient number of iterations for
@@ -87,9 +87,10 @@ inputs <- lapply(list(.mean = NA, .sd = NA),
 function(x) list(random_function = "qunif",
 ARGS = list(min = 0.1, max = 0.1)))
 hist(rnorm(15, 0.1, 0.1))
-res <- compute_iters(fake, inputs, "hello", repeats = 1,
+res <- compute_iters(fake, inputs, "hello", repeats = 20,
 thresh = 0.25, max_iters = 100,
 initial_iters = 10)
+plot(res)
 }
 \references{
 Lorscheid, I., Heine, B.O., & Meyer, M. (2012). Opening the "black

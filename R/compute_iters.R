@@ -51,14 +51,16 @@ coef_var <- function(x, na.rm = FALSE){
 #'  only variable names that are specified in the input_values List argument. 
 #'  This character vector is evaluated in an environment created for the sampled
 #'  data on the variables, and its evaluation results in a Logical vector that 
-#'  that subsets sampled.
+#'that subsets sampled.
 #'@param parallel Optional logical vector length one. Default is FALSE.
 #'@param cores Optional Numeric vector length one. Default is 
 #'  parallel::detectCores().
-#'@param verbose Optional logical vector. Default for this algorithm is FALSE
+#'@param verbose Optional logical vector. Default for this algorithm is FALSE 
 #'  because messages are created during an inner loop, i.e. very often.
-#'@param measure Optional character vector. Right now only measure is 
-#'  \code{c("coef_var")}.
+#'@param measure Optional character vector. One of \code{c("coef_var", "var", 
+#'  "sd")}. Don't use \code{coef_var} if the outcome values of the simulation
+#'  model can take on negative values or are on an arbitrary scale; otherwise,
+#'  use \code{coef_var}.
 #'  
 #'@return List with the result and diagnostic information. List has elements: 
 #'  \code{call; result; timing; and session}. Timing is in seconds.
@@ -91,14 +93,14 @@ compute_iters <- function(abm,
                           out, 
                           sample_count = 20,
                           repeats = 30,
-                          thresh = 0.25,
-                          initial_iters = 10,
-                          max_iters = 1000,
+                          thresh = 0.05,
+                          initial_iters = 5,
+                          max_iters = 100,
                           constraints = "none",
                           parallel = FALSE,
                           cores = NULL,
                           verbose = FALSE,
-                          measure = c("coef_var")){
+                          measure = c("coef_var", "var", "sd")){
   
   # Preparing: ###
   measure <- match.arg(measure)
@@ -129,12 +131,19 @@ compute_iters <- function(abm,
       if(verbose) cat("Done with simulations.\n")
       
       if (measure == "coef_var"){
-        measured <- coef_var(output)
+        measured2 <- coef_var(output)
+      }
+      if (measure == "var"){
+        measured2 <- var(output)
+      }
+      if (measure == "sd"){
+        measured2 <- sd(output)
       }
       
-      if (iters >= max_iters || measured <= thresh){
+      if (iters >= max_iters || (measured - measured2) <= thresh){
         break
       } else {
+        measured <- measured2
         iters <- iters + 1
       }
     }

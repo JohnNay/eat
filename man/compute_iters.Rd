@@ -5,9 +5,9 @@
 \title{Determine Number of Iterations to Simulate a Stochastic Model}
 \usage{
 compute_iters(abm, input_values, out, sample_count = 20, repeats = 30,
-  thresh = 0.25, initial_iters = 10, max_iters = 1000,
+  thresh = 0.05, initial_iters = 5, max_iters = 100,
   constraints = "none", parallel = FALSE, cores = NULL, verbose = FALSE,
-  measure = c("coef_var"))
+  measure = c("coef_var", "var", "sd"))
 }
 \arguments{
 \item{abm}{A function that takes each of the \code{input_values} as arguments.}
@@ -37,9 +37,9 @@ is very problem dependent and so should usually be set with knowledge of the
 simulation model.}
 
 \item{constraints}{Optional Character vector that is either "none" or is using
-only variable names that are specified in the input_values List argument.
-This character vector is evaluated in an environment created for the sampled
-data on the variables, and its evaluation results in a Logical vector that
+ only variable names that are specified in the input_values List argument.
+ This character vector is evaluated in an environment created for the sampled
+ data on the variables, and its evaluation results in a Logical vector that
 that subsets sampled.}
 
 \item{parallel}{Optional logical vector length one. Default is FALSE.}
@@ -50,8 +50,10 @@ parallel::detectCores().}
 \item{verbose}{Optional logical vector. Default for this algorithm is FALSE
 because messages are created during an inner loop, i.e. very often.}
 
-\item{measure}{Optional character vector. Right now only measure is
- \code{c("coef_var")}.}
+\item{measure}{Optional character vector. One of \code{c("coef_var", "var",
+ "sd")}. Don't use \code{coef_var} if the outcome values of the simulation
+ model can take on negative values or are on an arbitrary scale; otherwise,
+ use \code{coef_var}.}
 }
 \value{
 List with the result and diagnostic information. List has elements:

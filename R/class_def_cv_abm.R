@@ -49,7 +49,7 @@ setMethod("show", "cv_abm",
 )
 
 ################################################################################
-#' Turns cv_abm S4 object into list of summaries for printing and then prints it.
+#' Prints (cat()) summary of cv_abm S4 object.
 #' @describeIn cv_abm An S4 method for summarizing a cv_abm S4 object
 #'
 #' @param object S4 cv_abm object

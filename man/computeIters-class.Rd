@@ -6,8 +6,11 @@
 \alias{plot,computeIters-method}
 \alias{print,computeIters-method}
 \alias{show,computeIters-method}
+\alias{summary,computeIters-method}
 \title{An S4 class to return the results of computing iterations needed}
 \usage{
+\S4method{summary}{computeIters}(object, digits = 3)
+
 \S4method{print}{computeIters}(x, ...)
 
 \S4method{show}{computeIters}(object)
@@ -16,11 +19,14 @@
   xlab = "Iterations", ylab = NULL)
 }
 \arguments{
+\item{object}{S4 computeIters object}
+
+\item{digits}{Optional numeric vector length one for how many significant digits to
+print, default is 3.}
+
 \item{x}{The result slot of an object created by \code{compute_iters}.}
 
 \item{...}{ignored}
-
-\item{object}{S4 computeIters object}
 
 \item{outcome_var}{Optional character vector.}
 
@@ -34,11 +40,15 @@ Returns a ggplot2 object.
 \description{
 An S4 class to return the results of computing iterations needed
 
+Prints (cat()) summary of computeIters S4 object
+
 Plots computeIters S4 object
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{print}: An S4 method for printing a pcSA S4 object
+\item \code{summary}: 
+
+\item \code{print}: An S4 method for printing a computeIters S4 object
 
 \item \code{show}: An S4 method for showing a computeIters S4 object
 

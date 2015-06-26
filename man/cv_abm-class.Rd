@@ -48,7 +48,7 @@ when wrapping the structures around.}
 An S4 class to return the results of using a cv_abm to estimate and test an
 ABM
 
-Turns cv_abm S4 object into list of summaries for printing and then prints it.
+Prints (cat()) summary of cv_abm S4 object.
 
 Turns cv_abm S4 object into useful outputs for summary or plotting.
 

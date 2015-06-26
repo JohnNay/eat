@@ -22,7 +22,25 @@ setClass(Class = "computeIters",
 )
 
 ################################################################################
-#' @describeIn computeIters An S4 method for printing a pcSA S4 object
+#' Prints (cat()) summary of computeIters S4 object
+#' @describeIn computeIters
+#'
+#' @param digits Optional numeric vector length one for how many significant digits to
+#' print, default is 3.
+#'
+#'  @export
+
+setMethod("summary", "computeIters",
+          function(object, digits = 3) {
+            cat(paste0("\n This process took ", object@timing, " seconds (", 
+                round(object@timing/60/60, 2), " hours)."))
+            cat("\n Average number of iterations found to be sufficient is", object@result)
+            invisible(object)
+          }
+)
+
+################################################################################
+#' @describeIn computeIters An S4 method for printing a computeIters S4 object
 #' @param ... ignored
 #'  @export
 

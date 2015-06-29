@@ -76,7 +76,8 @@ specifying how long the time series for each group should be. Default is
 
 \item{sampling}{optional logical vector length one, default is \code{FALSE}.
 If \code{sampling == TRUE}, we sample equal numbers of observations from
-each 'group'.}
+each 'group' to reduce potential problems with the final estimated model
+being too affected by groups with more observations.}
 
 \item{sampling_size}{optional numeric vector length one specifying how many
 observations from each group that \code{\link{training}} should sample to

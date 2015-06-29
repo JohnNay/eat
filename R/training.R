@@ -1,7 +1,10 @@
 #'Estimate an Agent Model
 #'
 #'\code{training} uses a \code{caret::train} or \code{stats::glm} algorithm to 
-#'estimate an individual-level model
+#'estimate an individual-level model and return a list where each element is
+#'either a list of with element of class "train" (if \code{caret::train} was
+#'used) or a list with each element of class "glm" if  (if \code{stat::glm} was
+#'used).
 #'
 #'@param trainData \code{data.frame} with each row (obervational unit) being an 
 #'  individual agent decision. With a column called "group" specifying which 
@@ -20,7 +23,7 @@ training <- function(trainData, features, Formula, k,
                      package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
                      parallel = FALSE,
                      cv_type = c("cv", "repeatedcv")){
-  # sampling == TRUE samples equal numbers of observations from each game structure
+  # if sampling == TRUE, samples equal numbers of observations from each game structure
   
   package <- match.arg(package)
   cv_type <- match.arg(cv_type)
@@ -195,5 +198,8 @@ training <- function(trainData, features, Formula, k,
   }
   ###############################################################################
   ###############################################################################
+  if(length(model) != k)
+    stop("length(model) != k so list being returned is not the right length.")
+  
   model
 }

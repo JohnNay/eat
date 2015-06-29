@@ -55,15 +55,16 @@
 #'  \code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.
 #'@param sampling optional logical vector length one, default is \code{FALSE}. 
 #'  If \code{sampling == TRUE}, we sample equal numbers of observations from 
-#'  each 'group'.
+#'  each 'group' to reduce potential problems with the final estimated model 
+#'  being too affected by groups with more observations.
 #'@param sampling_size optional numeric vector length one specifying how many 
 #'  observations from each group that \code{\link{training}} should sample to 
 #'  train the model, default is 1000. Only applicable when \code{sampling} 
 #'  argument is set to \code{TRUE}.
 #'@param outcome_var_name optional character vector length one, default is 
-#'\code{"my.decision"}. \code{\link{training}} uses it to sample to train the 
-#'model with a balanced sampling based on \code{outcome_var_name}. Only 
-#'applicable when \code{sampling} argument is set to \code{TRUE}.
+#'  \code{"my.decision"}. \code{\link{training}} uses it to sample to train the 
+#'  model with a balanced sampling based on \code{outcome_var_name}. Only 
+#'  applicable when \code{sampling} argument is set to \code{TRUE}.
 #'@param STAT optional character vector length one, default is \code{c("mean", 
 #'  "median")}.
 #'@param saving optional logical vector length one, default is \code{FALSE}.
@@ -77,8 +78,8 @@
 #'@param drop_nzv optional logical vector length one, default is \code{FALSE}.
 #'@param verbose optional logical vector length one, default is \code{TRUE}.
 #'@param predict_test_par optional logical vector length one, default is 
-#'  \code{FALSE}. If you are getting any errors with this function, make sure
-#'  you set args like this to FALSE because debugging in parallel is much
+#'  \code{FALSE}. If you are getting any errors with this function, make sure 
+#'  you set args like this to FALSE because debugging in parallel is much 
 #'  harder.
 #'@param parallel_training optional logical vector length one, default is 
 #'  \code{FALSE}. This is passed to \code{\link{training}}.

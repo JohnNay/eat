@@ -31,7 +31,8 @@ different times.}
 
 \item{sampling}{optional logical vector length one, default is \code{FALSE}.
 If \code{sampling == TRUE}, we sample equal numbers of observations from
-each 'group'.}
+each 'group' to reduce potential problems with the final estimated model
+being too affected by groups with more observations.}
 
 \item{sampling_size}{optional numeric vector length one specifying how many
 observations from each group that \code{\link{training}} should sample to
@@ -58,6 +59,9 @@ Returns a \code{list} length \code{k} where each element of the list
 }
 \description{
 \code{training} uses a \code{caret::train} or \code{stats::glm} algorithm to
-estimate an individual-level model
+estimate an individual-level model and return a list where each element is
+either a list of with element of class "train" (if \code{caret::train} was
+used) or a list with each element of class "glm" if  (if \code{stat::glm} was
+used).
 }
 

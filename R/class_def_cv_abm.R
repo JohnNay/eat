@@ -154,10 +154,13 @@ setMethod("performance", c("cv_abm", "character"),
             
             plot_data <- data.frame(Action = c(rgames, sgames), Time = rep(Time, 2), Group = rep(Group, 2), 
                                     Model = factor(c(rep("Actual", length(rgames)), rep("Predicted", length(sgames)))),
-                                    cors = rep(cors, 2))
+                                    cors = rep(cors, 2),
+                                    stringsAsFactors = FALSE)
             
             if(!any(is.na(plot_data[ , "cors"]))){
-              plot_data[ , "cors"] <- factor(plot_data[ , "cors"], levels = gtools::mixedsort(unique(plot_data[ , "cors"])))
+              plot_data[ , "cors"] <- factor(as.character(plot_data[ , "cors"]), levels = gtools::mixedsort(unique(plot_data[ , "cors"])))
+            } else{
+              warning(paste("There are NAs in plot_data[ , cors]."))
             }
             
             switch(output,

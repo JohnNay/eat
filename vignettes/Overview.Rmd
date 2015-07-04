@@ -1,0 +1,17 @@
+---
+title: "Overview"
+author: "John J. Nay"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This package is designed for the situation where you have data on *agent* actions over time within multiple *groups*, where an agent is any entity that takes actions that can be aggregated across multiple agents to form some useful summmary statistics about population-level (2 agents can compose a population) action outcomes, and a group is a set of actions that are taken within some global parameter settings. We assume that the group-level parameters affect the action outcomes. An analyst has the goal of determining the size and direction of the effects of those group-level parameters on the relevant outcomes. Those parameters that are within control of policy-makers can then be manipulated in the way that the analysis suggests should improve outcomes. To accomplish this, the analyst needs a generative model that simulates time series of the relevant outcomes from just an initialization of global parameters. The agent-level models are estimated from the provided data by `training()`, the generative simulation model just needs to specify how the agent-level model interacts with itself. Then, the `cv_abm()` function can be used to test how well this model works for new sets of global parameters that the model was not trained on. If the performance is sufficient, the model can be trained on all available data and deployed for sensitivity (`pc_sa()`, `sobol_sa()`) and optimization analyses.
+
+* recurrent neural networks, generalizing this idea to any model, it is recurrent bc its output at time t is an input to its function that determines its output at time t+1 
+* dataprogram evolves any probabilistic function that best minimizes a chosen loss function (`compute_log_lik `, `compute_identity`, `compute_rmse`) out of sample. it works by combining building blocks of a function and a type system that ensures the class of each input and output
+
+

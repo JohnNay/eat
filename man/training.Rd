@@ -7,7 +7,7 @@
 training(trainData, features, Formula, k, sampling = FALSE,
   sampling_size = 1000, outcome_var_name = "my.decision",
   package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
-  parallel = FALSE, cv_type = c("cv", "repeatedcv"))
+  tune_length = 10, parallel = FALSE, cv_type = c("cv", "repeatedcv"))
 }
 \arguments{
 \item{trainData}{\code{data.frame} with each row (obervational unit) being an
@@ -47,8 +47,13 @@ applicable when \code{sampling} argument is set to \code{TRUE}.}
 \item{package}{optional character vector length one, default is
 \code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.}
 
+\item{tune_length}{optional numeric vector length one specifying how many rows
+for caret::train to create in design matrix of hyper-parameter sets.}
+
 \item{parallel}{optional logical vector length one, default is \code{FALSE}.
-Uses \code{doParallel::registerDoParallel()}}
+Uses \code{doParallel::registerDoParallel()}. Should be \code{FALSE} when
+training() is being called from inside cv_abm(), which, by default, is
+already running in parallel.}
 
 \item{cv_type}{optional character vector length one, default is \code{c("cv",
 "repeatedcv")}. Passed on to \code{caret::trainControl()}.}

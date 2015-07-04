@@ -7,13 +7,14 @@ Authors@R: c( person("Nay", "John", email = "john.j.nay@gmail.com", role =
 URL: https://github.com/JohnNay/eat
 BugReports: https://github.com/JohnNay/eat/issues
 Description: Empirical Agent Training Software for Data-Driven Modeling.
-Depends:
+Depends: 
     R (>= 3.1.1),
     methods,
     stats
 License: MIT + file LICENSE
 LazyData: true
-Suggests: testthat
+Suggests: testthat,
+    knitr
 Imports: caret,
     lhs,
     DEoptim,
@@ -25,3 +26,4 @@ Imports: caret,
     sensitivity,
     gtools,
     Hmisc
+VignetteBuilder: knitr

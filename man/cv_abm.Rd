@@ -12,7 +12,8 @@ cv_abm(data, features, Formula, k, agg_patterns, abm_simulate, abm_vars, iters,
   saving = FALSE, filename = NULL, abm_optim = c("GA", "DE"),
   validate = c("lgocv", "cv"), folds = ifelse(validate == "lgocv",
   max(data$group), 10), drop_nzv = FALSE, verbose = TRUE,
-  predict_test_par = FALSE, parallel_training = FALSE)
+  predict_test_par = FALSE, optimize_abm_par = FALSE,
+  parallel_training = FALSE)
 }
 \arguments{
 \item{data}{\code{data.frame} with each row (obervational unit) being an
@@ -114,6 +115,9 @@ applicable when \code{sampling} argument is set to \code{TRUE}.}
 you set args like this to FALSE because debugging in parallel is much
 harder.}
 
+\item{optimize_abm_par}{optional logical vector length one, default is
+\code{FALSE}. This is passed to the optimization algorithm.}
+
 \item{parallel_training}{optional logical vector length one, default is
  \code{FALSE}. This is passed to \code{\link{training}}.}
 }
@@ -166,6 +170,7 @@ Formula <- as.list(rep(NA, k)) # create list to fill
 Formula[[1]] <- "action ~ my.decision1 + other.decision1"
 # Call cv_abm():
 res <- cv_abm(cdata, features, Formula, k, agg_patterns,
+             outcome_var_name = "action",
              abm_simulate = simulate_abm,
              abm_vars = list(values = c(0.3, 0.5)),
              iters = 1000,

@@ -16,11 +16,11 @@
 #' @export
 
 setClass(Class = "cv_abm",
-                  slots = c(call = "language",
-                            predicted_patterns = "list",
-                            timing = "numeric",
-                            diagnostics = "character",
-                            session = "ANY")
+         slots = c(call = "language",
+                   predicted_patterns = "list",
+                   timing = "numeric",
+                   diagnostics = "character",
+                   session = "ANY")
 )
 
 ################################################################################
@@ -30,7 +30,7 @@ setClass(Class = "cv_abm",
 #'  @export
 
 setMethod("print", "cv_abm",
-                   function(x, ...) str(x)
+          function(x, ...) str(x)
 )
 
 ################################################################################
@@ -38,14 +38,14 @@ setMethod("print", "cv_abm",
 #'  @export
 
 setMethod("show", "cv_abm",
-                   function(object) {
-                     cat("An object of class \"cv_abm\"\n")
-                     cat("\nCall:\n", 
-                         paste(deparse(object@call), sep = "\n", collapse = "\n"), 
-                         "\n\n", sep="")
-                     cat("Available slots:\n")
-                     print(slotNames(object))
-                   }
+          function(object) {
+            cat("An object of class \"cv_abm\"\n")
+            cat("\nCall:\n", 
+                paste(deparse(object@call), sep = "\n", collapse = "\n"), 
+                "\n\n", sep="")
+            cat("Available slots:\n")
+            print(slotNames(object))
+          }
 )
 
 ################################################################################
@@ -59,15 +59,15 @@ setMethod("show", "cv_abm",
 #'  @export
 
 setMethod("summary", "cv_abm",
-                   function(object, digits = 3) {
-                     cat("                                    \n")
-                     cat("           Cross Validated Predictions:          \n")
-                     cat("                                    \n")
-                     cat(object@diagnostics)
-                     
-                     cat("\n\nThis process took", object@timing, "seconds.")
-                     invisible(object)
-                   }
+          function(object, digits = 3) {
+            cat("                                    \n")
+            cat("           Cross Validated Predictions:          \n")
+            cat("                                    \n")
+            cat(object@diagnostics)
+            
+            cat("\n\nThis process took", object@timing, "seconds.")
+            invisible(object)
+          }
 )
 
 ################################################################################
@@ -98,6 +98,7 @@ squared_loss <- function(x, s) sqrt(mean((x - s)^2))
 #'   "plot")}.
 #'   
 #' @export
+
 setMethod("performance", c("cv_abm", "character"),
           function(results, 
                    output = c("MSE", "cor", "cor_pval", "SE",
@@ -135,8 +136,8 @@ setMethod("performance", c("cv_abm", "character"),
               cors[index:(index + tp[i] - 1)] <- paste0("Structure ", i)
               try({
                 cors[index:(index + tp[i] - 1)] <- paste0("Structure ", i, ": cor = ", round(cor(rgames[index:(index + tp[i] - 1)],
-                                                                                                sgames[index:(index + tp[i] - 1)], 
-                                                                                                use = "complete.obs"), 2))
+                                                                                                 sgames[index:(index + tp[i] - 1)], 
+                                                                                                 use = "complete.obs"), 2))
                 if (any(is.na(rgames[index:(index + tp[i] - 1)]))){
                   cors[index:(index + tp[i] - 1)][is.na(rgames[index:(index + tp[i] - 1)])] <- NA
                 }

@@ -81,6 +81,8 @@
 #'  \code{FALSE}. If you are getting any errors with this function, make sure 
 #'  you set args like this to FALSE because debugging in parallel is much 
 #'  harder.
+#'@param optimize_abm_par optional logical vector length one, default is 
+#'  \code{FALSE}. This is passed to the optimization algorithm.
 #'@param parallel_training optional logical vector length one, default is 
 #'  \code{FALSE}. This is passed to \code{\link{training}}.
 #'  
@@ -125,6 +127,7 @@
 #'Formula[[1]] <- "action ~ my.decision1 + other.decision1"
 #'# Call cv_abm():
 #'res <- cv_abm(cdata, features, Formula, k, agg_patterns,
+#'              outcome_var_name = "action",
 #'              abm_simulate = simulate_abm,
 #'              abm_vars = list(values = c(0.3, 0.5)),
 #'              iters = 1000,
@@ -159,6 +162,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
                    drop_nzv = FALSE, 
                    verbose = TRUE,
                    predict_test_par = FALSE,
+                   optimize_abm_par = FALSE,
                    parallel_training = FALSE){
   # iterations= parameter[1]*15000 inside the fitness() for GA optimization
   # because more noise (parameter[1]), more iterations are needed to determine how good that param set is
@@ -172,7 +176,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     stop("The length of the 'tp' vector supplied is not the same as the number of rows of the 'agg_patterns' supplied.")
   
   msg <- "\n\n"
-  start_time <- as.numeric(proc.time()[[1]])
+  start_time <- as.numeric(proc.time()[[3]])
   call <- match.call()
   
   # Make sure the 'data' has the features that the formula needs:
@@ -354,17 +358,19 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       num_cores <- parallel::detectCores() - 1
       popSize <- ifelse(num_cores > 20, num_cores, 21)
       
-      doParallel::registerDoParallel(cores = num_cores)
+      if (optimize_abm_par){
+        doParallel::registerDoParallel(cores = num_cores)
+      }
       
-      if(abm_optim == "GA"){
+      if (abm_optim == "GA"){
         ga_solution <- GA::ga(type = "real-valued", fitness = fitness,
                               min = abm_vars$lower, max = abm_vars$upper,
                               popSize = popSize, run = 3, maxfitness = 0,
                               names = names(abm_vars$lower),
-                              parallel = TRUE)
+                              parallel = optimize_abm_par)
         solution <- ga_solution@solution[1, ]
       }
-      if(abm_optim == "DE"){
+      if (abm_optim == "DE"){
         fitness_min <- function(parameter) -fitness(parameter) # this optimization routine minimizes objective function
         de_solution <- DEoptim::DEoptim(fitness_min, lower = abm_vars$lower, upper = abm_vars$upper, 
                                         control = DEoptim::DEoptim.control(parallelType = 2,
@@ -431,7 +437,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
   new("cv_abm",
       call = call,
       predicted_patterns = predicted_patterns,
-      timing = as.numeric(proc.time()[[1]]) - start_time,
+      timing = as.numeric(proc.time()[[3]]) - start_time,
       diagnostics = msg,
       session = sessionInfo())
 }

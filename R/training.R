@@ -21,9 +21,10 @@
 #'  
 #'@return Returns a \code{list} length \code{k} where each element of the list 
 #'  is an estimated model (estimated agent decision function).
+#'  @export
 
 training <- function(trainData, features, Formula, k, 
-                     sampling = FALSE, sampling_size = 1000, outcome_var_name = "my.decision",
+                     sampling = FALSE, sampling_size = 1000, outcome_var_name = "action",
                      package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
                      tune_length = 10,
                      parallel = FALSE,

@@ -30,36 +30,43 @@ coef_var <- function(x, na.rm = FALSE){
 #'multiple simulation outcome variables.
 #'
 #'@param abm A function that takes each of the \code{input_values} as arguments.
+#'  Specifically, a function that has at least three arguments: 
+#'  \code{parameters, out, iterations} Using \code{\link{training}} to estimate 
+#'  a model, one can create a small wrapper function around their abm simulation
+#'  function \code{estimate_abm <- function(model){ force(model); 
+#'  function(parameters, out, iterations) {...}}}. \code{model} is the result of
+#'  \code{\link{training}} that is passed into the creation of the abm 
+#'  simulation model function.
 #'@param input_values List
 #'@param out Character vector length one to be passed an argument to the 
 #'  \code{abm} function to specify what outcome measure to use.
-#'@param sample_count Optional numeric vector length one specifying the number
-#'  of samples for a given \code{iters} value that is being tested. If
+#'@param sample_count Optional numeric vector length one specifying the number 
+#'  of samples for a given \code{iters} value that is being tested. If 
 #'  \code{repeats} is very high then this does not need to be as high.
 #'@param repeats Optional numeric vector length one specifying the number of 
-#'  times to repeat the main loop of this algo. If \code{sample_count} is very
+#'  times to repeat the main loop of this algo. If \code{sample_count} is very 
 #'  high then this does not need to be as high.
 #'@param thresh Optional numeric vector length one. This is a hyper-parameter of
 #'  this algorithm and may need to be experimented with by the user.
-#'@param initial_iters Optional numeric vector length one. Although optional,
-#'  this is very problem dependent and so should usually be set with knowledge
+#'@param initial_iters Optional numeric vector length one. Although optional, 
+#'  this is very problem dependent and so should usually be set with knowledge 
 #'  of the simulation model.
-#'@param max_iters Optional numeric vector length one. Although optional, this
+#'@param max_iters Optional numeric vector length one. Although optional, this 
 #'  is very problem dependent and so should usually be set with knowledge of the
 #'  simulation model.
 #'@param constraints Optional Character vector that is either "none" or is using
 #'  only variable names that are specified in the input_values List argument. 
 #'  This character vector is evaluated in an environment created for the sampled
 #'  data on the variables, and its evaluation results in a Logical vector that 
-#'that subsets sampled.
+#'  that subsets sampled.
 #'@param parallel Optional logical vector length one. Default is FALSE.
 #'@param cores Optional Numeric vector length one. Default is 
 #'  parallel::detectCores().
 #'@param verbose Optional logical vector. Default for this algorithm is FALSE 
 #'  because messages are created during an inner loop, i.e. very often.
 #'@param measure Optional character vector. One of \code{c("coef_var", "var", 
-#'  "sd")}. Don't use \code{coef_var} if the outcome values of the simulation
-#'  model can take on negative values or are on an arbitrary scale; otherwise,
+#'  "sd")}. Don't use \code{coef_var} if the outcome values of the simulation 
+#'  model can take on negative values or are on an arbitrary scale; otherwise, 
 #'  use \code{coef_var}.
 #'  
 #'@return List with the result and diagnostic information. List has elements: 

@@ -5,7 +5,7 @@
 \title{Estimate an Agent Model}
 \usage{
 training(trainData, features, Formula, k, sampling = FALSE,
-  sampling_size = 1000, outcome_var_name = "my.decision",
+  sampling_size = 1000, outcome_var_name = "action",
   package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
   tune_length = 10, parallel = FALSE, cv_type = c("cv", "repeatedcv"))
 }
@@ -40,9 +40,9 @@ train the model, default is 1000. Only applicable when \code{sampling}
 argument is set to \code{TRUE}.}
 
 \item{outcome_var_name}{optional character vector length one, default is
-\code{"my.decision"}. \code{\link{training}} uses it to sample to train the
-model with a balanced sampling based on \code{outcome_var_name}. Only
-applicable when \code{sampling} argument is set to \code{TRUE}.}
+\code{"action"}. \code{\link{training}} uses it to sample to train the model
+with a balanced sampling based on \code{outcome_var_name}. Only applicable
+when \code{sampling} argument is set to \code{TRUE}.}
 
 \item{package}{optional character vector length one, default is
 \code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.}

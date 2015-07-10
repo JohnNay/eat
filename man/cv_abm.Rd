@@ -7,13 +7,12 @@
 cv_abm(data, features, Formula, k, agg_patterns, abm_simulate, abm_vars, iters,
   tseries_len, tp = rep(tseries_len, nrow(agg_patterns)),
   package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
-  sampling = FALSE, sampling_size = 1000,
-  outcome_var_name = "my.decision", STAT = c("mean", "median"),
-  saving = FALSE, filename = NULL, abm_optim = c("GA", "DE"),
-  validate = c("lgocv", "cv"), folds = ifelse(validate == "lgocv",
-  max(data$group), 10), drop_nzv = FALSE, verbose = TRUE,
-  predict_test_par = FALSE, optimize_abm_par = FALSE,
-  parallel_training = FALSE)
+  sampling = FALSE, sampling_size = 1000, outcome_var_name = "action",
+  STAT = c("mean", "median"), saving = FALSE, filename = NULL,
+  abm_optim = c("GA", "DE"), validate = c("lgocv", "cv"),
+  folds = ifelse(validate == "lgocv", max(data$group), 10),
+  drop_nzv = FALSE, verbose = TRUE, predict_test_par = FALSE,
+  optimize_abm_par = FALSE, parallel_training = FALSE)
 }
 \arguments{
 \item{data}{\code{data.frame} with each row (obervational unit) being an
@@ -46,11 +45,12 @@ the action for each time period.}
 
 \item{abm_simulate}{function with these arguments: \code{model, features,
 parameters, tuning_parameters, iterations, time_len, STAT = c("mean",
-"median")}. Output of the function is a list with three named elements:
-\code{dynamics, action_avg, simdata}. Where \code{dynamics} is a numeric
-vector length \code{tseries_len}, \code{action_avg} is a numeric vector
-length one, and \code{simdata} is a \code{data.frame} with the numeric
-results of the simulation.}
+"median")}. Where \code{model} is the output of \code{\link{training}}.
+Output of the function is a list with three named elements: \code{dynamics,
+action_avg, simdata}. Where \code{dynamics} is a numeric vector length
+\code{tseries_len}, \code{action_avg} is a numeric vector length one, and
+\code{simdata} is a \code{data.frame} with the numeric results of the
+simulation.}
 
 \item{abm_vars}{a list with either (1.) a numeric vector named "lower" AND a
 numeric vector named "upper" each the length of the number of tuning_params
@@ -86,9 +86,9 @@ train the model, default is 1000. Only applicable when \code{sampling}
 argument is set to \code{TRUE}.}
 
 \item{outcome_var_name}{optional character vector length one, default is
-\code{"my.decision"}. \code{\link{training}} uses it to sample to train the
-model with a balanced sampling based on \code{outcome_var_name}. Only
-applicable when \code{sampling} argument is set to \code{TRUE}.}
+\code{"action"}. \code{\link{training}} uses it to sample to train the model
+with a balanced sampling based on \code{outcome_var_name}. Only applicable
+when \code{sampling} argument is set to \code{TRUE}.}
 
 \item{STAT}{optional character vector length one, default is \code{c("mean",
 "median")}.}

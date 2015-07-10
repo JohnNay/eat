@@ -30,11 +30,12 @@
 #'  the action for each time period.
 #'@param abm_simulate function with these arguments: \code{model, features, 
 #'  parameters, tuning_parameters, iterations, time_len, STAT = c("mean", 
-#'  "median")}. Output of the function is a list with three named elements: 
-#'  \code{dynamics, action_avg, simdata}. Where \code{dynamics} is a numeric 
-#'  vector length \code{tseries_len}, \code{action_avg} is a numeric vector 
-#'  length one, and \code{simdata} is a \code{data.frame} with the numeric 
-#'  results of the simulation.
+#'  "median")}. Where \code{model} is the output of \code{\link{training}}. 
+#'  Output of the function is a list with three named elements: \code{dynamics, 
+#'  action_avg, simdata}. Where \code{dynamics} is a numeric vector length 
+#'  \code{tseries_len}, \code{action_avg} is a numeric vector length one, and 
+#'  \code{simdata} is a \code{data.frame} with the numeric results of the 
+#'  simulation.
 #'@param abm_vars a list with either (1.) a numeric vector named "lower" AND a 
 #'  numeric vector named "upper" each the length of the number of tuning_params 
 #'  of ABM (the names of the elements of these vecs should be the names of the 
@@ -62,9 +63,9 @@
 #'  train the model, default is 1000. Only applicable when \code{sampling} 
 #'  argument is set to \code{TRUE}.
 #'@param outcome_var_name optional character vector length one, default is 
-#'  \code{"my.decision"}. \code{\link{training}} uses it to sample to train the 
-#'  model with a balanced sampling based on \code{outcome_var_name}. Only 
-#'  applicable when \code{sampling} argument is set to \code{TRUE}.
+#'  \code{"action"}. \code{\link{training}} uses it to sample to train the model
+#'  with a balanced sampling based on \code{outcome_var_name}. Only applicable
+#'  when \code{sampling} argument is set to \code{TRUE}.
 #'@param STAT optional character vector length one, default is \code{c("mean", 
 #'  "median")}.
 #'@param saving optional logical vector length one, default is \code{FALSE}.
@@ -153,7 +154,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
                    tseries_len,
                    tp = rep(tseries_len, nrow(agg_patterns)),
                    package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
-                   sampling = FALSE, sampling_size = 1000, outcome_var_name = "my.decision",
+                   sampling = FALSE, sampling_size = 1000, outcome_var_name = "action",
                    STAT = c("mean", "median"),
                    saving = FALSE, filename = NULL,
                    abm_optim = c("GA", "DE"), 

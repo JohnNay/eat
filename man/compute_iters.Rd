@@ -10,7 +10,14 @@ compute_iters(abm, input_values, out, sample_count = 20, repeats = 30,
   measure = c("coef_var", "var", "sd"))
 }
 \arguments{
-\item{abm}{A function that takes each of the \code{input_values} as arguments.}
+\item{abm}{A function that takes each of the \code{input_values} as arguments.
+Specifically, a function that has at least three arguments:
+\code{parameters, out, iterations} Using \code{\link{training}} to estimate
+a model, one can create a small wrapper function around their abm simulation
+function \code{estimate_abm <- function(model){ force(model);
+function(parameters, out, iterations) {...}}}. \code{model} is the result of
+\code{\link{training}} that is passed into the creation of the abm
+simulation model function.}
 
 \item{input_values}{List}
 
@@ -37,9 +44,9 @@ is very problem dependent and so should usually be set with knowledge of the
 simulation model.}
 
 \item{constraints}{Optional Character vector that is either "none" or is using
- only variable names that are specified in the input_values List argument.
- This character vector is evaluated in an environment created for the sampled
- data on the variables, and its evaluation results in a Logical vector that
+only variable names that are specified in the input_values List argument.
+This character vector is evaluated in an environment created for the sampled
+data on the variables, and its evaluation results in a Logical vector that
 that subsets sampled.}
 
 \item{parallel}{Optional logical vector length one. Default is FALSE.}

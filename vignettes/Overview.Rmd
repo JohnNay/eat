@@ -13,5 +13,4 @@ This package is designed for the situation where you have data on *agent* action
 
 * recurrent neural networks, generalizing this idea to any model, it is recurrent bc its output at time t is an input to its function that determines its output at time t+1 
 * dataprogram evolves any probabilistic function that best minimizes a chosen loss function (`compute_log_lik `, `compute_identity`, `compute_rmse`) out of sample. it works by combining building blocks of a function and a type system that ensures the class of each input and output
-
-
+* EM algorithm. Fix global simulation model parameters and estimate the parameters of the individual-level model. 

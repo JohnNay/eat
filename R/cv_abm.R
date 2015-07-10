@@ -172,7 +172,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
   abm_simulate <- match.fun(abm_simulate, descend = FALSE)
   
   if(saving & missing(filename)) 
-    stop("If saving the file, supply a 'filename'.")
+    stop("If saving the file, supply a 'filename'. Every fold, this will save the cv_results and the counter for what fold you are on.")
   if(length(tp) != nrow(agg_patterns)) 
     stop("The length of the 'tp' vector supplied is not the same as the number of rows of the 'agg_patterns' supplied.")
   
@@ -313,8 +313,6 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
       if (verbose) cat("Starting to do ABM optimization with training data.\n") # TRAINING
       msg <- paste0(msg, "Starting to do ABM optimization with training data.\n")
       
-      squared_loss <- function(x, s) sqrt(mean((x - s)^2, na.rm=TRUE))
-      
       fitness <- function(parameter){
         abm_predicted <- rep(NA, nrow(agg_patterns))
         abm_dynamics <- matrix(NA, nrow=nrow(agg_patterns), ncol= tseries_len)
@@ -334,14 +332,14 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
           abm_dynamics[u, seq(tp[u])] <- abm_results$dynamics
         }
         # leaving out groups in vec unique(test$group) in this comparison because it not used for the training, its the test.
-        avg_action_error <- squared_loss(abm_predicted[-unique(test$group)], 
+        avg_action_error <- compute_rmse(abm_predicted[-unique(test$group)], 
                                          agg_patterns[-unique(test$group), which(names(agg_patterns) %in% "action")]) 
         if(is.na(avg_action_error)) 
           stop(paste("Fitness function tried to return an NA value for avg action error with param values as", parameter))
         dynamic_action_error <- rep(NA, nrow(agg_patterns))
         
         for (l in unique(training_data$group)){
-          dynamic_action_error[l] <- squared_loss(abm_dynamics[l, seq(tp[l])], 
+          dynamic_action_error[l] <- compute_rmse(abm_dynamics[l, seq(tp[l])], 
                                                   as.numeric(agg_patterns[l, which(names(agg_patterns) %in% paste(seq(tp[l])))]))
         }
         
@@ -378,7 +376,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
                                                                            foreachArgs = list(.packages = c("caret", "dplyr", "DEoptim"),
                                                                                               .export = c("agg_patterns", "training_data",
                                                                                                           "abm_simulate", "model", "features",
-                                                                                                          "squared_loss", "fitness",
+                                                                                                          "compute_rmse", "fitness",
                                                                                                           "fitness_min"), .verbose = TRUE),
                                                                            NP = popSize, itermax = 20,
                                                                            steptol = 3))
@@ -431,7 +429,7 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     if (saving) {
       if (verbose) cat("Saving file.\n")
       msg <- paste0(msg, "Saving file.\n")
-      save(predicted_patterns, file = filename)
+      save(predicted_patterns, i, file = filename)
     }
   }
   

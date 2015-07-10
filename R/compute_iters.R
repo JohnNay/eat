@@ -26,24 +26,23 @@ coef_var <- function(x, na.rm = FALSE){
 #'routines. Lorscheid, I., Heine, B.O., & Meyer, M. (2012) suggest using the 
 #'coefficient of variation, c_v = s/mu, where s is the standard deviation and mu
 #'is the mean. Because the coefficient of variation is a dimensionless and
-#'normalized measure of variance it can be used to investigate the variance of
+#'normalized measure of variance it can be used to investigate the variance of 
 #'multiple simulation outcome variables.
 #'
 #'@param abm A function that takes each of the \code{input_values} as arguments.
 #'  Specifically, a function that has at least three arguments: 
-#'  \code{parameters, out, iterations} Using \code{\link{training}} to estimate 
-#'  a model, one can create a small wrapper function around their abm simulation
-#'  function \code{estimate_abm <- function(model){ force(model); 
-#'  function(parameters, out, iterations) {...}}}. \code{model} is the result of
-#'  \code{\link{training}} that is passed into the creation of the abm 
-#'  simulation model function.
+#'  \code{parameters, out, iterations}. Using \code{\link{estimate_abm}} one can
+#'  use their data and their abm function they are using for
+#'  \code{\link{cv_abm}} to estimate an ABM via optimization of its global abm
+#'  parameters or their specification. This returns a a small wrapper function
+#'  around their abm simulation function.
 #'@param input_values List
 #'@param out Character vector length one to be passed an argument to the 
 #'  \code{abm} function to specify what outcome measure to use.
 #'@param sample_count Optional numeric vector length one specifying the number 
 #'  of samples for a given \code{iters} value that is being tested. If 
 #'  \code{repeats} is very high then this does not need to be as high.
-#'@param repeats Optional numeric vector length one specifying the number of 
+#'@param repeats Optional numeric vector length one specifying the number of
 #'  times to repeat the main loop of this algo. If \code{sample_count} is very 
 #'  high then this does not need to be as high.
 #'@param thresh Optional numeric vector length one. This is a hyper-parameter of

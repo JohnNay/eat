@@ -12,12 +12,11 @@ compute_iters(abm, input_values, out, sample_count = 20, repeats = 30,
 \arguments{
 \item{abm}{A function that takes each of the \code{input_values} as arguments.
 Specifically, a function that has at least three arguments:
-\code{parameters, out, iterations} Using \code{\link{training}} to estimate
-a model, one can create a small wrapper function around their abm simulation
-function \code{estimate_abm <- function(model){ force(model);
-function(parameters, out, iterations) {...}}}. \code{model} is the result of
-\code{\link{training}} that is passed into the creation of the abm
-simulation model function.}
+\code{parameters, out, iterations}. Using \code{\link{estimate_abm}} one can
+use their data and their abm function they are using for
+\code{\link{cv_abm}} to estimate an ABM via optimization of its global abm
+parameters or their specification. This returns a a small wrapper function
+around their abm simulation function.}
 
 \item{input_values}{List}
 

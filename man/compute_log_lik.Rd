@@ -2,7 +2,7 @@
 % Please edit documentation in R/loss_functions.R
 \name{compute_log_lik}
 \alias{compute_log_lik}
-\title{Compute Log Likelihood}
+\title{Compute Negative Log Likelihood}
 \usage{
 compute_log_lik(prediction, actual)
 }

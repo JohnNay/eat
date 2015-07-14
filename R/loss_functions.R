@@ -1,4 +1,4 @@
-#' Compute Log Likelihood
+#' Compute Negative Log Likelihood
 #' 
 #' Bernoulli likelihood: x = 0, 1; f(x,theta) = (theta^x)*(1-theta)^(1-x)
 #' Bernoulli log-likelihood: $$ ln(L) = sum_{i=1}^I sum_{t=1}^T  D_i^C(t)  *  ln(P_{i}^{C} (t)) + (1 - D_i^C(t)) * ln(1 - P_{i}^{C} (t)) $$
@@ -18,11 +18,15 @@ compute_log_lik <- function(prediction, actual){
   log.likelihood <- 0
   for (i in seq(length(prediction))) {
     p <- prediction[i]
+    
+    if(p <= 0) p <- 0.00001
+    if(p >= 1) p <- 0.99999
+    
     log.likelihood <- log.likelihood + 
       base::log(ifelse(actual[i] == 1, p, 1 - p))
   }
   
-  log.likelihood
+  - log.likelihood
 }
 
 # # Testing Bernoulli log-likelihood computation by comparing to R's glm(): 
@@ -99,3 +103,9 @@ compute_identity_multi_class <- function(prediction, actual){
 #' @export
 compute_rmse <- function(prediction, actual) 
   sqrt(mean((prediction - actual)^2))
+
+
+loss_functions <- list(identity = compute_identity, 
+                       identity_multi_class = compute_identity_multi_class,
+                       log_lik = compute_log_lik,
+                       rmse = compute_rmse)

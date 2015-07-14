@@ -1,13 +1,19 @@
 #'Estimate an ABM
 #'
+#'Using \code{\link{estimate_abm}} one can use their data and their abm function
+#'they are using for \code{\link{cv_abm}} to estimate an ABM via optimization of
+#'its global abm parameters or their specification. Then this can be used for 
+#'the \code{\link{compute_iters}}, \code{\link{sobol_sa}}, and 
+#'\code{\link{pc_sa}}.
+#'
 #'@inheritParams cv_abm
 #'  
-#'@return Returns a function that has three arguments: \code{parameters, out,
-#'  iterations}. Using \code{\link{estimate_abm}} one can use their data and
-#'  their abm function they are using for \code{\link{cv_abm}} to estimate an
-#'  ABM via optimization of its global abm parameters or their specification.
-#'  This returns a a small wrapper function around their abm simulation function
-#'  to be used for the \code{\link{compute_iters}}, \code{\link{sobol_sa}}, and
+#'@return Returns a function that has three arguments: \code{parameters, out, 
+#'  iterations}. If \code{out=="action_avg"} for the returned function, the
+#'  average of all the actions is returned by this function; otherwise, the
+#'  vector of the average for each time is returned by this function. This
+#'  returns a wrapper function around their abm simulation function to be used
+#'  for \code{\link{compute_iters}}, \code{\link{sobol_sa}}, and 
 #'  \code{\link{pc_sa}}.
 #'  
 #'@export
@@ -29,14 +35,18 @@ estimate_abm <- function(data, features, Formula, k, agg_patterns,
   # Extract the desired function object while avoiding undesired matching to objects of other types:
   abm_simulate <- match.fun(abm_simulate, descend = FALSE)
   
+  #################################################################
+  # Mandatory individual-level model training:
   model <- training(data, features, Formula, k, 
                     sampling = sampling, sampling_size = sampling_size, outcome_var_name = outcome_var_name,
                     package = package,
                     parallel = parallel_training) # TRAINING
   
+  #################################################################
+  # Optional ABM optimization:
   if (is.null(abm_vars$value)) {
     if (is.null(abm_vars$lower) | is.null(abm_vars$upper)) 
-      stop("'abm_vars$lower' and/or 'abm_vars$upper' was NULL (missing) and 'abm_vars$value' was also missing. Either provide lower and upper or provide value.")
+      stop("'abm_vars$lower' and/or 'abm_vars$upper' was NULL (missing) and 'abm_vars$value' was also missing. Either provide lower and upper bounds, or provide values.")
     
     if (verbose) cat("Starting to do ABM optimization with training data.\n") # TRAINING
     
@@ -113,8 +123,9 @@ estimate_abm <- function(data, features, Formula, k, agg_patterns,
     abm_vars$value <- solution
     if (verbose) cat("\nOptimal values of parameters are ", paste(solution, collapse = " ,"), ".\n", sep="")
   }
+  #################################################################
   
-  # build abm with predictive models trained 
+  # Build abm with predictive models trained and used as agent models.
   function(parameters, out, iterations = iters){
     if(out=="action_avg"){
       abm_simulate(parameters,
@@ -122,14 +133,15 @@ estimate_abm <- function(data, features, Formula, k, agg_patterns,
                    tuning_parameters = abm_vars$value, 
                    time_len = tseries_len,
                    iterations,
-                   STAT = STAT)$action_avg
+                   STAT = "mean")$action_avg
     } else {
       abm_simulate(parameters,
                    model = model, features = features,
                    tuning_parameters = abm_vars$value, 
                    time_len = tseries_len,
                    iterations,
-                   STAT = STAT)$dynamics
+                   STAT = "mean")$dynamics
     }
   }
+  
 }

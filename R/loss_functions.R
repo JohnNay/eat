@@ -15,15 +15,32 @@
 compute_log_lik <- function(prediction, actual){
   stopifnot(length(prediction)==length(actual))
   
-  log.likelihood <- 0
-  for (i in seq(length(prediction))) {
-    p <- prediction[i]
-    
-    if(p <= 0) p <- 0.00001
-    if(p >= 1) p <- 0.99999
-    
-    log.likelihood <- log.likelihood + 
-      base::log(ifelse(actual[i] == 1, p, 1 - p))
+  missings <- sum(is.na(prediction))
+  if(missings > 0) {
+    actual <- actual[complete.cases(prediction)]
+    prediction <- prediction[complete.cases(prediction)]
+    stopifnot(length(prediction)==length(actual))
+    warning(paste0("Dropped ", missings, 
+                   " elements of the prediction and actual vecs bc there were that many missing vals in the predictions."))
+  }
+  
+  if(length(prediction) < 1){
+    # Bad:
+    log.likelihood <- -Inf
+  } else {
+    log.likelihood <- 0
+    for (i in seq(length(prediction))) {
+      p <- prediction[i]
+      
+      if(p <= 0 || p >= 1) {
+        # Bad:
+        log.likelihood <- -Inf #p <- 1e-05; p <- 0.99999
+      } else {
+      log.likelihood <- log.likelihood + 
+        base::log(ifelse(actual[i] == 1, p, 1 - p))
+      }
+      
+    }
   }
   
   - log.likelihood
@@ -104,8 +121,24 @@ compute_identity_multi_class <- function(prediction, actual){
 compute_rmse <- function(prediction, actual) 
   sqrt(mean((prediction - actual)^2))
 
-
-loss_functions <- list(identity = compute_identity, 
-                       identity_multi_class = compute_identity_multi_class,
-                       log_lik = compute_log_lik,
-                       rmse = compute_rmse)
+#' Pick one of the loss functions from the package.
+#' 
+#' @param loss Character vector length one specifying which loss function you 
+#'   want.
+#'   
+#' @return Returns a function that has two arguments \code{prediction} (Numeric
+#'   vector same length as actual), and \code{actual} (Numeric vector same
+#'   length as prediction), and returns a Numeric vector length one.
+#'   
+#' @examples
+#' create_loss_func("log_lik")
+#' 
+#' @export
+create_loss_func <- function(loss){
+  switch(loss,
+         identity = compute_identity, 
+         identity_multi_class = compute_identity_multi_class,
+         log_lik = compute_log_lik,
+         rmse = compute_rmse
+  )
+}

@@ -82,6 +82,6 @@ Plots cv_abm S4 object
 base::cat().}
 
 \item{\code{session}}{the results from calling \code{sessionInfo()} at end of
-  \code{\link{pc_sa}} function.}
+   \code{\link{cv_abm}} function.}
 }}
 

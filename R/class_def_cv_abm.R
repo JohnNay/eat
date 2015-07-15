@@ -11,7 +11,7 @@
 #' @slot diagnostics Character vector length one, to be printed with
 #'   base::cat().
 #' @slot session the results from calling \code{sessionInfo()} at end of
-#'   \code{\link{pc_sa}} function.
+#'    \code{\link{cv_abm}} function.
 #'   
 #' @export
 

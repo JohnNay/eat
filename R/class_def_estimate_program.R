@@ -2,11 +2,14 @@
 ################################################################################
 #' An S4 class to return the results of using the estimate_program function
 #' 
-#' @slot call Language from the call of the function \code{\link{estimate_program}}.
+#' @slot call Language from the call of the function
+#'   \code{\link{estimate_program}}.
 #' @slot timing Numeric vector length one with the total elapsed time it took 
 #'   \code{\link{estimate_program}} to execute.
-#' @slot session the results from calling \code{sessionInfo()} at end of
+#' @slot session the results from calling \code{sessionInfo()} at end of 
 #'   \code{\link{estimate_program}} function.
+#' @slot full full main results
+#' @slot best_func just the best function evolved.
 #'   
 #' @export
 
@@ -30,6 +33,7 @@ setMethod("print", "estimate_program",
 
 ################################################################################
 #' @describeIn estimate_program An S4 method for showing a estimate_program S4 object
+#' @param object S4 estimate_program object
 #'  @export
 
 setMethod("show", "estimate_program",

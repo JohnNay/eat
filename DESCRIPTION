@@ -25,5 +25,6 @@ Imports: caret,
     ggplot2,
     sensitivity,
     gtools,
-    Hmisc
+    Hmisc,
+    rgp
 VignetteBuilder: knitr

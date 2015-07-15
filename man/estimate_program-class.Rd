@@ -15,6 +15,8 @@
 \item{x}{S4 estimate_program object}
 
 \item{...}{ignored}
+
+\item{object}{S4 estimate_program object}
 }
 \description{
 An S4 class to return the results of using the estimate_program function
@@ -28,12 +30,17 @@ An S4 class to return the results of using the estimate_program function
 \section{Slots}{
 
 \describe{
-\item{\code{call}}{Language from the call of the function \code{\link{estimate_program}}.}
+\item{\code{call}}{Language from the call of the function
+\code{\link{estimate_program}}.}
 
 \item{\code{timing}}{Numeric vector length one with the total elapsed time it took
 \code{\link{estimate_program}} to execute.}
 
 \item{\code{session}}{the results from calling \code{sessionInfo()} at end of
-  \code{\link{estimate_program}} function.}
+\code{\link{estimate_program}} function.}
+
+\item{\code{full}}{full main results}
+
+\item{\code{best_func}}{just the best function evolved.}
 }}
 

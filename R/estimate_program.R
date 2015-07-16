@@ -1,38 +1,51 @@
-#' Pick one of the link functions
+#' Pick one of the (inverse) link functions
+#' 
+#' These are functions that map the real number line to the (0,1) interval.
 #' 
 #' @param link Character vector length one specifying which link function you 
-#'   want.
+#'   want. \code{logit}, \code{probit}, \code{cauchit} (logistic, normal and 
+#'   Cauchy CDFs respectively).
 #'   
-#' @return Returns a function that has one argument (Numeric
-#'   vector length one), returns a Numeric vector length one.
+#' @return Returns a function that has one argument (Numeric vector length one),
+#'   returns a Numeric vector length one.
 #'   
 #' @examples
 #' create_link_func("logit")
+#' create_link_func("probit")
+#' create_link_func("cauchit")
 #' 
 #' @export
 create_link_func <- function(link){
-  # logit, probit, cauchit (logistic, normal and Cauchy CDFs respectively)
   switch(link,
          logit = stats::binomial(link = "logit")$linkinv,
-         probit = stats::binomial(link = "logit")$linkinv,
+         probit = stats::binomial(link = "probit")$linkinv,
          cauchit = stats::binomial(link = "cauchit")$linkinv
   )
 }
 
-## > 2 class problem?
-what_outcome <- function(dat){
+#' Determine the class of the outcome
+#' 
+#' @inheritParams estimate_program
+#'   
+#' Trying to determine if this is a > 2 class problem.
+#'   
+#' @return Returns a list with two elements: \code{outcome_class} and
+#'   \code{num_facs}.
+#'   
+#' @export
+what_outcome <- function(data){
   num_facs <- 0
   
-  if (class(dat[, which(colnames(dat) %in% "outcome")]) == "factor"){
-    num_facs <- length(levels(dat[, which(colnames(dat) %in% "outcome")]))
+  if (class(data[, which(colnames(data) %in% "outcome")]) == "factor"){
+    num_facs <- length(levels(data[, which(colnames(data) %in% "outcome")]))
     
-    if(length(levels(dat[, which(colnames(dat) %in% "outcome")])) > 2){
+    if(length(levels(data[, which(colnames(data) %in% "outcome")])) > 2){
       outcome_class <- "multi_factor"
     } else {
       outcome_class <- "factor"
     }
   } else {
-    outcome_class <- class(dat[, which(colnames(dat) %in% "outcome")])
+    outcome_class <- class(data[, which(colnames(data) %in% "outcome")])
   }
   
   list(outcome_class = outcome_class, 
@@ -41,12 +54,13 @@ what_outcome <- function(dat){
 
 #' Create a fitness function to estimate a program (R function)
 #' 
-#' @param loss_function function resulting from a call to
-#'   \code{\link{create_loss_func}}
+#' @param loss_function function resulting from a call to 
+#'   \code{\link{create_loss_func}}.
 #' @inheritParams estimate_program
 #'   
 #' @return Returns a function that takes in a function as an argument and then 
-#'   assigns it a numeric fitness value we want to minimize.
+#'   assigns it a numeric fitness value we want to minimize. Use this in
+#'   \code{\link{estimate_program}}.
 #'   
 #' @export
 create_fit_func <- function(loss_function, data, parallel){
@@ -140,7 +154,7 @@ create_fit_func <- function(loss_function, data, parallel){
     input_set <- rgp::inputVariableSet(rgp::`%::%`(meta[1,1], rgp::st(meta[1,2])))
   }
   
-  list(fit_func = fit_func, input_set = input_set, meta=meta)
+  list(fit_func = fit_func, input_set = input_set)
 }
 
 
@@ -168,11 +182,9 @@ create_fit_func <- function(loss_function, data, parallel){
 #'  for the details of the \code{slots} (objects) that this type of object will 
 #'  have.
 #'  
-#'  
 #'@importFrom rgp %->% %::% st
 #'  
 #'@export
-
 estimate_program <- function(data, 
                              loss = c("log_lik", "rmse", "identity", "identity_multi_class"),
                              link = c("logit", "probit", "cauchit", "identity"),
@@ -183,11 +195,9 @@ estimate_program <- function(data,
   start_time <- as.numeric(proc.time()[[3]])
   call <- match.call()
   
-  # Problem-dependent comparison between data and output of pfunc() 
   loss <- match.arg(loss) 
-  link <- match.arg(link)
-  
   loss_function <- create_loss_func(loss)
+  link <- match.arg(link)
   link <- create_link_func(link)
   
   if (parallel) {
@@ -197,7 +207,7 @@ estimate_program <- function(data,
   
   if (loss == "log_lik"){
     ## CONSTANT SET
-    # Would much rather not do this. But because of how the rgp package authors
+    # Would much rather not do global bindings. But because of how the rgp package authors
     # forced use of the globalenv for location of the constant set, I have to.
     e <- globalenv()
     e$booleanConstantFactory <- function() runif(1) > .5
@@ -228,6 +238,7 @@ estimate_program <- function(data,
       "-" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
       "*" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
       "/" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
+      "exp" %::% (list(st("numeric")) %->% st("numeric")),
       ">" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
       "<" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
       # Logical
@@ -273,6 +284,7 @@ estimate_program <- function(data,
       "-" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
       "*" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
       "/" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
+      "exp" %::% (list(st("numeric")) %->% st("numeric")),
       ">" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
       "<" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
       # Logical
@@ -281,7 +293,7 @@ estimate_program <- function(data,
       "!" %::% (list(st("logical")) %->% st("logical")),
       rgp::pw("ifelse2" %::% (list(st("logical"), st("numeric"), st("numeric")) %->% st("numeric")), 0.5),
       # Randomness
-      rgp::pw("one_rnorm" %::% (list(st("numeric")) %->% st("numeric")), 1.5),
+      rgp::pw("one_rnorm" %::% (list(st("numeric")) %->% st("numeric")), 2.5),
       # Utilities
       #"create_vec" %::% (list(st("numeric"), st("numeric"), st("numeric")) %->% st("3integers")),
       #"round2" %::% (list(st("numeric")) %->% st("integer")),
@@ -326,8 +338,8 @@ estimate_program <- function(data,
 # 
 # res1 <- estimate_program(data = d, 
 #                          loss = "log_lik",
-#                          link = "logit",
-#                          mins = 1.5,
+#                          link = "probit",
+#                          mins = 5,
 #                          parallel = FALSE)
 # bestFunction1 <- res1@best_func
 # bestFunction1 # It has named arguments, but can use positions, if we want.

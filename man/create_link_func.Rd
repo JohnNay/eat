@@ -2,22 +2,25 @@
 % Please edit documentation in R/estimate_program.R
 \name{create_link_func}
 \alias{create_link_func}
-\title{Pick one of the link functions}
+\title{Pick one of the (inverse) link functions}
 \usage{
 create_link_func(link)
 }
 \arguments{
 \item{link}{Character vector length one specifying which link function you
-  want.}
+  want. \code{logit}, \code{probit}, \code{cauchit} (logistic, normal and
+  Cauchy CDFs respectively).}
 }
 \value{
-Returns a function that has one argument (Numeric
-  vector length one), returns a Numeric vector length one.
+Returns a function that has one argument (Numeric vector length one),
+  returns a Numeric vector length one.
 }
 \description{
-Pick one of the link functions
+These are functions that map the real number line to the (0,1) interval.
 }
 \examples{
 create_link_func("logit")
+create_link_func("probit")
+create_link_func("cauchit")
 }
 

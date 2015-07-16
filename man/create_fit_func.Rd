@@ -8,7 +8,7 @@ create_fit_func(loss_function, data, parallel)
 }
 \arguments{
 \item{loss_function}{function resulting from a call to
-\code{\link{create_loss_func}}}
+\code{\link{create_loss_func}}.}
 
 \item{data}{data.frame where (i.) the last column is named \code{"outcome"}
 and has the outcome variable we are evolving programs to predict; (ii.) all
@@ -25,7 +25,8 @@ relative to the numner of population evolutions desired}
 }
 \value{
 Returns a function that takes in a function as an argument and then
-  assigns it a numeric fitness value we want to minimize.
+  assigns it a numeric fitness value we want to minimize. Use this in
+  \code{\link{estimate_program}}.
 }
 \description{
 Create a fitness function to estimate a program (R function)

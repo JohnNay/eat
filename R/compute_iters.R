@@ -146,7 +146,9 @@ compute_iters <- function(abm,
         measured2 <- sd(output)
       }
       
-      if (iters >= max_iters || (measured - measured2) <= thresh){
+      convergence <- (measured - measured2) / abs(measured)
+      
+      if (iters >= max_iters || convergence <= thresh){
         break
       } else {
         measured <- measured2

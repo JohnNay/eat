@@ -4,24 +4,15 @@
 \alias{create_fit_func}
 \title{Create a fitness function to estimate a program (R function)}
 \usage{
-create_fit_func(loss_function, data, parallel)
+create_fit_func(loss_function, X, y, parallel)
 }
 \arguments{
 \item{loss_function}{function resulting from a call to
 \code{\link{create_loss_func}}.}
 
-\item{data}{data.frame where (i.) the last column is named \code{"outcome"}
-and has the outcome variable we are evolving programs to predict; (ii.) all
-other columns (there must be at least one other column) that precede the
-\code{"outcome"} column are named columns containing the predictor
-variables, which can be of any type. The order matters: when using the
-evolved program for predictions the (named) arguments to the function will
-be the predictor variables in the order they are supplied to this
-\code{estimate_program()} function.}
+\item{X}{model.matrix}
 
-\item{parallel}{Optional Logical vector length one. Default is \code{parallel
-= FALSE}; \code{parallel = TRUE} can be slower if the data set is small
-relative to the numner of population evolutions desired}
+\item{y}{outcome}
 }
 \value{
 Returns a function that takes in a function as an argument and then

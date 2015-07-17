@@ -4,19 +4,30 @@
 \alias{estimate_program}
 \title{Estimate a program (R function) from data.}
 \usage{
-estimate_program(data, loss = c("log_lik", "rmse", "identity",
-  "identity_multi_class"), link = c("logit", "probit", "cauchit", "identity"),
-  mins = 2, parallel = FALSE, cores = NULL)
+estimate_program(data, formula, subset = NULL, loss = c("log_lik", "rmse",
+  "identity", "identity_multi_class"), link = c("logit", "probit", "cauchit",
+  "identity"), mins = 2, parallel = FALSE, cores = NULL)
 }
 \arguments{
-\item{data}{data.frame where (i.) the last column is named \code{"outcome"}
-and has the outcome variable we are evolving programs to predict; (ii.) all
-other columns (there must be at least one other column) that precede the
-\code{"outcome"} column are named columns containing the predictor
-variables, which can be of any type. The order matters: when using the
-evolved program for predictions the (named) arguments to the function will
-be the predictor variables in the order they are supplied to this
-\code{estimate_program()} function.}
+\item{data}{a data.frame with named columns containing the variables in
+formula. Neither a matrix nor an array will be accepted. We use the
+\code{formula} to turn this into a data.frame where (i.) the first column is
+named \code{"outcome"} and has the outcome variable we are evolving programs
+to predict; (ii.) all other columns (there must be at least one other
+column) that follow the \code{"outcome"} column are named columns containing
+the predictor variables, which can be of any type. The order matters: when
+using the evolved program for predictions the (named) arguments to the
+function will be the predictor variables in the order they are supplied to
+this \code{estimate_program()} function.}
+
+\item{formula}{formula used to create the data.frame needed, ensuring that the
+outcome variable, the variable to the left of "~", is the first column in
+the data.frame and the following columns are the predictor variables.}
+
+\item{subset}{a specification of the rows to be used: defaults to all rows.
+This can be any valid indexing vector (see [.data.frame) for the rows of
+data or if that is not supplied, a data frame made up of the variables used
+in formula.}
 
 \item{loss}{Optional Character vector length one}
 

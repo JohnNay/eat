@@ -4,7 +4,12 @@
 \alias{what_outcome}
 \title{Determine the class of the outcome}
 \usage{
-what_outcome(data)
+what_outcome(y)
+}
+\arguments{
+\item{y}{outcome vector
+
+Trying to determine if this is a > 2 class problem.}
 }
 \value{
 Returns a list with two elements: \code{outcome_class} and

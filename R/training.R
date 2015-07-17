@@ -25,7 +25,8 @@
 
 training <- function(trainData, features, Formula, k, 
                      sampling = FALSE, sampling_size = 1000, outcome_var_name = "action",
-                     package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
+                     package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn",
+                                 "estimate_program"),
                      tune_length = 10,
                      parallel = FALSE,
                      cv_type = c("cv", "repeatedcv")){
@@ -179,6 +180,28 @@ training <- function(trainData, features, Formula, k,
         tuneLength = tune_length,
         method =  'dnn',
         numepochs = 2500
+      )
+      cat("Done with", i, "out of", k, "models.\n") 
+    }
+  }
+  ###############################################################################
+  ###############################################################################
+  if(package=="estimate_program"){
+    for( i in seq(k)){
+      # estimate_program takes data like 
+      trainData <- trainData
+      if(i==k) {
+        data_use <- trainData[trainData$period>=i, ]
+      } else {
+        data_use <- trainData[trainData$period==i, ]
+      }
+      model[[i]] <- estimate_program(
+        formula = eval(parse(text=Formula[[i]])),
+        data = data_use,
+        loss = "log_lik",
+        link = "logit",
+        mins = 10,
+        parallel = TRUE
       )
       cat("Done with", i, "out of", k, "models.\n") 
     }

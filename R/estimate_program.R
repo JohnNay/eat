@@ -30,14 +30,14 @@ create_link_func <- function(link){
 #' Trying to determine if this is a > 2 class problem.
 #'   
 #' @return Returns a list with two elements: \code{outcome_class} and
-#'   \code{num_facs}.
+#'   \code{levels}.
 #'   
 #' @export
 what_outcome <- function(y){
-  num_facs <- 0
+  levels <- 1
   
   if (class(y)=="factor"){
-    num_facs <- length(levels(y))
+    levels <- length(levels(y))
     
     if(length(levels(y)) > 2){
       outcome_class <- "multi_factor"
@@ -49,7 +49,7 @@ what_outcome <- function(y){
   }
   
   list(outcome_class = outcome_class, 
-       num_facs = num_facs)
+       levels = levels)
 }
 
 #' Create a fitness function to estimate a program (R function)
@@ -80,9 +80,9 @@ create_fit_func <- function(loss_function, X, y,
   # make sure everything is a character vec
   meta[] <- lapply(meta, as.character)
   
-  num_facs <- what_outcome(y)$num_facs
+  levels <- what_outcome(y)$levels
   num_predictors <- ncol(X)
-  # For each of these, there is num_facs-dependent initialization of 
+  # For each of these, there is levels-dependent initialization of 
   # pfunc output, which should be a container for each output, 
   # with as many slots as there are observations in the data.
   if(num_predictors > 4) 
@@ -93,7 +93,7 @@ create_fit_func <- function(loss_function, X, y,
         pfunc(X[i, 1], X[i, 2], X[i, 3], X[i, 4])
       })
       
-      if (num_facs == 1) out <- as.vector(out)
+      out <- out[, levels]
       
       if (sum(complete.cases(out)) < 1) return(Inf)
       
@@ -112,7 +112,7 @@ create_fit_func <- function(loss_function, X, y,
         pfunc(X[i, 1], X[i, 2], X[i, 3])
       })
       
-      if (num_facs == 1) out <- as.vector(out)
+      out <- out[, levels]
       
       if (sum(complete.cases(out)) < 1) return(Inf)
       
@@ -130,7 +130,7 @@ create_fit_func <- function(loss_function, X, y,
         pfunc(X[i, 1], X[i, 2])
       })
       
-      if (num_facs == 1) out <- as.vector(out)
+      out <- out[, levels]
       
       if (sum(complete.cases(out)) < 1) return(Inf)
       
@@ -147,7 +147,7 @@ create_fit_func <- function(loss_function, X, y,
         pfunc(X[i, 1])
       })
       
-      if (num_facs == 1) out <- as.vector(out)
+      out <- out[, levels]
       
       if (sum(complete.cases(out)) < 1) return(Inf)
       
@@ -229,10 +229,14 @@ estimate_program <- function(data, formula,
     } else {
       temp <- stats::model.frame(formula = formula, data = data)
     }
-    #attr(attr(temp, "terms"), "intercept") <- NULL
-    X <- stats::model.matrix(object = formula,
+    attr(attr(temp, "terms"), "intercept") <- 0
+    Terms <- terms(temp)
+    X <- stats::model.matrix(object = Terms,
                              data = temp)
-    X <- X[ , -which(colnames(X)=="(Intercept)"), drop = FALSE]
+    
+    xint <- match("(Intercept)", colnames(X), nomatch = 0)
+    if (xint > 0) 
+      X <- X[, -xint, drop = FALSE]   
     
     y <- temp[ , 1]
   } else {
@@ -347,20 +351,25 @@ estimate_program <- function(data, formula,
   
   ## Do EVOLUTION
   full <- rgp::typedGeneticProgramming(fitnessFunction = fit_func, 
-                               type = type,
-                               functionSet = function_set,
-                               inputVariables = input_set,
-                               constantSet = constant_set,
-                               stopCondition = rgp::makeTimeStopCondition(mins*60))
+                                       type = type,
+                                       functionSet = function_set,
+                                       inputVariables = input_set,
+                                       constantSet = constant_set,
+                                       stopCondition = rgp::makeTimeStopCondition(mins*60))
   # We minimize loss, so the lowest fitness value is the best:
   best <- full$population[[which.min(full$fitnessValues)]]
+  levels <- what_outcome(y)$levels
+  out <- new("model_program",
+             func = best,
+             levels = levels,
+             Terms = Terms)
   
   new("estimate_program",
       call = call,
       timing = as.numeric(proc.time()[[3]]) - start_time,
       session = sessionInfo(),
       full = full,
-      best_func = best)
+      best_func = out)
 }
 
 # data("iris")
@@ -379,18 +388,11 @@ estimate_program <- function(data, formula,
 #                          mins = 0.5,
 #                          parallel = FALSE)
 # bestFunction1 <- res1@best_func
-# bestFunction1 # It has named arguments, but can use positions, if we want.
-# # Want this to be close to 1:
-# obs <- 1; bestFunction1(Sepal.Length = d[obs, 1], Sepal.Width = d[obs, 2], 
-#                         Petal.Length = d[obs, 3], Petal.Width = d[obs, 4])
-# # Want this to be close to 0:
-# obs <- 100; bestFunction1(Sepal.Length = d[obs, 1], Sepal.Width = d[obs, 2], 
-#                           Petal.Length = d[obs, 3], Petal.Width = d[obs, 4])
-# # Can also use the estimated program without named arguments:
-# obs <- 100; bestFunction1(d[obs, 1], d[obs, 2], d[obs, 3], d[obs, 4])
-# # Because this often evolves a probabilistic function, we can replicate it many times 
-# # to get a sense of the function:
-# plot(density(replicate(1000, 
-#                {obs <- 1; bestFunction1(d[obs, 1], d[obs, 2], d[obs, 3], d[obs, 4])})))
+# bestFunction1@func # It has named arguments, but can use positions, if we want.
+# round(predict(bestFunction1, d))
+# # # Because this often evolves a probabilistic function, we can replicate it many times 
+# # # to get a sense of the function:
+# # plot(density(replicate(1000, 
+# #                {obs <- 1; predict(bestFunction1, d[obs, ])})))
 
 

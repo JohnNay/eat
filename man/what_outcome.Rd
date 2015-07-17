@@ -13,7 +13,7 @@ Trying to determine if this is a > 2 class problem.}
 }
 \value{
 Returns a list with two elements: \code{outcome_class} and
-  \code{num_facs}.
+  \code{levels}.
 }
 \description{
 Determine the class of the outcome

@@ -41,6 +41,7 @@ An S4 class to return the results of using the estimate_program function
 
 \item{\code{full}}{full main results}
 
-\item{\code{best_func}}{just the best function evolved.}
+\item{\code{best_func}}{S4 object of class \linkS4class{model_program}, which has a
+  predict method.}
 }}
 

@@ -47,21 +47,21 @@ setMethod("predict", "model_program",
               .checkMFClasses(cl, m)
             
             X <- model.matrix(Terms, m)
+            
+            # This model will never use an intercept:
             xint <- match("(Intercept)", colnames(X), nomatch = 0)
             if (xint > 0) 
               X <- X[, -xint, drop = FALSE]   
             #vn <- attr(Terms, "term.labels")
             
             mod <- object@func
-            n_args <- length(formals(mod))
+            # n_args <- length(formals(mod))
             
             if(type == "prob"){
-              if(n_args==4){
                 out <- forloop(foreach::foreach(i=seq(nrow(X)), .combine='rbind'), {
-                  mod(X[i,1], X[i,2], X[i,3], X[i,4])
+                  do.call(mod, lapply(X[i, ], function(x) x))
                 })
-              }
-            } else {
+              } else {
               # TODO out <- 
             }
 #             obsLevels <- object@levels

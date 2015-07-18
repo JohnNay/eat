@@ -235,9 +235,10 @@ estimate_program <- function(data, formula,
                              data = temp)
     
     xint <- match("(Intercept)", colnames(X), nomatch = 0)
-    if (xint > 0) 
+    if (xint > 0)
       X <- X[, -xint, drop = FALSE]   
     
+    # Kept the outcome variable in here, i.e. didnt call delete.response(Terms)
     y <- temp[ , 1]
   } else {
     stop("You did not provide a formula, we require this to be sure your data is formatted right.")
@@ -390,9 +391,10 @@ estimate_program <- function(data, formula,
 # bestFunction1 <- res1@best_func
 # bestFunction1@func # It has named arguments, but can use positions, if we want.
 # round(predict(bestFunction1, d))
-# # # Because this often evolves a probabilistic function, we can replicate it many times 
-# # # to get a sense of the function:
-# # plot(density(replicate(1000, 
-# #                {obs <- 1; predict(bestFunction1, d[obs, ])})))
+# # Because this often evolves a probabilistic function, we can replicate it many times 
+# # to get a sense of the function:
+# mean(replicate(100,predict(bestFunction1, d[50,])))
+# plot(density(replicate(1000, 
+#                 {obs <- 1; predict(bestFunction1, d[obs, ])})))
 
 

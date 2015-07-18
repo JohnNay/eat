@@ -19,7 +19,8 @@ create_link_func <- function(link){
   switch(link,
          logit = stats::binomial(link = "logit")$linkinv,
          probit = stats::binomial(link = "probit")$linkinv,
-         cauchit = stats::binomial(link = "cauchit")$linkinv
+         cauchit = stats::binomial(link = "cauchit")$linkinv,
+         identity = function(x) x
   )
 }
 
@@ -110,6 +111,9 @@ create_fit_func <- function(loss_function, X, y,
 #'
 #'\code{estimate_program} uses \code{rgp}'s \code{rgp::typedGeneticProgramming}.
 #'
+#'@param formula formula used to create the data.frame needed, ensuring that the
+#'  outcome variable, the variable to the left of "~", is the first column in
+#'  the data.frame and the following columns are the predictor variables.
 #'@param data a data.frame with named columns containing the variables in
 #'  formula. Neither a matrix nor an array will be accepted. We use the
 #'  \code{formula} to turn this into a data.frame where (i.) the first column is
@@ -120,9 +124,6 @@ create_fit_func <- function(loss_function, X, y,
 #'  using the evolved program for predictions the (named) arguments to the
 #'  function will be the predictor variables in the order they are supplied to
 #'  this \code{estimate_program()} function.
-#'@param formula formula used to create the data.frame needed, ensuring that the
-#'  outcome variable, the variable to the left of "~", is the first column in
-#'  the data.frame and the following columns are the predictor variables.
 #'@param subset a specification of the rows to be used: defaults to all rows. 
 #'  This can be any valid indexing vector (see [.data.frame) for the rows of 
 #'  data or if that is not supplied, a data frame made up of the variables used 
@@ -142,13 +143,22 @@ create_fit_func <- function(loss_function, X, y,
 #'@importFrom rgp %->% %::% st
 #'  
 #'@export
-estimate_program <- function(data, formula, 
+estimate_program <- function(formula, data, 
                              subset = NULL,
                              loss = c("log_lik", "rmse", "identity", "identity_multi_class"),
                              link = c("logit", "probit", "cauchit", "identity"),
                              mins = 2,
                              parallel = FALSE, 
                              cores = NULL){
+  
+  # Change all integers to numeric so they work with type system for numerics:
+  data <- data.frame(lapply(data,
+                            function(x) {
+                              if (class(x)=="integer") {
+                                as.numeric(x)
+                              } else {
+                                x
+                              }}))
   
   start_time <- as.numeric(proc.time()[[3]])
   call <- match.call()
@@ -188,33 +198,22 @@ estimate_program <- function(data, formula,
     stop("You did not provide a formula, we require this to be sure your data is formatted right.")
   }
   
+  ## FUNCTION SET
+  one_rnorm <- function(.mean) {
+    if(anyNA(.mean)) return(Inf)
+    rnorm(1, .mean, 1)
+  }
+  # fac1 <- function(.logical) if(.logical) unique(d$outcome)[1] else sample(unique(d$outcome)[-1], 1)
+  # fac2 <- function(.logical) if(.logical) unique(d$outcome)[2] else sample(unique(d$outcome)[-2], 1)
+  # fac3 <- function(.logical) if(.logical) unique(d$outcome)[3] else sample(unique(d$outcome)[-3], 1)
+  ifelse2 <- function(cond, opt1, opt2) {
+    if(anyNA(cond)) return(Inf)
+    if(cond) opt1 else opt2
+  }
+  round2 <- function(x) base::round(x)
+  create_vec <- function(x,y,z) sapply(c(x,y,z), round)
+  
   if (loss == "log_lik"){
-    ## CONSTANT SET
-    # Would much rather not do global bindings. But because of how the rgp package authors
-    # forced use of the globalenv for location of the constant set, I have to.
-    e <- globalenv()
-    e$booleanConstantFactory <- function() runif(1) > .5
-    e$numericConstantFactory <- function() runif(1, 0.1, 0.9)
-    #e$integerConstantFactory <- function() round(runif(1, 1, 100))
-    #e$integerVecConstantFactory <- function() round(runif(3, 1, 100))
-    e$probConstantFactory <- function() runif(1, 0, 1)
-    
-    constant_set <- rgp::constantFactorySet("booleanConstantFactory" %::% (list() %->% st("logical")),
-                                            "numericConstantFactory" %::% (list() %->% st("numeric")),
-                                            "probConstantFactory" %::% (list() %->% st("prob"))
-                                            #"integerConstantFactory" %::% (list() %->% st("integer"))
-                                            #"integerVecConstantFactory" %::% (list() %->% st("3integers"))
-    )
-    
-    ## FUNCTION SET
-    one_rnorm <- function(.mean) rnorm(1, .mean, 1)
-    # fac1 <- function(.logical) if(.logical) unique(d$outcome)[1] else sample(unique(d$outcome)[-1], 1)
-    # fac2 <- function(.logical) if(.logical) unique(d$outcome)[2] else sample(unique(d$outcome)[-2], 1)
-    # fac3 <- function(.logical) if(.logical) unique(d$outcome)[3] else sample(unique(d$outcome)[-3], 1)
-    ifelse2 <- function(cond, opt1, opt2) if(cond) opt1 else opt2
-    round2 <- function(x) base::round(x)
-    create_vec <- function(x,y,z) sapply(c(x,y,z), round)
-    
     function_set <- rgp::functionSet(
       # Math
       "+" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
@@ -238,28 +237,27 @@ estimate_program <- function(data, formula,
       parentEnvironmentLevel = 1
     )
     
-    type <-  rgp::st("prob")
-  }
-  if (loss == "rmse"){
     ## CONSTANT SET
+    # Would much rather not do global bindings. But because of how the rgp package authors
+    # forced use of the globalenv for location of the constant set, I have to.
     e <- globalenv()
     e$booleanConstantFactory <- function() runif(1) > .5
     e$numericConstantFactory <- function() runif(1, 0.1, 0.9)
+    #e$integerConstantFactory <- function() round(runif(1, 1, 100))
+    #e$integerVecConstantFactory <- function() round(runif(3, 1, 100))
+    e$probConstantFactory <- function() runif(1, 0, 1)
     
     constant_set <- rgp::constantFactorySet("booleanConstantFactory" %::% (list() %->% st("logical")),
-                                            "numericConstantFactory" %::% (list() %->% st("numeric"))
+                                            "numericConstantFactory" %::% (list() %->% st("numeric")),
+                                            "probConstantFactory" %::% (list() %->% st("prob"))
                                             #"integerConstantFactory" %::% (list() %->% st("integer"))
                                             #"integerVecConstantFactory" %::% (list() %->% st("3integers"))
     )
     
-    ## FUNCTION SET
-    one_rnorm <- function(.mean) rnorm(1, .mean, 1)
-    # fac1 <- function(.logical) if(.logical) unique(d$outcome)[1] else sample(unique(d$outcome)[-1], 1)
-    # fac2 <- function(.logical) if(.logical) unique(d$outcome)[2] else sample(unique(d$outcome)[-2], 1)
-    # fac3 <- function(.logical) if(.logical) unique(d$outcome)[3] else sample(unique(d$outcome)[-3], 1)
-    ifelse2 <- function(cond, opt1, opt2) if(cond) opt1 else opt2
-    round2 <- function(x) base::round(x)
-    create_vec <- function(x,y,z) sapply(c(x,y,z), round)
+    type <-  rgp::st("prob")
+  }
+  ################################################################################
+  if (loss == "rmse"){
     
     function_set <- rgp::functionSet(
       # Math
@@ -281,6 +279,17 @@ estimate_program <- function(data, formula,
       #"create_vec" %::% (list(st("numeric"), st("numeric"), st("numeric")) %->% st("3integers")),
       #"round2" %::% (list(st("numeric")) %->% st("integer")),
       parentEnvironmentLevel = 1
+    )
+    
+    ## CONSTANT SET
+    e <- globalenv()
+    e$booleanConstantFactory <- function() runif(1) > .5
+    e$numericConstantFactory <- function() runif(1, 0.1, 0.9)
+    
+    constant_set <- rgp::constantFactorySet("booleanConstantFactory" %::% (list() %->% st("logical")),
+                                            "numericConstantFactory" %::% (list() %->% st("numeric"))
+                                            #"integerConstantFactory" %::% (list() %->% st("integer"))
+                                            #"integerVecConstantFactory" %::% (list() %->% st("3integers"))
     )
     
     type <-  rgp::st("numeric")
@@ -317,6 +326,7 @@ estimate_program <- function(data, formula,
       best_func = out)
 }
 
+# # Classification:
 # data("iris")
 # d <- iris
 # names(d)[which(names(d) == "Species")] <- "outcome" 
@@ -326,8 +336,8 @@ estimate_program <- function(data, formula,
 # d <- d[!d$outcome==3, ]
 # d$outcome[d$outcome!=1] <- 0
 # 
-# res1 <- estimate_program(data = d, 
-#                          formula = outcome ~ Sepal.Width + Petal.Width,
+# res1 <- estimate_program(outcome ~ Sepal.Width + Petal.Width,
+#                          d,
 #                          loss = "log_lik",
 #                          link = "probit",
 #                          mins = 0.5,
@@ -340,5 +350,41 @@ estimate_program <- function(data, formula,
 # mean(replicate(100,predict(bestFunction1, d[50,])))
 # plot(density(replicate(1000, 
 #                 {obs <- 1; predict(bestFunction1, d[obs, ])})))
+# # Regression:
+# data(cars, package = "caret")
+# res2 <- estimate_program(Price ~ ., cars, 
+#                          loss = "rmse",
+#                          mins = 1,
+#                          parallel = FALSE)
+# # bestFunction2 <- res2@best_func
+# bestFunction2@func # It has named arguments, but can use positions, if we want.
+# predict(bestFunction2, cars)
+# # Because this often evolves a probabilistic function, we can replicate it many times 
+# # to get a sense of the function:
+# mean(replicate(100, predict(bestFunction2, cars[1,])))
+# plot(density(replicate(1000, 
+#                        {obs <- 1; predict(bestFunction2, cars[obs, ])})))
+# mean((cars$Price - predict(bestFunction2, cars))^2) # rmse 
+# mean((longley$Employed - predict(stats::lm(Employed~., longley), longley))^2) # rmse 
 
-
+# data(GermanCredit, package = "caret")
+# d <- GermanCredit[,1:10]
+# # Convert it to integer: 
+# # TODO: get this to take in a factor and internally do this like what glm does
+# d$Class <- as.integer(d$Class)
+# d$Class[d$Class!=1] <- 0
+# 
+# res1 <- estimate_program(Class ~ ., 
+#                          d,
+#                          loss = "log_lik",
+#                          link = "logit",
+#                          mins = 5,
+#                          parallel = TRUE, cores = 4)
+# bestFunction1 <- res1@best_func
+# bestFunction1@func # It has named arguments, but can use positions, if we want.
+# round(predict(bestFunction1, d))
+# # Because this often evolves a probabilistic function, we can replicate it many times 
+# # to get a sense of the function:
+# mean(replicate(100,predict(bestFunction1, d[50,])))
+# plot(density(replicate(1000, 
+#                 {obs <- 1; predict(bestFunction1, d[obs, ])})))

@@ -4,11 +4,15 @@
 \alias{estimate_program}
 \title{Estimate a program (R function) from data.}
 \usage{
-estimate_program(data, formula, subset = NULL, loss = c("log_lik", "rmse",
+estimate_program(formula, data, subset = NULL, loss = c("log_lik", "rmse",
   "identity", "identity_multi_class"), link = c("logit", "probit", "cauchit",
   "identity"), mins = 2, parallel = FALSE, cores = NULL)
 }
 \arguments{
+\item{formula}{formula used to create the data.frame needed, ensuring that the
+outcome variable, the variable to the left of "~", is the first column in
+the data.frame and the following columns are the predictor variables.}
+
 \item{data}{a data.frame with named columns containing the variables in
 formula. Neither a matrix nor an array will be accepted. We use the
 \code{formula} to turn this into a data.frame where (i.) the first column is
@@ -19,10 +23,6 @@ the predictor variables, which can be of any type. The order matters: when
 using the evolved program for predictions the (named) arguments to the
 function will be the predictor variables in the order they are supplied to
 this \code{estimate_program()} function.}
-
-\item{formula}{formula used to create the data.frame needed, ensuring that the
-outcome variable, the variable to the left of "~", is the first column in
-the data.frame and the following columns are the predictor variables.}
 
 \item{subset}{a specification of the rows to be used: defaults to all rows.
 This can be any valid indexing vector (see [.data.frame) for the rows of

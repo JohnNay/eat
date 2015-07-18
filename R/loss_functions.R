@@ -16,18 +16,19 @@ compute_log_lik <- function(prediction, actual){
   stopifnot(length(prediction)==length(actual))
   
   missings <- sum(is.na(prediction))
-  if(missings > 0) {
-    actual <- actual[complete.cases(prediction)]
-    prediction <- prediction[complete.cases(prediction)]
-    stopifnot(length(prediction)==length(actual))
-    warning(paste0("Dropped ", missings, 
-                   " elements of the prediction and actual vecs bc there were that many missing vals in the predictions."))
-  }
   
-  if(length(prediction) < 1){
-    # Bad:
+  if(missings >= length(prediction)/2){
     log.likelihood <- -Inf
   } else {
+    
+    if(missings > 0) {
+      actual <- actual[complete.cases(prediction)]
+      prediction <- prediction[complete.cases(prediction)]
+      stopifnot(length(prediction)==length(actual))
+      warning(paste0("Dropped ", missings, 
+                     " elements of the prediction and actual vecs bc there were that many missing vals in the predictions.")) 
+    }
+    
     log.likelihood <- 0
     for (i in seq(length(prediction))) {
       p <- prediction[i]
@@ -36,11 +37,12 @@ compute_log_lik <- function(prediction, actual){
         # Bad:
         log.likelihood <- -Inf #p <- 1e-05; p <- 0.99999
       } else {
-      log.likelihood <- log.likelihood + 
-        base::log(ifelse(actual[i] == 1, p, 1 - p))
+        log.likelihood <- log.likelihood + 
+          base::log(ifelse(actual[i] == 1, p, 1 - p))
       }
       
     }
+    
   }
   
   - log.likelihood
@@ -118,8 +120,25 @@ compute_identity_multi_class <- function(prediction, actual){
 #' compute_rmse(rnorm(10), rnorm(10))
 #' 
 #' @export
-compute_rmse <- function(prediction, actual) 
-  sqrt(mean((prediction - actual)^2))
+compute_rmse <- function(prediction, actual) {
+  stopifnot(length(prediction)==length(actual))
+  
+  missings <- sum(is.na(prediction))
+  
+  if(missings >= length(prediction)){
+    res <- Inf
+  } else {
+    if(missings > 0) {
+      actual <- actual[complete.cases(prediction)]
+      prediction <- prediction[complete.cases(prediction)]
+      stopifnot(length(prediction)==length(actual))
+      warning(paste0("Dropped ", missings, 
+                     " elements of the prediction and actual vecs bc there were that many missing vals in the predictions.")) 
+    }
+    res <- sqrt(mean((prediction - actual)^2, na.rm = TRUE))
+  }
+  res
+}
 
 #' Pick one of the loss functions from the package.
 #' 

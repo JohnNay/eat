@@ -81,82 +81,26 @@ create_fit_func <- function(loss_function, X, y,
   meta[] <- lapply(meta, as.character)
   
   levels <- what_outcome(y)$levels
-  num_predictors <- ncol(X)
+  #num_predictors <- ncol(X)
   # For each of these, there is levels-dependent initialization of 
   # pfunc output, which should be a container for each output, 
   # with as many slots as there are observations in the data.
-  if(num_predictors > 4) 
-    stop("We have not created the function to work with more than 4 predictors yet.")
-  if(num_predictors == 4){
-    fit_func <- function(pfunc){
-      out <- forloop(foreach::foreach(i=seq(nrow(X)), .combine='rbind'), {
-        pfunc(X[i, 1], X[i, 2], X[i, 3], X[i, 4])
-      })
-      
-      out <- out[, levels]
-      
-      if (sum(complete.cases(out)) < 1) return(Inf)
-      
-      loss_function(actual = y,
-                    prediction = out)
-    }
-    ## INPUT VARIABLE SET 
-    input_set <- rgp::inputVariableSet(rgp::`%::%`(meta[1,1], rgp::st(meta[1,2])),
-                                       rgp::`%::%`(meta[2,1], rgp::st(meta[2,2])),
-                                       rgp::`%::%`(meta[3,1], rgp::st(meta[3,2])),
-                                       rgp::`%::%`(meta[4,1], rgp::st(meta[4,2])))
+  fit_func <- function(pfunc){
+    
+    out <- forloop(foreach::foreach(i=seq(nrow(X)), .combine='rbind'), {
+      do.call(pfunc, lapply(X[i, ], function(x) x))
+    })
+    
+    out <- out[, levels]
+    
+    if (sum(complete.cases(out)) < 1) return(Inf)
+    
+    loss_function(actual = y,
+                  prediction = out)
   }
-  if(num_predictors == 3){
-    fit_func <- function(pfunc){
-      out <- forloop(foreach::foreach(i=seq(nrow(X)), .combine='rbind'), {
-        pfunc(X[i, 1], X[i, 2], X[i, 3])
-      })
-      
-      out <- out[, levels]
-      
-      if (sum(complete.cases(out)) < 1) return(Inf)
-      
-      loss_function(actual = y,
-                    prediction = out)
-    }
-    ## INPUT VARIABLE SET 
-    input_set <- rgp::inputVariableSet(rgp::`%::%`(meta[1,1], rgp::st(meta[1,2])),
-                                       rgp::`%::%`(meta[2,1], rgp::st(meta[2,2])),
-                                       rgp::`%::%`(meta[3,1], rgp::st(meta[3,2])))
-  }
-  if(num_predictors == 2){
-    fit_func <- function(pfunc){
-      out <- forloop(foreach::foreach(i=seq(nrow(X)), .combine='rbind'), {
-        pfunc(X[i, 1], X[i, 2])
-      })
-      
-      out <- out[, levels]
-      
-      if (sum(complete.cases(out)) < 1) return(Inf)
-      
-      loss_function(actual = y,
-                    prediction = out)
-    }
-    ## INPUT VARIABLE SET 
-    input_set <- rgp::inputVariableSet(rgp::`%::%`(meta[1,1], rgp::st(meta[1,2])),
-                                       rgp::`%::%`(meta[2,1], rgp::st(meta[2,2])))
-  }
-  if(num_predictors == 1){
-    fit_func <- function(pfunc){
-      out <- forloop(foreach::foreach(i=seq(nrow(X)), .combine='rbind'), {
-        pfunc(X[i, 1])
-      })
-      
-      out <- out[, levels]
-      
-      if (sum(complete.cases(out)) < 1) return(Inf)
-      
-      loss_function(actual = y,
-                    prediction = out)
-    }
-    ## INPUT VARIABLE SET 
-    input_set <- rgp::inputVariableSet(rgp::`%::%`(meta[1,1], rgp::st(meta[1,2])))
-  }
+  
+  lmeta <- as.list(apply(meta, MARGIN = 1, function(y) rgp::`%::%`(y[1], rgp::st(y[2]))))
+  input_set <- do.call(rgp::inputVariableSet, lmeta)
   
   list(fit_func = fit_func, input_set = input_set)
 }
@@ -383,11 +327,11 @@ estimate_program <- function(data, formula,
 # d$outcome[d$outcome!=1] <- 0
 # 
 # res1 <- estimate_program(data = d, 
-#                          formula = outcome ~ .,
+#                          formula = outcome ~ Sepal.Width + Petal.Width,
 #                          loss = "log_lik",
 #                          link = "probit",
 #                          mins = 0.5,
-#                          parallel = FALSE)
+#                          parallel = TRUE)
 # bestFunction1 <- res1@best_func
 # bestFunction1@func # It has named arguments, but can use positions, if we want.
 # round(predict(bestFunction1, d))

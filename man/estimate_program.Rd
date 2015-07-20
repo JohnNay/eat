@@ -34,6 +34,10 @@ in formula.}
 
 \item{link}{Optional Character vector length one}
 
+\item{functions}{Optional Character vector as long as there are (prespecified)
+categories (\code{c("math", "logical", "randomness")}) of functions that you
+want to include}
+
 \item{mins}{Optional Integer vector length one}
 
 \item{parallel}{Optional Logical vector length one. Default is \code{parallel

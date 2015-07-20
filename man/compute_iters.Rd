@@ -5,7 +5,7 @@
 \title{Determine Number of Iterations to Simulate a Stochastic Model}
 \usage{
 compute_iters(abm, input_values, out, sample_count = 20, repeats = 30,
-  thresh = 0.05, initial_iters = 5, max_iters = 100,
+  thresh = 0.05, initial_iters = 5, max_iters = 1000,
   constraints = "none", parallel = FALSE, cores = NULL, verbose = FALSE,
   measure = c("coef_var", "var", "sd"))
 }
@@ -96,8 +96,8 @@ function(x) list(random_function = "qunif",
 ARGS = list(min = 0.1, max = 0.1)))
 hist(rnorm(15, 0.1, 0.1))
 res <- compute_iters(fake, inputs, "hello", repeats = 20,
-thresh = 0.25, max_iters = 100,
-initial_iters = 10)
+thresh = 1e-100, max_iters = 1e1000,
+initial_iters = 100)
 plot(res, ylab = "Coefficient of Variation")
 }
 \references{

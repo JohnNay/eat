@@ -13,6 +13,10 @@ create_fit_func(loss_function, X, y, parallel)
 \item{X}{model.matrix}
 
 \item{y}{outcome}
+
+\item{parallel}{Optional Logical vector length one. Default is \code{parallel
+= FALSE}; \code{parallel = TRUE} can be slower if the data set is small
+relative to the numner of population evolutions desired}
 }
 \value{
 Returns a function that takes in a function as an argument and then

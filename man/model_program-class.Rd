@@ -41,8 +41,8 @@ object
 \describe{
 \item{\code{func}}{function}
 
-\item{\code{formula}}{formula used for fitting the model.}
+\item{\code{levels}}{Numeric vector length one.}
 
-\item{\code{terms}}{terms used for fitting the model, got these from model.frame.}
+\item{\code{Terms}}{terms used for fitting the model, got these from \code{model.frame}.}
 }}
 

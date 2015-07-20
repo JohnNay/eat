@@ -18,6 +18,7 @@
 #'@param cv_type optional character vector length one, default is \code{c("cv", 
 #'  "repeatedcv")}. Passed on to \code{caret::trainControl()}.
 #'@inheritParams cv_abm
+#'@inheritParams estimate_program
 #'  
 #'@return Returns a \code{list} length \code{k} where each element of the list 
 #'  is an estimated model (estimated agent decision function).
@@ -27,7 +28,7 @@ training <- function(trainData, features, Formula, k,
                      sampling = FALSE, sampling_size = 1000, outcome_var_name = "action",
                      package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn",
                                  "estimate_program"),
-                     tune_length = 10,
+                     tune_length = 10, mins = 10,
                      parallel = FALSE,
                      cv_type = c("cv", "repeatedcv")){
   # if sampling == TRUE, samples equal numbers of observations from each game structure
@@ -188,7 +189,6 @@ training <- function(trainData, features, Formula, k,
   ###############################################################################
   if(package=="estimate_program"){
     for( i in seq(k)){
-      # estimate_program takes data like 
       trainData <- trainData
       if(i==k) {
         data_use <- trainData[trainData$period>=i, ]
@@ -200,8 +200,8 @@ training <- function(trainData, features, Formula, k,
         data = data_use,
         loss = "log_lik",
         link = "logit",
-        mins = 10,
-        parallel = TRUE
+        mins = mins,
+        parallel = parallel
       )
       cat("Done with", i, "out of", k, "models.\n") 
     }

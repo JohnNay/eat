@@ -59,6 +59,7 @@ what_outcome <- function(y){
 #'   \code{\link{create_loss_func}}.
 #' @param X model.matrix
 #' @param y outcome
+#' @inheritParams estimate_program
 #'   
 #' @return Returns a function that takes in a function as an argument and then 
 #'   assigns it a numeric fitness value we want to minimize. Use this in
@@ -167,17 +168,17 @@ create_func_set <- function(functions, link){
 #'\code{estimate_program} uses \code{rgp}'s \code{rgp::typedGeneticProgramming}.
 #'
 #'@param formula formula used to create the data.frame needed, ensuring that the
-#'  outcome variable, the variable to the left of "~", is the first column in
+#'  outcome variable, the variable to the left of "~", is the first column in 
 #'  the data.frame and the following columns are the predictor variables.
-#'@param data a data.frame with named columns containing the variables in
-#'  formula. Neither a matrix nor an array will be accepted. We use the
+#'@param data a data.frame with named columns containing the variables in 
+#'  formula. Neither a matrix nor an array will be accepted. We use the 
 #'  \code{formula} to turn this into a data.frame where (i.) the first column is
 #'  named \code{"outcome"} and has the outcome variable we are evolving programs
-#'  to predict; (ii.) all other columns (there must be at least one other
+#'  to predict; (ii.) all other columns (there must be at least one other 
 #'  column) that follow the \code{"outcome"} column are named columns containing
-#'  the predictor variables, which can be of any type. The order matters: when
-#'  using the evolved program for predictions the (named) arguments to the
-#'  function will be the predictor variables in the order they are supplied to
+#'  the predictor variables, which can be of any type. The order matters: when 
+#'  using the evolved program for predictions the (named) arguments to the 
+#'  function will be the predictor variables in the order they are supplied to 
 #'  this \code{estimate_program()} function.
 #'@param subset a specification of the rows to be used: defaults to all rows. 
 #'  This can be any valid indexing vector (see [.data.frame) for the rows of 
@@ -185,13 +186,16 @@ create_func_set <- function(functions, link){
 #'  in formula.
 #'@param loss Optional Character vector length one
 #'@param link Optional Character vector length one
+#'@param functions Optional Character vector as long as there are (prespecified)
+#'  categories (\code{c("math", "logical", "randomness")}) of functions that you
+#'  want to include
 #'@param mins Optional Integer vector length one
 #'@param parallel Optional Logical vector length one. Default is \code{parallel 
 #'  = FALSE}; \code{parallel = TRUE} can be slower if the data set is small 
 #'  relative to the numner of population evolutions desired
 #'@param cores Optional Integer vector length one
 #'  
-#'@return The function returns an S4 object. See \linkS4class{estimate_program}
+#'@return The function returns an S4 object. See \linkS4class{estimate_program} 
 #'  for the details of the \code{slots} (objects) that this type of object will 
 #'  have.
 #'  
@@ -242,6 +246,10 @@ estimate_program <- function(formula, data,
     Terms <- terms(temp)
     X <- stats::model.matrix(object = Terms,
                              data = temp)
+    
+    # To get this to work with interaction terms, which use ":", 
+    # we need variable names, and thus names of function args to not have ":"
+    colnames(X) <- gsub(":", "I", colnames(X))
     
     xint <- match("(Intercept)", colnames(X), nomatch = 0)
     if (xint > 0)

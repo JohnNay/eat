@@ -3,8 +3,8 @@
 #' function.
 #' 
 #' @slot func function
-#' @slot formula formula used for fitting the model.
-#' @slot terms terms used for fitting the model, got these from model.frame.
+#' @slot levels Numeric vector length one.
+#' @slot Terms terms used for fitting the model, got these from \code{model.frame}.
 #'   
 #' @export
 setClass(Class = "model_program",
@@ -47,6 +47,11 @@ setMethod("predict", "model_program",
               .checkMFClasses(cl, m)
             
             X <- model.matrix(Terms, m)
+            
+            # To get this to work with interaction terms, which use ":", 
+            # we need variable names, and thus names of function args to not have ":"
+            # We did the same thing in estimate_program(), thus, we must do it here.
+            colnames(X) <- gsub(":", "I", colnames(X))
             
             # This model will never use an intercept:
             xint <- match("(Intercept)", colnames(X), nomatch = 0)

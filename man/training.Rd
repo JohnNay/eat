@@ -7,7 +7,7 @@
 training(trainData, features, Formula, k, sampling = FALSE,
   sampling_size = 1000, outcome_var_name = "action",
   package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn",
-  "estimate_program"), tune_length = 10, parallel = FALSE,
+  "estimate_program"), tune_length = 10, mins = 10, parallel = FALSE,
   cv_type = c("cv", "repeatedcv"))
 }
 \arguments{
@@ -50,6 +50,8 @@ when \code{sampling} argument is set to \code{TRUE}.}
 
 \item{tune_length}{optional numeric vector length one specifying how many rows
 for caret::train to create in design matrix of hyper-parameter sets.}
+
+\item{mins}{Optional Integer vector length one}
 
 \item{parallel}{optional logical vector length one, default is \code{FALSE}.
 Uses \code{doParallel::registerDoParallel()}. Should be \code{FALSE} when

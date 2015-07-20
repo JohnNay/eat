@@ -80,8 +80,8 @@ coef_var <- function(x, na.rm = FALSE){
 #' ARGS = list(min = 0.1, max = 0.1)))
 #' hist(rnorm(15, 0.1, 0.1))
 #' res <- compute_iters(fake, inputs, "hello", repeats = 20,
-#' thresh = 0.25, max_iters = 100,
-#' initial_iters = 10)
+#' thresh = 1e-100, max_iters = 1e1000,
+#' initial_iters = 100)
 #' plot(res, ylab = "Coefficient of Variation")
 #' 
 #'@references Lorscheid, I., Heine, B.O., & Meyer, M. (2012). Opening the "black
@@ -101,7 +101,7 @@ compute_iters <- function(abm,
                           repeats = 30,
                           thresh = 0.05,
                           initial_iters = 5,
-                          max_iters = 100,
+                          max_iters = 1e3,
                           constraints = "none",
                           parallel = FALSE,
                           cores = NULL,
@@ -121,7 +121,7 @@ compute_iters <- function(abm,
   # Main outer loop: ###
   res <- foreach::`%do%`(foreach::foreach(i=seq(repeats), .combine='rbind', .verbose=FALSE), {
     iters <- initial_iters
-    measured <- Inf
+    measured <- 0
     
     repeat{
       # Create sample, removing samples violating constraints, until you have one:
@@ -146,7 +146,7 @@ compute_iters <- function(abm,
         measured2 <- sd(output)
       }
       
-      convergence <- (measured - measured2) / abs(measured)
+      convergence <- (measured2 - measured) / abs(measured)
       
       if (iters >= max_iters || convergence <= thresh){
         break

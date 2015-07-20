@@ -6,7 +6,8 @@
 \usage{
 estimate_program(formula, data, subset = NULL, loss = c("log_lik", "rmse",
   "identity", "identity_multi_class"), link = c("logit", "probit", "cauchit",
-  "identity"), mins = 2, parallel = FALSE, cores = NULL)
+  "identity"), functions = c("math", "logical", "randomness"), mins = 2,
+  parallel = FALSE, cores = NULL)
 }
 \arguments{
 \item{formula}{formula used to create the data.frame needed, ensuring that the

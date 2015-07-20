@@ -106,6 +106,61 @@ create_fit_func <- function(loss_function, X, y,
   list(fit_func = fit_func, input_set = input_set)
 }
 
+#' Create function set
+#' 
+#' @param functions Length one character vector
+#' @param link Length one character vector to pass to create_link_func
+#'   
+#' @return Returns a function set.
+#'   
+#' @export
+create_func_set <- function(functions, link){
+  
+  ## FUNCTION SET
+  link <- create_link_func(link)
+  one_rnorm <- function(.mean) {
+    if(anyNA(.mean)) return(Inf)
+    rnorm(1, .mean, 1)
+  }
+  # fac1 <- function(.logical) if(.logical) unique(d$outcome)[1] else sample(unique(d$outcome)[-1], 1)
+  # fac2 <- function(.logical) if(.logical) unique(d$outcome)[2] else sample(unique(d$outcome)[-2], 1)
+  # fac3 <- function(.logical) if(.logical) unique(d$outcome)[3] else sample(unique(d$outcome)[-3], 1)
+  ifelse2 <- function(cond, opt1, opt2) {
+    if(anyNA(cond)) return(Inf)
+    if(cond) opt1 else opt2
+  }
+  round2 <- function(x) base::round(x)
+  create_vec <- function(x,y,z) sapply(c(x,y,z), round)
+  
+  if ("math" %in% functions & "logical" %in% functions & 
+      "randomness" %in% functions & "link" %in% functions){
+    function_set <- rgp::functionSet(
+      # Math
+      "+" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
+      "-" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
+      "*" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
+      "/" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
+      "exp" %::% (list(st("numeric")) %->% st("numeric")),
+      ">" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
+      "<" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
+      # Logical
+      "&" %::% (list(st("logical"), st("logical")) %->% st("logical")),
+      "|" %::% (list(st("logical"), st("logical")) %->% st("logical")),
+      "!" %::% (list(st("logical")) %->% st("logical")),
+      rgp::pw("ifelse2" %::% (list(st("logical"), st("numeric"), st("numeric")) %->% st("numeric")), 0.5),
+      # Randomness
+      rgp::pw("one_rnorm" %::% (list(st("numeric")) %->% st("numeric")), 2.5),
+      # Utilities
+      #"create_vec" %::% (list(st("numeric"), st("numeric"), st("numeric")) %->% st("3integers")),
+      #"round2" %::% (list(st("numeric")) %->% st("integer")),
+      "link" %::% (list(st("numeric")) %->% st("prob")),
+      parentEnvironmentLevel = 1
+    )
+  }
+  
+  function_set
+  
+}
 
 #'Estimate a program (R function) from data.
 #'
@@ -147,6 +202,7 @@ estimate_program <- function(formula, data,
                              subset = NULL,
                              loss = c("log_lik", "rmse", "identity", "identity_multi_class"),
                              link = c("logit", "probit", "cauchit", "identity"),
+                             functions = c("math", "logical", "randomness"),
                              mins = 2,
                              parallel = FALSE, 
                              cores = NULL){
@@ -166,7 +222,6 @@ estimate_program <- function(formula, data,
   loss <- match.arg(loss) 
   loss_function <- create_loss_func(loss)
   link <- match.arg(link)
-  link <- create_link_func(link)
   
   if (parallel) {
     if (missing(cores)) cores <- parallel::detectCores() - 1
@@ -193,49 +248,15 @@ estimate_program <- function(formula, data,
       X <- X[, -xint, drop = FALSE]   
     
     # Kept the outcome variable in here, i.e. didnt call delete.response(Terms)
-    y <- temp[ , 1]
+    y <- stats::model.response(temp) # temp[ , 1]
   } else {
     stop("You did not provide a formula, we require this to be sure your data is formatted right.")
   }
   
-  ## FUNCTION SET
-  one_rnorm <- function(.mean) {
-    if(anyNA(.mean)) return(Inf)
-    rnorm(1, .mean, 1)
-  }
-  # fac1 <- function(.logical) if(.logical) unique(d$outcome)[1] else sample(unique(d$outcome)[-1], 1)
-  # fac2 <- function(.logical) if(.logical) unique(d$outcome)[2] else sample(unique(d$outcome)[-2], 1)
-  # fac3 <- function(.logical) if(.logical) unique(d$outcome)[3] else sample(unique(d$outcome)[-3], 1)
-  ifelse2 <- function(cond, opt1, opt2) {
-    if(anyNA(cond)) return(Inf)
-    if(cond) opt1 else opt2
-  }
-  round2 <- function(x) base::round(x)
-  create_vec <- function(x,y,z) sapply(c(x,y,z), round)
-  
   if (loss == "log_lik"){
-    function_set <- rgp::functionSet(
-      # Math
-      "+" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "-" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "*" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "/" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "exp" %::% (list(st("numeric")) %->% st("numeric")),
-      ">" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
-      "<" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
-      # Logical
-      "&" %::% (list(st("logical"), st("logical")) %->% st("logical")),
-      "|" %::% (list(st("logical"), st("logical")) %->% st("logical")),
-      "!" %::% (list(st("logical")) %->% st("logical")),
-      rgp::pw("ifelse2" %::% (list(st("logical"), st("numeric"), st("numeric")) %->% st("numeric")), 0.5),
-      # Randomness
-      rgp::pw("one_rnorm" %::% (list(st("numeric")) %->% st("numeric")), 2.5),
-      # Utilities
-      #"create_vec" %::% (list(st("numeric"), st("numeric"), st("numeric")) %->% st("3integers")),
-      #"round2" %::% (list(st("numeric")) %->% st("integer")),
-      "link" %::% (list(st("numeric")) %->% st("prob")),
-      parentEnvironmentLevel = 1
-    )
+    
+    functions <- append(functions, "link")
+    function_set <- create_func_set(functions, link)
     
     ## CONSTANT SET
     # Would much rather not do global bindings. But because of how the rgp package authors
@@ -259,27 +280,7 @@ estimate_program <- function(formula, data,
   ################################################################################
   if (loss == "rmse"){
     
-    function_set <- rgp::functionSet(
-      # Math
-      "+" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "-" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "*" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "/" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "exp" %::% (list(st("numeric")) %->% st("numeric")),
-      ">" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
-      "<" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
-      # Logical
-      "&" %::% (list(st("logical"), st("logical")) %->% st("logical")),
-      "|" %::% (list(st("logical"), st("logical")) %->% st("logical")),
-      "!" %::% (list(st("logical")) %->% st("logical")),
-      rgp::pw("ifelse2" %::% (list(st("logical"), st("numeric"), st("numeric")) %->% st("numeric")), 0.5),
-      # Randomness
-      rgp::pw("one_rnorm" %::% (list(st("numeric")) %->% st("numeric")), 2.5),
-      # Utilities
-      #"create_vec" %::% (list(st("numeric"), st("numeric"), st("numeric")) %->% st("3integers")),
-      #"round2" %::% (list(st("numeric")) %->% st("integer")),
-      parentEnvironmentLevel = 1
-    )
+    function_set <- create_func_set(functions, link)
     
     ## CONSTANT SET
     e <- globalenv()
@@ -368,21 +369,21 @@ estimate_program <- function(formula, data,
 # mean((longley$Employed - predict(stats::lm(Employed~., longley), longley))^2) # rmse 
 
 # data(GermanCredit, package = "caret")
-# d <- GermanCredit[,1:10]
+# d <- GermanCredit
 # # Convert it to integer: 
 # # TODO: get this to take in a factor and internally do this like what glm does
 # d$Class <- as.integer(d$Class)
 # d$Class[d$Class!=1] <- 0
-# 
+# # 
 # res1 <- estimate_program(Class ~ ., 
 #                          d,
 #                          loss = "log_lik",
 #                          link = "logit",
-#                          mins = 5,
+#                          mins = 1,
 #                          parallel = TRUE, cores = 4)
 # bestFunction1 <- res1@best_func
 # bestFunction1@func # It has named arguments, but can use positions, if we want.
-# round(predict(bestFunction1, d))
+# predict(bestFunction1, d)[1:100]
 # # Because this often evolves a probabilistic function, we can replicate it many times 
 # # to get a sense of the function:
 # mean(replicate(100,predict(bestFunction1, d[50,])))

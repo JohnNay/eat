@@ -4,10 +4,10 @@
 \alias{create_func_set}
 \title{Create function set}
 \usage{
-create_func_set(functions, link)
+create_func_set(func_list, link)
 }
 \arguments{
-\item{functions}{Length one character vector}
+\item{func_list}{List where each element is a length one character vector.}
 
 \item{link}{Length one character vector to pass to create_link_func}
 }

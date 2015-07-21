@@ -120,7 +120,7 @@ create_func_set <- function(func_list, link){
   ## FUNCTION SET
   link <- create_link_func(link)
   one_rnorm <- function(.mean) {
-    if(anyNA(.mean)) return(Inf)
+    if(is.na(.mean)) .mean <- 1
     rnorm(1, .mean, 1)
   }
   # fac1 <- function(.logical) if(.logical) unique(d$outcome)[1] else sample(unique(d$outcome)[-1], 1)
@@ -132,12 +132,13 @@ create_func_set <- function(func_list, link){
   }
   round2 <- function(x) base::round(x)
   create_vec <- function(x,y,z) sapply(c(x,y,z), round)
+  divide <- function(a,b) a/b
   
   # Math
   "+" %::% (list(st("numeric"), st("numeric")) %->% st("numeric"))
   "-" %::% (list(st("numeric"), st("numeric")) %->% st("numeric"))
   "*" %::% (list(st("numeric"), st("numeric")) %->% st("numeric"))
-  "/" %::% (list(st("numeric"), st("numeric")) %->% st("numeric"))
+  "divide" %::% (list(st("numeric"), st("nonzero")) %->% st("numeric"))
   "exp" %::% (list(st("numeric")) %->% st("numeric"))
   ">" %::% (list(st("numeric"), st("numeric")) %->% st("logical"))
   "<" %::% (list(st("numeric"), st("numeric")) %->% st("logical"))
@@ -179,14 +180,20 @@ create_func_set <- function(func_list, link){
 #'  in formula.
 #'@param loss Optional Character vector length one
 #'@param link Optional Character vector length one
-#'@param func_list Optional List where each element is a length one character
+#'@param func_list Optional List where each element is a length one character 
 #'  vector.
 #'@param mins Optional Integer vector length one
+#'@param steps Optional Integer vector length one
 #'@param parallel Optional Logical vector length one. Default is \code{parallel 
 #'  = FALSE}; \code{parallel = TRUE} can be slower if the data set is small 
 #'  relative to the numner of population evolutions desired
 #'@param cores Optional Integer vector length one
-#'@param enable_complexity Optional logical vector lenght one
+#'@param enable_complexity Optional logical vector length one
+#'@param lambda Optional integer vector length one for the number of children
+#'  rgp::typedGeneticProgramming() creates in each generation
+#'@param crossover_probability Optional numeric vector length one (default ==
+#'  0.5) for rgp::typedGeneticProgramming()
+#'@param enable_age Optional Logical vector length one. Default is \code{FALSE}.
 #'  
 #'@return The function returns an S4 object. See \linkS4class{estimate_program} 
 #'  for the details of the \code{slots} (objects) that this type of object will 
@@ -199,16 +206,21 @@ estimate_program <- function(formula, data,
                              subset = NULL,
                              loss = c("log_lik", "rmse", "identity", "identity_multi_class"),
                              link = c("logit", "probit", "cauchit", "identity"),
-                             func_list = list("+", "-", "*", "/", "exp", ">", "<",
-                                           # Logical
-                                           "&", "|", "!", "ifelse2",
-                                           # Randomness
-                                           "one_rnorm",
-                                           "link"),
-                             mins = 2,
+                             func_list = list("+", "-", "*", "divide", "exp", ">", "<",
+                                              # Logical
+                                              "&", "|", "!", "ifelse2",
+                                              # Randomness
+                                              "one_rnorm"),
+                             # Timing params:
+                             mins = 10, steps = 2000,
+                             # Par params:
                              parallel = FALSE, 
                              cores = NULL,
-                             enable_complexity = TRUE){
+                             # Params for optimization:
+                             enable_complexity = TRUE,
+                             lambda = 50,
+                             crossover_probability = 0.5, 
+                             enable_age = FALSE){
   
   # Change all integers to numeric so they work with type system for numerics:
   data <- data.frame(lapply(data,
@@ -261,47 +273,38 @@ estimate_program <- function(formula, data,
   }
   
   if (loss == "log_lik"){
-    
-    functions <- append(functions, "link")
-    function_set <- create_func_set(functions, link)
-    
-    ## CONSTANT SET
-    # Would much rather not do global bindings. But because of how the rgp package authors
-    # forced use of the globalenv for location of the constant set, I have to.
-    e <- globalenv()
-    e$booleanConstantFactory <- function() runif(1) > .5
-    e$numericConstantFactory <- function() runif(1, 0.1, 0.9)
-    #e$integerConstantFactory <- function() round(runif(1, 1, 100))
-    #e$integerVecConstantFactory <- function() round(runif(3, 1, 100))
-    e$probConstantFactory <- function() runif(1, 0, 1)
-    
-    constant_set <- rgp::constantFactorySet("booleanConstantFactory" %::% (list() %->% st("logical")),
-                                            "numericConstantFactory" %::% (list() %->% st("numeric")),
-                                            "probConstantFactory" %::% (list() %->% st("prob"))
-                                            #"integerConstantFactory" %::% (list() %->% st("integer"))
-                                            #"integerVecConstantFactory" %::% (list() %->% st("3integers"))
-    )
-    
+    func_list <- append(func_list, "link")
     type <-  rgp::st("prob")
   }
   ################################################################################
   if (loss == "rmse"){
-    
-    function_set <- create_func_set(functions, link)
-    
-    ## CONSTANT SET
-    e <- globalenv()
-    e$booleanConstantFactory <- function() runif(1) > .5
-    e$numericConstantFactory <- function() runif(1, 0.1, 0.9)
-    
-    constant_set <- rgp::constantFactorySet("booleanConstantFactory" %::% (list() %->% st("logical")),
-                                            "numericConstantFactory" %::% (list() %->% st("numeric"))
-                                            #"integerConstantFactory" %::% (list() %->% st("integer"))
-                                            #"integerVecConstantFactory" %::% (list() %->% st("3integers"))
-    )
-    
     type <-  rgp::st("numeric")
   }
+  
+  function_set <- create_func_set(func_list, link)
+  
+  ## CONSTANT SET
+  # Would much rather not do global bindings. But because of how the rgp package authors
+  # forced use of the globalenv for location of the constant set, I have to.
+  e <- globalenv()
+  e$booleanConstantFactory <- function() runif(1) > .5
+  e$numericConstantFactory <- function() runif(1, -1, 1)
+  #e$integerConstantFactory <- function() round(runif(1, 1, 100))
+  #e$integerVecConstantFactory <- function() round(runif(3, 1, 100))
+  e$probConstantFactory <- function() runif(1, 0, 1)
+  e$nonzeroConstantFactory <- function() {
+    r <- runif(1, -1, 1)
+    while(r == 0) r <- runif(1, -1, 1)
+    r
+  }
+  
+  constant_set <- rgp::constantFactorySet("booleanConstantFactory" %::% (list() %->% st("logical")),
+                                          "numericConstantFactory" %::% (list() %->% st("numeric")),
+                                          "nonzeroConstantFactory" %::% (list() %->% st("nonzero")),
+                                          "probConstantFactory" %::% (list() %->% st("prob"))
+                                          #"integerConstantFactory" %::% (list() %->% st("integer"))
+                                          #"integerVecConstantFactory" %::% (list() %->% st("3integers"))
+  )
   
   ## Prep for EVOLUTION
   fit_func <- create_fit_func(loss_function = loss_function,
@@ -312,16 +315,17 @@ estimate_program <- function(formula, data,
                                parallel = parallel)$input_set
   
   ## Do EVOLUTION
-  SH <- rgp::makeAgeFitnessComplexityParetoGpSearchHeuristic(lambda = 50,
-                                                             crossoverProbability = 0.5, 
+  SH <- rgp::makeAgeFitnessComplexityParetoGpSearchHeuristic(lambda = lambda,
+                                                             crossoverProbability = crossover_probability, 
                                                              enableComplexityCriterion = enable_complexity,
-                                                             enableAgeCriterion = FALSE)
+                                                             enableAgeCriterion = enable_age)
   full <- rgp::typedGeneticProgramming(fitnessFunction = fit_func, 
                                        type = type,
                                        functionSet = function_set,
                                        inputVariables = input_set,
                                        constantSet = constant_set,
-                                       stopCondition = rgp::makeTimeStopCondition(mins*60),
+                                       stopCondition = rgp::orStopCondition(rgp::makeStepsStopCondition(steps), 
+                                                                            rgp::makeTimeStopCondition(mins*60)),
                                        searchHeuristic = SH)
   # We minimize loss, so the lowest fitness value is the best:
   best <- full$population[[which.min(full$fitnessValues)]]
@@ -349,12 +353,11 @@ estimate_program <- function(formula, data,
 # d <- d[!d$outcome==3, ]
 # d$outcome[d$outcome!=1] <- 0
 # 
-# res1 <- estimate_program(outcome ~ Sepal.Width + Petal.Width,
+# res1 <- estimate_program(outcome ~ .,
 #                          d,
 #                          loss = "log_lik",
-#                          link = "probit",
-#                          mins = 0.5,
-#                          parallel = TRUE)
+#                          link = "logit",
+#                          mins = 1)
 # bestFunction1 <- res1@best_func
 # bestFunction1@func # It has named arguments, but can use positions, if we want.
 # round(predict(bestFunction1, d))
@@ -363,6 +366,8 @@ estimate_program <- function(formula, data,
 # mean(replicate(100,predict(bestFunction1, d[50,])))
 # plot(density(replicate(1000, 
 #                 {obs <- 1; predict(bestFunction1, d[obs, ])})))
+
+
 # # Regression:
 # data(cars, package = "caret")
 # res2 <- estimate_program(Price ~ ., cars, 
@@ -380,7 +385,7 @@ estimate_program <- function(formula, data,
 # mean((cars$Price - predict(bestFunction2, cars))^2) # rmse 
 # mean((longley$Employed - predict(stats::lm(Employed~., longley), longley))^2) # rmse 
 
-
+# 
 # data(GermanCredit, package = "caret")
 # d <- GermanCredit
 # # Convert it to integer: 
@@ -388,16 +393,18 @@ estimate_program <- function(formula, data,
 # d$Class <- as.integer(d$Class)
 # d$Class[d$Class!=1] <- 0
 # # 
-# res1 <- estimate_program(Class ~ ., 
+# res1 <- estimate_program(Class ~., 
 #                          d,
 #                          loss = "log_lik",
 #                          link = "logit",
-#                          mins = 1,
-#                          parallel = TRUE, cores = 20,
-#                          enable_complexity = FALSE)
+#                          #func_list = list("+", "-", "*", "/", "one_rnorm"),
+#                          mins = 5, steps = 20000,
+#                          #parallel = TRUE, cores = 6,
+#                          enable_complexity = FALSE, lambda = 50, crossover_probability = 0.5)
 # bestFunction1 <- res1@best_func
 # bestFunction1@func # It has named arguments, but can use positions, if we want.
-# predict(bestFunction1, d)[1:100]
+# mean(ifelse(round(predict(bestFunction1, d))==d$Class, 1, 0))
+# table(predict(bestFunction1, d), useNA = "ifany")
 # # Because this often evolves a probabilistic function, we can replicate it many times 
 # # to get a sense of the function:
 # mean(replicate(100,predict(bestFunction1, d[50,])))

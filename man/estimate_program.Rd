@@ -6,8 +6,10 @@
 \usage{
 estimate_program(formula, data, subset = NULL, loss = c("log_lik", "rmse",
   "identity", "identity_multi_class"), link = c("logit", "probit", "cauchit",
-  "identity"), functions = c("math", "logical", "randomness"), mins = 2,
-  parallel = FALSE, cores = NULL, enable_complexity = TRUE)
+  "identity"), func_list = list("+", "-", "*", "divide", "exp", ">", "<", "&",
+  "|", "!", "ifelse2", "one_rnorm"), mins = 10, steps = 2000,
+  parallel = FALSE, cores = NULL, enable_complexity = TRUE, lambda = 50,
+  crossover_probability = 0.5, enable_age = FALSE)
 }
 \arguments{
 \item{formula}{formula used to create the data.frame needed, ensuring that the
@@ -34,11 +36,12 @@ in formula.}
 
 \item{link}{Optional Character vector length one}
 
-\item{functions}{Optional Character vector as long as there are (prespecified)
-categories (\code{c("math", "logical", "randomness")}) of functions that you
-want to include}
+\item{func_list}{Optional List where each element is a length one character
+vector.}
 
 \item{mins}{Optional Integer vector length one}
+
+\item{steps}{Optional Integer vector length one}
 
 \item{parallel}{Optional Logical vector length one. Default is \code{parallel
 = FALSE}; \code{parallel = TRUE} can be slower if the data set is small
@@ -46,7 +49,15 @@ relative to the numner of population evolutions desired}
 
 \item{cores}{Optional Integer vector length one}
 
-\item{enable_complexity}{Optional logical vector lenght one}
+\item{enable_complexity}{Optional logical vector length one}
+
+\item{lambda}{Optional integer vector length one for the number of children
+rgp::typedGeneticProgramming() creates in each generation}
+
+\item{crossover_probability}{Optional numeric vector length one (default ==
+0.5) for rgp::typedGeneticProgramming()}
+
+\item{enable_age}{Optional Logical vector length one. Default is \code{FALSE}.}
 }
 \value{
 The function returns an S4 object. See \linkS4class{estimate_program}

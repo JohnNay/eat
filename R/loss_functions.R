@@ -15,21 +15,23 @@
 compute_log_lik <- function(prediction, actual){
   stopifnot(length(prediction)==length(actual))
   
-  # Treating predictions outside of probability range as NA:
-  prediction[prediction <= 0 || prediction >= 1] <- NA
-  missings <- sum(is.na(prediction))
+  prediction[prediction == 0] <- 1e-05 # bc log(0) == -Inf
   
-  if(missings >= length(prediction)/2){
+  # Treating predictions outside of probability range as NA:
+  prediction[prediction < 0 | prediction > 1] <- NA
+  #missings <- sum(is.na(prediction))
+  
+  if(anyNA(prediction)){
     log.likelihood <- -Inf
   } else {
     
-    if(missings > 0) {
-      actual <- actual[complete.cases(prediction)]
-      prediction <- prediction[complete.cases(prediction)]
-      stopifnot(length(prediction)==length(actual))
-      warning(paste0("Dropped ", missings, 
-                     " elements of the prediction and actual vecs bc there were that many missing vals in the predictions.")) 
-    }
+    #     if(missings > 0) {
+    #       actual <- actual[complete.cases(prediction)]
+    #       prediction <- prediction[complete.cases(prediction)]
+    #       stopifnot(length(prediction)==length(actual))
+    #       warning(paste0("Dropped ", missings, 
+    #                      " elements of the prediction and actual vecs bc there were that many missing vals in the predictions.")) 
+    #     }
     
     log.likelihood <- 0
     for (i in seq(length(prediction))) {

@@ -26,12 +26,12 @@ as we want discrete models for different times. Each element of the
 individual-level model.}
 
 \item{Formula}{\code{list} where each element is a length one character vector
-that specifies a formula, e.g. \code{y ~ x}. The character vector makes
+that specifies a formula, e.g. \code{"y ~ x"}. The character vector makes
 sense in the context of the \code{features} and \code{data}. There are as
 many elements in the list as there are discrete models for different times.}
 
-\item{k}{numeric vector length one specifying the number of models for
-different times.}
+\item{k}{numeric vector length one specifying the time periods that should
+estimate model, and thus also specifying the number of models to estimate.}
 
 \item{agg_patterns}{data.frame with rows (observational unit) being the group
 and columns: (a.) those aggregate level variables needed for the prediction

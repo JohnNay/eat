@@ -380,22 +380,23 @@ estimate_program <- function(formula, data,
 # mean((cars$Price - predict(bestFunction2, cars))^2) # rmse 
 # mean((longley$Employed - predict(stats::lm(Employed~., longley), longley))^2) # rmse 
 
-data(GermanCredit, package = "caret")
-d <- GermanCredit
-# Convert it to integer: 
-# TODO: get this to take in a factor and internally do this like what glm does
-d$Class <- as.integer(d$Class)
-d$Class[d$Class!=1] <- 0
-# 
-res1 <- estimate_program(Class ~ ., 
-                         d,
-                         loss = "log_lik",
-                         link = "logit",
-                         mins = 1,
-                         parallel = TRUE, cores = 4,
-                         enable_complexity = FALSE)
-bestFunction1 <- res1@best_func
-bestFunction1@func # It has named arguments, but can use positions, if we want.
+
+# data(GermanCredit, package = "caret")
+# d <- GermanCredit
+# # Convert it to integer: 
+# # TODO: get this to take in a factor and internally do this like what glm does
+# d$Class <- as.integer(d$Class)
+# d$Class[d$Class!=1] <- 0
+# # 
+# res1 <- estimate_program(Class ~ ., 
+#                          d,
+#                          loss = "log_lik",
+#                          link = "logit",
+#                          mins = 1,
+#                          parallel = TRUE, cores = 20,
+#                          enable_complexity = FALSE)
+# bestFunction1 <- res1@best_func
+# bestFunction1@func # It has named arguments, but can use positions, if we want.
 # predict(bestFunction1, d)[1:100]
 # # Because this often evolves a probabilistic function, we can replicate it many times 
 # # to get a sense of the function:

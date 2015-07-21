@@ -109,13 +109,13 @@ create_fit_func <- function(loss_function, X, y,
 
 #' Create function set
 #' 
-#' @param functions Length one character vector
+#' @param func_list List where each element is a length one character vector.
 #' @param link Length one character vector to pass to create_link_func
 #'   
 #' @return Returns a function set.
 #'   
 #' @export
-create_func_set <- function(functions, link){
+create_func_set <- function(func_list, link){
   
   ## FUNCTION SET
   link <- create_link_func(link)
@@ -133,34 +133,27 @@ create_func_set <- function(functions, link){
   round2 <- function(x) base::round(x)
   create_vec <- function(x,y,z) sapply(c(x,y,z), round)
   
-  if ("math" %in% functions & "logical" %in% functions & 
-      "randomness" %in% functions & "link" %in% functions){
-    function_set <- rgp::functionSet(
-      # Math
-      "+" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "-" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "*" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "/" %::% (list(st("numeric"), st("numeric")) %->% st("numeric")),
-      "exp" %::% (list(st("numeric")) %->% st("numeric")),
-      ">" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
-      "<" %::% (list(st("numeric"), st("numeric")) %->% st("logical")),
-      # Logical
-      "&" %::% (list(st("logical"), st("logical")) %->% st("logical")),
-      "|" %::% (list(st("logical"), st("logical")) %->% st("logical")),
-      "!" %::% (list(st("logical")) %->% st("logical")),
-      rgp::pw("ifelse2" %::% (list(st("logical"), st("numeric"), st("numeric")) %->% st("numeric")), 0.5),
-      # Randomness
-      rgp::pw("one_rnorm" %::% (list(st("numeric")) %->% st("numeric")), 2.5),
-      # Utilities
-      #"create_vec" %::% (list(st("numeric"), st("numeric"), st("numeric")) %->% st("3integers")),
-      #"round2" %::% (list(st("numeric")) %->% st("integer")),
-      "link" %::% (list(st("numeric")) %->% st("prob")),
-      parentEnvironmentLevel = 1
-    )
-  }
+  # Math
+  "+" %::% (list(st("numeric"), st("numeric")) %->% st("numeric"))
+  "-" %::% (list(st("numeric"), st("numeric")) %->% st("numeric"))
+  "*" %::% (list(st("numeric"), st("numeric")) %->% st("numeric"))
+  "/" %::% (list(st("numeric"), st("numeric")) %->% st("numeric"))
+  "exp" %::% (list(st("numeric")) %->% st("numeric"))
+  ">" %::% (list(st("numeric"), st("numeric")) %->% st("logical"))
+  "<" %::% (list(st("numeric"), st("numeric")) %->% st("logical"))
+  # Logical
+  "&" %::% (list(st("logical"), st("logical")) %->% st("logical"))
+  "|" %::% (list(st("logical"), st("logical")) %->% st("logical"))
+  "!" %::% (list(st("logical")) %->% st("logical"))
+  rgp::pw("ifelse2" %::% (list(st("logical"), st("numeric"), st("numeric")) %->% st("numeric")), 0.5)
+  # Randomness
+  rgp::pw("one_rnorm" %::% (list(st("numeric")) %->% st("numeric")), 2.5)
+  # Utilities
+  #"create_vec" %::% (list(st("numeric"), st("numeric"), st("numeric")) %->% st("3integers")),
+  #"round2" %::% (list(st("numeric")) %->% st("integer")),
+  "link" %::% (list(st("numeric")) %->% st("prob"))
   
-  function_set
-  
+  rgp::functionSet(list = func_list, parentEnvironmentLevel = 1)
 }
 
 #'Estimate a program (R function) from data.
@@ -186,14 +179,14 @@ create_func_set <- function(functions, link){
 #'  in formula.
 #'@param loss Optional Character vector length one
 #'@param link Optional Character vector length one
-#'@param functions Optional Character vector as long as there are (prespecified)
-#'  categories (\code{c("math", "logical", "randomness")}) of functions that you
-#'  want to include
+#'@param func_list Optional List where each element is a length one character
+#'  vector.
 #'@param mins Optional Integer vector length one
 #'@param parallel Optional Logical vector length one. Default is \code{parallel 
 #'  = FALSE}; \code{parallel = TRUE} can be slower if the data set is small 
 #'  relative to the numner of population evolutions desired
 #'@param cores Optional Integer vector length one
+#'@param enable_complexity Optional logical vector lenght one
 #'  
 #'@return The function returns an S4 object. See \linkS4class{estimate_program} 
 #'  for the details of the \code{slots} (objects) that this type of object will 
@@ -206,10 +199,16 @@ estimate_program <- function(formula, data,
                              subset = NULL,
                              loss = c("log_lik", "rmse", "identity", "identity_multi_class"),
                              link = c("logit", "probit", "cauchit", "identity"),
-                             functions = c("math", "logical", "randomness"),
+                             func_list = list("+", "-", "*", "/", "exp", ">", "<",
+                                           # Logical
+                                           "&", "|", "!", "ifelse2",
+                                           # Randomness
+                                           "one_rnorm",
+                                           "link"),
                              mins = 2,
                              parallel = FALSE, 
-                             cores = NULL){
+                             cores = NULL,
+                             enable_complexity = TRUE){
   
   # Change all integers to numeric so they work with type system for numerics:
   data <- data.frame(lapply(data,
@@ -313,12 +312,17 @@ estimate_program <- function(formula, data,
                                parallel = parallel)$input_set
   
   ## Do EVOLUTION
+  SH <- rgp::makeAgeFitnessComplexityParetoGpSearchHeuristic(lambda = 50,
+                                                             crossoverProbability = 0.5, 
+                                                             enableComplexityCriterion = enable_complexity,
+                                                             enableAgeCriterion = FALSE)
   full <- rgp::typedGeneticProgramming(fitnessFunction = fit_func, 
                                        type = type,
                                        functionSet = function_set,
                                        inputVariables = input_set,
                                        constantSet = constant_set,
-                                       stopCondition = rgp::makeTimeStopCondition(mins*60))
+                                       stopCondition = rgp::makeTimeStopCondition(mins*60),
+                                       searchHeuristic = SH)
   # We minimize loss, so the lowest fitness value is the best:
   best <- full$population[[which.min(full$fitnessValues)]]
   levels <- what_outcome(y)$levels
@@ -363,7 +367,7 @@ estimate_program <- function(formula, data,
 # data(cars, package = "caret")
 # res2 <- estimate_program(Price ~ ., cars, 
 #                          loss = "rmse",
-#                          mins = 1,
+#                          mins = 120,
 #                          parallel = FALSE)
 # # bestFunction2 <- res2@best_func
 # bestFunction2@func # It has named arguments, but can use positions, if we want.
@@ -376,21 +380,22 @@ estimate_program <- function(formula, data,
 # mean((cars$Price - predict(bestFunction2, cars))^2) # rmse 
 # mean((longley$Employed - predict(stats::lm(Employed~., longley), longley))^2) # rmse 
 
-# data(GermanCredit, package = "caret")
-# d <- GermanCredit
-# # Convert it to integer: 
-# # TODO: get this to take in a factor and internally do this like what glm does
-# d$Class <- as.integer(d$Class)
-# d$Class[d$Class!=1] <- 0
-# # 
-# res1 <- estimate_program(Class ~ ., 
-#                          d,
-#                          loss = "log_lik",
-#                          link = "logit",
-#                          mins = 1,
-#                          parallel = TRUE, cores = 4)
-# bestFunction1 <- res1@best_func
-# bestFunction1@func # It has named arguments, but can use positions, if we want.
+data(GermanCredit, package = "caret")
+d <- GermanCredit
+# Convert it to integer: 
+# TODO: get this to take in a factor and internally do this like what glm does
+d$Class <- as.integer(d$Class)
+d$Class[d$Class!=1] <- 0
+# 
+res1 <- estimate_program(Class ~ ., 
+                         d,
+                         loss = "log_lik",
+                         link = "logit",
+                         mins = 1,
+                         parallel = TRUE, cores = 4,
+                         enable_complexity = FALSE)
+bestFunction1 <- res1@best_func
+bestFunction1@func # It has named arguments, but can use positions, if we want.
 # predict(bestFunction1, d)[1:100]
 # # Because this often evolves a probabilistic function, we can replicate it many times 
 # # to get a sense of the function:

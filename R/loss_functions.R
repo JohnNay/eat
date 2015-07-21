@@ -15,6 +15,8 @@
 compute_log_lik <- function(prediction, actual){
   stopifnot(length(prediction)==length(actual))
   
+  # Treating predictions outside of probability range as NA:
+  prediction[prediction <= 0 || prediction >= 1] <- NA
   missings <- sum(is.na(prediction))
   
   if(missings >= length(prediction)/2){
@@ -33,13 +35,13 @@ compute_log_lik <- function(prediction, actual){
     for (i in seq(length(prediction))) {
       p <- prediction[i]
       
-      if(p <= 0 || p >= 1) {
-        # Bad:
-        log.likelihood <- -Inf #p <- 1e-05; p <- 0.99999
-      } else {
-        log.likelihood <- log.likelihood + 
-          base::log(ifelse(actual[i] == 1, p, 1 - p))
-      }
+      #       if(p <= 0 || p >= 1) {
+      #         # Bad:
+      #         log.likelihood <- -Inf #p <- 1e-05; p <- 0.99999
+      #       } else {
+      log.likelihood <- log.likelihood + 
+        base::log(ifelse(actual[i] == 1, p, 1 - p))
+      # }
       
     }
     

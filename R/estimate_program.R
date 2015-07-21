@@ -194,6 +194,7 @@ create_func_set <- function(functions, link){
 #'  = FALSE}; \code{parallel = TRUE} can be slower if the data set is small 
 #'  relative to the numner of population evolutions desired
 #'@param cores Optional Integer vector length one
+#'@param enable_complexity Optional logical vector lenght one
 #'  
 #'@return The function returns an S4 object. See \linkS4class{estimate_program} 
 #'  for the details of the \code{slots} (objects) that this type of object will 
@@ -209,7 +210,8 @@ estimate_program <- function(formula, data,
                              functions = c("math", "logical", "randomness"),
                              mins = 2,
                              parallel = FALSE, 
-                             cores = NULL){
+                             cores = NULL,
+                             enable_complexity = TRUE){
   
   # Change all integers to numeric so they work with type system for numerics:
   data <- data.frame(lapply(data,
@@ -313,12 +315,17 @@ estimate_program <- function(formula, data,
                                parallel = parallel)$input_set
   
   ## Do EVOLUTION
+  SH <- rgp::makeAgeFitnessComplexityParetoGpSearchHeuristic(lambda = 50,
+                                                             crossoverProbability = 0.5, 
+                                                             enableComplexityCriterion = enable_complexity,
+                                                             enableAgeCriterion = FALSE)
   full <- rgp::typedGeneticProgramming(fitnessFunction = fit_func, 
                                        type = type,
                                        functionSet = function_set,
                                        inputVariables = input_set,
                                        constantSet = constant_set,
-                                       stopCondition = rgp::makeTimeStopCondition(mins*60))
+                                       stopCondition = rgp::makeTimeStopCondition(mins*60),
+                                       searchHeuristic = SH)
   # We minimize loss, so the lowest fitness value is the best:
   best <- full$population[[which.min(full$fitnessValues)]]
   levels <- what_outcome(y)$levels
@@ -363,7 +370,7 @@ estimate_program <- function(formula, data,
 # data(cars, package = "caret")
 # res2 <- estimate_program(Price ~ ., cars, 
 #                          loss = "rmse",
-#                          mins = 1,
+#                          mins = 120,
 #                          parallel = FALSE)
 # # bestFunction2 <- res2@best_func
 # bestFunction2@func # It has named arguments, but can use positions, if we want.
@@ -376,21 +383,22 @@ estimate_program <- function(formula, data,
 # mean((cars$Price - predict(bestFunction2, cars))^2) # rmse 
 # mean((longley$Employed - predict(stats::lm(Employed~., longley), longley))^2) # rmse 
 
-# data(GermanCredit, package = "caret")
-# d <- GermanCredit
-# # Convert it to integer: 
-# # TODO: get this to take in a factor and internally do this like what glm does
-# d$Class <- as.integer(d$Class)
-# d$Class[d$Class!=1] <- 0
-# # 
-# res1 <- estimate_program(Class ~ ., 
-#                          d,
-#                          loss = "log_lik",
-#                          link = "logit",
-#                          mins = 1,
-#                          parallel = TRUE, cores = 4)
-# bestFunction1 <- res1@best_func
-# bestFunction1@func # It has named arguments, but can use positions, if we want.
+data(GermanCredit, package = "caret")
+d <- GermanCredit
+# Convert it to integer: 
+# TODO: get this to take in a factor and internally do this like what glm does
+d$Class <- as.integer(d$Class)
+d$Class[d$Class!=1] <- 0
+# 
+res1 <- estimate_program(Class ~ ., 
+                         d,
+                         loss = "log_lik",
+                         link = "logit",
+                         mins = 1,
+                         parallel = TRUE, cores = 20,
+                         enable_complexity = FALSE)
+bestFunction1 <- res1@best_func
+bestFunction1@func # It has named arguments, but can use positions, if we want.
 # predict(bestFunction1, d)[1:100]
 # # Because this often evolves a probabilistic function, we can replicate it many times 
 # # to get a sense of the function:

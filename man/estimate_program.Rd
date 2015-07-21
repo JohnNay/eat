@@ -7,7 +7,7 @@
 estimate_program(formula, data, subset = NULL, loss = c("log_lik", "rmse",
   "identity", "identity_multi_class"), link = c("logit", "probit", "cauchit",
   "identity"), functions = c("math", "logical", "randomness"), mins = 2,
-  parallel = FALSE, cores = NULL)
+  parallel = FALSE, cores = NULL, enable_complexity = TRUE)
 }
 \arguments{
 \item{formula}{formula used to create the data.frame needed, ensuring that the
@@ -45,6 +45,8 @@ want to include}
 relative to the numner of population evolutions desired}
 
 \item{cores}{Optional Integer vector length one}
+
+\item{enable_complexity}{Optional logical vector lenght one}
 }
 \value{
 The function returns an S4 object. See \linkS4class{estimate_program}

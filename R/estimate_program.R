@@ -199,6 +199,7 @@ create_func_set <- function(func_list, link){
 #'  for the details of the \code{slots} (objects) that this type of object will 
 #'  have.
 #'  
+#'  
 #'@importFrom rgp %->% %::% st
 #'  
 #'@export
@@ -213,10 +214,10 @@ estimate_program <- function(formula, data,
                                               "one_rnorm"),
                              # Timing params:
                              mins = 10, steps = 2000,
-                             # Par params:
+                             # Parallel params:
                              parallel = FALSE, 
                              cores = NULL,
-                             # Params for optimization:
+                             # Optimization params:
                              enable_complexity = TRUE,
                              lambda = 50,
                              crossover_probability = 0.5, 
@@ -272,17 +273,7 @@ estimate_program <- function(formula, data,
     stop("You did not provide a formula, we require this to be sure your data is formatted right.")
   }
   
-  if (loss == "log_lik"){
-    func_list <- append(func_list, "link")
-    type <-  rgp::st("prob")
-  }
   ################################################################################
-  if (loss == "rmse"){
-    type <-  rgp::st("numeric")
-  }
-  
-  function_set <- create_func_set(func_list, link)
-  
   ## CONSTANT SET
   # Would much rather not do global bindings. But because of how the rgp package authors
   # forced use of the globalenv for location of the constant set, I have to.
@@ -297,7 +288,6 @@ estimate_program <- function(formula, data,
     while(r == 0) r <- runif(1, -1, 1)
     r
   }
-  
   constant_set <- rgp::constantFactorySet("booleanConstantFactory" %::% (list() %->% st("logical")),
                                           "numericConstantFactory" %::% (list() %->% st("numeric")),
                                           "nonzeroConstantFactory" %::% (list() %->% st("nonzero")),
@@ -306,10 +296,18 @@ estimate_program <- function(formula, data,
                                           #"integerVecConstantFactory" %::% (list() %->% st("3integers"))
   )
   
-  ## Prep for EVOLUTION
+  ################################################################################
   fit_func <- create_fit_func(loss_function = loss_function,
                               X = X, y = y,
                               parallel = parallel)$fit_func
+  if (loss == "log_lik"){
+    func_list <- append(func_list, "link")
+    type <-  rgp::st("prob")
+  }
+  if (loss == "rmse"){
+    type <-  rgp::st("numeric")
+  }
+  function_set <- create_func_set(func_list, link)
   input_set <- create_fit_func(loss_function = loss_function,
                                X = X, y = y,
                                parallel = parallel)$input_set
@@ -343,24 +341,18 @@ estimate_program <- function(formula, data,
       best_func = out)
 }
 
-# # Classification:
-# data("iris")
+# # # Classification:
+#  data("iris", package = "datasets")
 # d <- iris
-# names(d)[which(names(d) == "Species")] <- "outcome" 
 # # Convert it to integer:
-# d$outcome <- as.integer(d$outcome)
+# d$Species <- as.integer(d$Species)
 # # Convert it to a two-class problem:
-# d <- d[!d$outcome==3, ]
-# d$outcome[d$outcome!=1] <- 0
-# 
-# res1 <- estimate_program(outcome ~ .,
-#                          d,
-#                          loss = "log_lik",
-#                          link = "logit",
-#                          mins = 1)
-# bestFunction1 <- res1@best_func
-# bestFunction1@func # It has named arguments, but can use positions, if we want.
-# round(predict(bestFunction1, d))
+# d <- d[!d$Species==3, ]
+# d$Species[d$Species!=1] <- 0
+# res1 <- estimate_program(Species ~ ., d,mins = 1)
+# bestFunction1 <- res1@best_func; bestFunction1@func
+# paste0(mean(ifelse(round(predict(bestFunction1, d))==d$Species, 1, 0))*100, 
+#       "% accruacy on training.")
 # # Because this often evolves a probabilistic function, we can replicate it many times 
 # # to get a sense of the function:
 # mean(replicate(100,predict(bestFunction1, d[50,])))
@@ -385,7 +377,6 @@ estimate_program <- function(formula, data,
 # mean((cars$Price - predict(bestFunction2, cars))^2) # rmse 
 # mean((longley$Employed - predict(stats::lm(Employed~., longley), longley))^2) # rmse 
 
-# 
 # data(GermanCredit, package = "caret")
 # d <- GermanCredit
 # # Convert it to integer: 
@@ -397,10 +388,14 @@ estimate_program <- function(formula, data,
 #                          d,
 #                          loss = "log_lik",
 #                          link = "logit",
-#                          #func_list = list("+", "-", "*", "/", "one_rnorm"),
-#                          mins = 5, steps = 20000,
-#                          #parallel = TRUE, cores = 6,
-#                          enable_complexity = FALSE, lambda = 50, crossover_probability = 0.5)
+#                          func_list = list("+", "-", "*", "divide", "exp", ">", "<",
+#                                           # Logical
+#                                           "&", "|", "!", "ifelse2",
+#                                           # Randomness
+#                                           "one_rnorm"),
+#                          mins = 60, steps = 60000,
+#                          parallel = TRUE, cores = 6,
+#                          enable_complexity = FALSE, crossover_probability = 0.5)
 # bestFunction1 <- res1@best_func
 # bestFunction1@func # It has named arguments, but can use positions, if we want.
 # mean(ifelse(round(predict(bestFunction1, d))==d$Class, 1, 0))

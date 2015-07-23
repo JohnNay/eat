@@ -8,8 +8,8 @@ estimate_program(formula, data, subset = NULL, loss = c("log_lik", "rmse",
   "identity", "identity_multi_class"), link = c("logit", "probit", "cauchit",
   "identity"), func_list = list("+", "-", "*", "divide", "exp", ">", "<", "&",
   "|", "!", "ifelse2", "one_rnorm"), mins = 10, steps = 2000,
-  parallel = FALSE, cores = NULL, enable_complexity = TRUE, lambda = 50,
-  crossover_probability = 0.5, enable_age = FALSE)
+  parallel = FALSE, cores = NULL, enable_complexity = FALSE,
+  lambda = 50, crossover_probability = 0.5, enable_age = FALSE)
 }
 \arguments{
 \item{formula}{formula used to create the data.frame needed, ensuring that the

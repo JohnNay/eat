@@ -52,18 +52,14 @@ compute_log_lik <- function(prediction, actual){
   - log.likelihood
 }
 
-# # Testing Bernoulli log-likelihood computation by comparing to R's glm(): 
-# g1 <- glm(my.decision ~ 1, family = binomial, data = data)
-# stopifnot(round(-2 * compute_log_lik(as.numeric(predict(g1, data, type="response")),
-#                                      ifelse(data$my.decision=="coop", 1, 0))) == 
-#             round(g1$deviance))
-# rm(g1)
-# g2 <- glm(my.decision ~ r1 + r2 + risk + error + delta + r1:delta + r2:delta + infin, 
-#           family = binomial, data = data)
-# stopifnot(round(-2 * compute_log_lik(as.numeric(predict(g2, data, type="response")),
-#                                      ifelse(data$my.decision=="coop", 1, 0))) == 
-#             round(g2$deviance))
-# rm(g2)
+# Testing Bernoulli log-likelihood computation by comparing to R's glm(): 
+dat <- data.frame(my.decision = c(1,0,1,1,1))
+g1 <- stats::glm(my.decision ~ 1, family = binomial, 
+                 data = dat)
+stopifnot(round(2 * compute_log_lik(as.numeric(predict(g1, dat, type="response")),
+                                     dat$my.decision)) == 
+            round(g1$deviance))
+rm(g1)
 
 #' Compute Identity
 #' 

@@ -13,68 +13,6 @@ setClass(Class = "model_program",
                    Terms = "ANY")
 )
 
-################################################################################
-#' @describeIn model_program An S4 method for printing an estimate_program S4
-#'   object
-#' @param object S4 model_program object
-#' @param newdata data.frame
-#' @param type Optional Character vector length one.
-#' @param na.action Optional function.
-#' @param ... ignored
-#' @inheritParams estimate_program
-#' 
-#' @export
-setMethod("predict", "model_program",
-          function(object, newdata, parallel = FALSE, cores = NULL,
-                   type = "prob", na.action = na.omit, ...){
-            
-            if(!(type %in% c("raw", "prob"))) 
-              stop("type must be either \"raw\" or \"prob\"")
-            
-            if(parallel) {
-              forloop <- foreach::`%dopar%`
-              if (missing(cores)) cores <- parallel::detectCores() - 1
-              doParallel::registerDoParallel(cores = cores)
-            } else {
-              forloop <- foreach::`%do%`
-            }
-            
-            newdata <- as.data.frame(newdata)
-            Terms <- delete.response(object@Terms)
-            m <- model.frame(Terms, newdata, 
-                             na.action = na.action)
-            if (!is.null(cl <- attr(Terms, "dataClasses"))) 
-              .checkMFClasses(cl, m)
-            
-            X <- model.matrix(Terms, m)
-            
-            # To get this to work with interaction terms, which use ":", 
-            # we need variable names, and thus names of function args to not have ":"
-            # We did the same thing in estimate_program(), thus, we must do it here.
-            colnames(X) <- gsub(":", "I", colnames(X))
-            
-            # This model will never use an intercept:
-            xint <- match("(Intercept)", colnames(X), nomatch = 0)
-            if (xint > 0) 
-              X <- X[, -xint, drop = FALSE]   
-            #vn <- attr(Terms, "term.labels")
-            
-            mod <- object@func
-            # n_args <- length(formals(mod))
-            
-            if(type == "prob"){
-                out <- forloop(foreach::foreach(i=seq(nrow(X)), .combine='rbind'), {
-                  do.call(mod, lapply(X[i, ], function(x) x))
-                })
-              } else {
-              # TODO out <- 
-            }
-#             obsLevels <- object@levels
-#             out <- out[, obsLevels, drop=FALSE]
-            out  
-          }
-)
-
 
 ################################################################################
 #' An S4 class to return the results of using the estimate_program function
@@ -124,3 +62,67 @@ setMethod("show", "estimate_program",
             print(slotNames(object))
           }
 )
+
+################################################################################
+#' @describeIn estimate_program An S4 method for predicting with an estimate_program S4
+#'   object
+#' @param newdata data.frame
+#' @param type Optional Character vector length one.
+#' @param na.action Optional function.
+#' @param ... ignored
+#' @inheritParams estimate_program
+#' 
+#' @export
+setMethod("predict", "estimate_program",
+          function(object, newdata, parallel = FALSE, cores = NULL,
+                   type = "prob", na.action = na.omit, ...){
+            
+            object <- object@best_func
+            
+            if(!(type %in% c("raw", "prob"))) 
+              stop("type must be either \"raw\" or \"prob\"")
+            
+            if(parallel) {
+              forloop <- foreach::`%dopar%`
+              if (missing(cores)) cores <- parallel::detectCores() - 1
+              doParallel::registerDoParallel(cores = cores)
+            } else {
+              forloop <- foreach::`%do%`
+            }
+            
+            newdata <- as.data.frame(newdata)
+            Terms <- delete.response(object@Terms)
+            m <- model.frame(Terms, newdata, 
+                             na.action = na.action)
+            if (!is.null(cl <- attr(Terms, "dataClasses"))) 
+              .checkMFClasses(cl, m)
+            
+            X <- model.matrix(Terms, m)
+            
+            # To get this to work with interaction terms, which use ":", 
+            # we need variable names, and thus names of function args to not have ":"
+            # We did the same thing in estimate_program(), thus, we must do it here.
+            colnames(X) <- gsub(":", "I", colnames(X))
+            
+            # This model will never use an intercept:
+            xint <- match("(Intercept)", colnames(X), nomatch = 0)
+            if (xint > 0) 
+              X <- X[, -xint, drop = FALSE]   
+            #vn <- attr(Terms, "term.labels")
+            
+            mod <- object@func
+            # n_args <- length(formals(mod))
+            
+            if(type == "prob"){
+              out <- forloop(foreach::foreach(i=seq(nrow(X)), .combine='rbind'), {
+                do.call(mod, lapply(X[i, ], function(x) x))
+              })
+            } else {
+              # TODO out <- 
+            }
+            #             obsLevels <- object@levels
+            #             out <- out[, obsLevels, drop=FALSE]
+            out  
+          }
+)
+

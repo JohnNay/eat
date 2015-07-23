@@ -3,6 +3,7 @@
 \docType{class}
 \name{estimate_program-class}
 \alias{estimate_program-class}
+\alias{predict,estimate_program-method}
 \alias{print,estimate_program-method}
 \alias{show,estimate_program-method}
 \title{An S4 class to return the results of using the estimate_program function}
@@ -10,6 +11,9 @@
 \S4method{print}{estimate_program}(x, ...)
 
 \S4method{show}{estimate_program}(object)
+
+\S4method{predict}{estimate_program}(object, newdata, parallel = FALSE,
+  cores = NULL, type = "prob", na.action = na.omit, ...)
 }
 \arguments{
 \item{x}{S4 estimate_program object}
@@ -17,6 +21,20 @@
 \item{...}{ignored}
 
 \item{object}{S4 estimate_program object}
+
+\item{newdata}{data.frame}
+
+\item{parallel}{Optional Logical vector length one. Default is \code{parallel
+= FALSE}; \code{parallel = TRUE} can be slower if the data set is small
+relative to the numner of population evolutions desired}
+
+\item{cores}{Optional Integer vector length one}
+
+\item{type}{Optional Character vector length one.}
+
+\item{na.action}{Optional function.}
+
+\item{...}{ignored}
 }
 \description{
 An S4 class to return the results of using the estimate_program function
@@ -26,6 +44,9 @@ An S4 class to return the results of using the estimate_program function
 \item \code{print}: An S4 method for printing an estimate_program S4 object
 
 \item \code{show}: An S4 method for showing a estimate_program S4 object
+
+\item \code{predict}: An S4 method for predicting with an estimate_program S4
+object
 }}
 \section{Slots}{
 

@@ -218,7 +218,7 @@ estimate_program <- function(formula, data,
                              parallel = FALSE, 
                              cores = NULL,
                              # Optimization params:
-                             enable_complexity = TRUE,
+                             enable_complexity = FALSE,
                              lambda = 50,
                              crossover_probability = 0.5, 
                              enable_age = FALSE){

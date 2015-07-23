@@ -3,39 +3,12 @@
 \docType{class}
 \name{model_program-class}
 \alias{model_program-class}
-\alias{predict,model_program-method}
 \title{An S4 class to return the best results of using the estimate_program
 function.}
-\usage{
-\S4method{predict}{model_program}(object, newdata, parallel = FALSE,
-  cores = NULL, type = "prob", na.action = na.omit, ...)
-}
-\arguments{
-\item{object}{S4 model_program object}
-
-\item{newdata}{data.frame}
-
-\item{parallel}{Optional Logical vector length one. Default is \code{parallel
-= FALSE}; \code{parallel = TRUE} can be slower if the data set is small
-relative to the numner of population evolutions desired}
-
-\item{cores}{Optional Integer vector length one}
-
-\item{type}{Optional Character vector length one.}
-
-\item{na.action}{Optional function.}
-
-\item{...}{ignored}
-}
 \description{
 An S4 class to return the best results of using the estimate_program
 function.
 }
-\section{Methods (by generic)}{
-\itemize{
-\item \code{predict}: An S4 method for printing an estimate_program S4
-object
-}}
 \section{Slots}{
 
 \describe{

@@ -8,7 +8,7 @@ training(trainData, features, Formula, k, sampling = FALSE,
   sampling_size = 1000, outcome_var_name = "action",
   package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn",
   "estimate_program"), tune_length = 10, mins = 10, parallel = FALSE,
-  cv_type = c("cv", "repeatedcv"))
+  cores = NULL, cv_type = c("cv", "repeatedcv"))
 }
 \arguments{
 \item{trainData}{\code{data.frame} with each row (obervational unit) being an
@@ -57,6 +57,8 @@ for caret::train to create in design matrix of hyper-parameter sets.}
 Uses \code{doParallel::registerDoParallel()}. Should be \code{FALSE} when
 training() is being called from inside cv_abm(), which, by default, is
 already running in parallel.}
+
+\item{cores}{optional numeric vector length one.}
 
 \item{cv_type}{optional character vector length one, default is \code{c("cv",
 "repeatedcv")}. Passed on to \code{caret::trainControl()}.}

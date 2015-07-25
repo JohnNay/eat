@@ -15,6 +15,7 @@
 #'  Uses \code{doParallel::registerDoParallel()}. Should be \code{FALSE} when
 #'  training() is being called from inside cv_abm(), which, by default, is
 #'  already running in parallel.
+#'  @param cores optional numeric vector length one.
 #'@param cv_type optional character vector length one, default is \code{c("cv", 
 #'  "repeatedcv")}. Passed on to \code{caret::trainControl()}.
 #'@inheritParams cv_abm
@@ -29,7 +30,7 @@ training <- function(trainData, features, Formula, k,
                      package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn",
                                  "estimate_program"),
                      tune_length = 10, mins = 10,
-                     parallel = FALSE,
+                     parallel = FALSE, cores = NULL,
                      cv_type = c("cv", "repeatedcv")){
   # if sampling == TRUE, samples equal numbers of observations from each game structure
   
@@ -201,7 +202,8 @@ training <- function(trainData, features, Formula, k,
         loss = "log_lik",
         link = "logit",
         mins = mins,
-        parallel = parallel
+        parallel = parallel,
+        cores = cores
       )
       cat("Done with", i, "out of", k, "models.\n") 
     }

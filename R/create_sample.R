@@ -18,20 +18,22 @@ create_set <- function(input_values, input_names, sample_count, constraints){
   
   input.sets <- create_sample(input_values, input_names, sample_count)
   
-  if(constraints == "none") {
-    constrained <- rep(TRUE, nrow(input.sets))
-  } else {
+  # Discard input factor sets that violate constraints:
+  if(constraints != "none") {
     constrained <- with(input.sets, eval(parse(text=constraints)))
+    input.sets <- keep_satisfied(input.sets, constrained)
   }
-  input.sets <- keep_satisfied(input.sets, constrained)
   
   while(nrow(input.sets) < sample_count) { 
     # Create input factor sets by latin hypercube sampling:
     input.sets <- rbind(input.sets,
                         create_sample(input_values, input_names, sample_count))  
+    
     # Discard input factor sets that violate constraints:
-    constrained <- with(input.sets, eval(parse(text=constraints)))
-    input.sets <- keep_satisfied(input.sets, constrained)
+    if(constraints != "none") {
+      constrained <- with(input.sets, eval(parse(text=constraints)))
+      input.sets <- keep_satisfied(input.sets, constrained)
+    }
   }
   
   input.sets
@@ -62,7 +64,7 @@ create_sample <- function(input_values, input_names, sample_count) {
   # and apply the desired random distribution
   lhs_design <- lapply(seq(1,length(input_values)), function(i) {
     input_values[[i]]$ARGS$p <- as.vector(lhs_design[ ,i])
-    do.call(input_values[[i]]$random_function, input_values[[i]]$ARGS) # input_values[[i]]$min, input_values[[i]]$max
+    do.call(input_values[[i]]$random_function, input_values[[i]]$ARGS)
   })
   
   names(lhs_design) <- input_names

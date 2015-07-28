@@ -101,6 +101,7 @@ create_fit_func <- function(loss_function, X, y,
                   prediction = out)
   }
   
+  # List of meta-data
   lmeta <- as.list(apply(meta, MARGIN = 1, function(y) rgp::`%::%`(y[1], rgp::st(y[2]))))
   input_set <- do.call(rgp::inputVariableSet, lmeta)
   
@@ -119,6 +120,7 @@ create_func_set <- function(func_list, link){
   
   ## FUNCTION SET
   link <- create_link_func(link)
+  
   one_rnorm <- function(.mean) {
     if(is.na(.mean)) .mean <- 1
     rnorm(1, .mean, 1)
@@ -130,8 +132,11 @@ create_func_set <- function(func_list, link){
     if(anyNA(cond)) return(Inf)
     if(cond) opt1 else opt2
   }
+  
   round2 <- function(x) base::round(x)
+  
   create_vec <- function(x,y,z) sapply(c(x,y,z), round)
+  
   divide <- function(a,b) a/b
   
   # Math
@@ -142,13 +147,16 @@ create_func_set <- function(func_list, link){
   "exp" %::% (list(st("numeric")) %->% st("numeric"))
   ">" %::% (list(st("numeric"), st("numeric")) %->% st("logical"))
   "<" %::% (list(st("numeric"), st("numeric")) %->% st("logical"))
+  
   # Logical
   "&" %::% (list(st("logical"), st("logical")) %->% st("logical"))
   "|" %::% (list(st("logical"), st("logical")) %->% st("logical"))
   "!" %::% (list(st("logical")) %->% st("logical"))
   rgp::pw("ifelse2" %::% (list(st("logical"), st("numeric"), st("numeric")) %->% st("numeric")), 0.5)
+  
   # Randomness
   rgp::pw("one_rnorm" %::% (list(st("numeric")) %->% st("numeric")), 2.5)
+  
   # Utilities
   #"create_vec" %::% (list(st("numeric"), st("numeric"), st("numeric")) %->% st("3integers")),
   #"round2" %::% (list(st("numeric")) %->% st("integer")),
@@ -223,6 +231,13 @@ estimate_program <- function(formula, data,
                              crossover_probability = 0.5, 
                              enable_age = FALSE){
   
+  start_time <- as.numeric(proc.time()[[3]])
+  call <- match.call()
+  
+  loss <- match.arg(loss) 
+  loss_function <- create_loss_func(loss)
+  link <- match.arg(link)
+  
   # Change all integers to numeric so they work with type system for numerics:
   data <- data.frame(lapply(data,
                             function(x) {
@@ -232,17 +247,10 @@ estimate_program <- function(formula, data,
                                 x
                               }}))
   
-  start_time <- as.numeric(proc.time()[[3]])
-  call <- match.call()
-  
-  loss <- match.arg(loss) 
-  loss_function <- create_loss_func(loss)
-  link <- match.arg(link)
-  
   if (parallel) {
     if (missing(cores)) cores <- parallel::detectCores() - 1
     doParallel::registerDoParallel(cores = cores)
-  } # without registering the backend the %dopar% should just run sequentially as %do%
+  }
   
   if(!missing(formula)){
     # the outcome variable, the variable to the left of "~",

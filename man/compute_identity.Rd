@@ -20,6 +20,7 @@ Best is -1, worst is 0. Objective is to minimize.
 \examples{
 compute_identity(1:10, 1:10)
 compute_identity(1:10, c(1:9, 1))
+compute_identity(c("hey", "hello"), c("hey", "he"))
 compute_identity(runif(10), sample(c(1,0), 10, replace=TRUE))
 }
 

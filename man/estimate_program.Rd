@@ -5,11 +5,12 @@
 \title{Estimate a program (R function) from data.}
 \usage{
 estimate_program(formula, data, subset = NULL, loss = c("log_lik", "rmse",
-  "identity", "identity_multi_class"), link = c("logit", "probit", "cauchit",
-  "identity"), func_list = list("+", "-", "*", "divide", "exp", ">", "<", "&",
-  "|", "!", "ifelse2", "one_rnorm"), mins = 10, steps = 2000,
+  "identity", "identity_multi_class"), identity_outcome_type = c("integer",
+  "character", "factor"), link = c("logit", "probit", "cauchit", "identity"),
+  func_list = list("+", "-", "*", "divide", "exp", ">", "<", "&", "|", "!",
+  "ifelse2", "one_rnorm", "as_integer"), mins = 10, steps = 2000,
   parallel = FALSE, cores = NULL, enable_complexity = FALSE,
-  lambda = 50, crossover_probability = 0.5, enable_age = FALSE)
+  lambda = 50, crossover_probability = 0.5)
 }
 \arguments{
 \item{formula}{formula used to create the data.frame needed, ensuring that the
@@ -33,6 +34,8 @@ data or if that is not supplied, a data frame made up of the variables used
 in formula.}
 
 \item{loss}{Optional Character vector length one}
+
+\item{identity_outcome_type}{Optional Character vector length one only needed if \code{loss=="identity"}.}
 
 \item{link}{Optional Character vector length one}
 

@@ -3,7 +3,7 @@
 \docType{class}
 \name{pcSobol-class}
 \alias{pcSobol-class}
-\alias{plot,pcSobol-method}
+\alias{plot,pcSobol,ANY-method}
 \alias{print,pcSobol-method}
 \alias{show,pcSobol-method}
 \title{An S4 class to return the results of sensitivity analyses}
@@ -12,7 +12,7 @@
 
 \S4method{show}{pcSobol}(object)
 
-\S4method{plot}{pcSobol}(x, outcome_var = "Outcome",
+\S4method{plot}{pcSobol,ANY}(x, outcome_var = "Outcome",
   legend_pos = c("topright", "bottomright", "bottomleft", "topleft"),
   ptype = c("all", "fo", "total"))
 }

@@ -73,13 +73,29 @@ rm(g1)
 #' @examples
 #' compute_identity(1:10, 1:10)
 #' compute_identity(1:10, c(1:9, 1))
+#' compute_identity(c("hey", "hello"), c("hey", "he"))
 #' compute_identity(runif(10), sample(c(1,0), 10, replace=TRUE))
 #' 
 #' @export
 compute_identity <- function(prediction, actual){
   # objective is to minimize
   stopifnot(length(prediction)==length(actual))
-  - mean(ifelse(prediction == actual, 1, 0)) # best is -1, worst is 0
+  
+  len <- length(prediction)
+  
+  missings <- sum(is.na(prediction))
+  if(missings > 0) {
+    actual <- actual[complete.cases(prediction)]
+    prediction <- prediction[complete.cases(prediction)]
+    stopifnot(length(prediction)==length(actual))
+    warning(paste0("Dropped ", missings, 
+                   " elements of the prediction and actual vecs bc there were that many missing vals in the predictions.")) 
+    # Dividing by original length of longer vector implicitly treats all the missings as wrongly labeled
+    return(sum(ifelse(prediction == actual, 1, 0))/len) 
+  } else{
+    stopifnot(!anyNA(prediction))
+    return(- mean(ifelse(prediction == actual, 1, 0))) # best is -1, worst is 0
+  }
 }
 
 #' Compute Identity Multi Class 

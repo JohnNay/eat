@@ -133,11 +133,13 @@ create_func_set <- function(func_list, link){
     if(cond) opt1 else opt2
   }
   
-  round2 <- function(x) base::round(x)
+  # round2 <- function(x) base::round(x)
   
   create_vec <- function(x,y,z) sapply(c(x,y,z), round)
   
   divide <- function(a,b) a/b
+  
+  as_integer <- function(x) as.integer(x)
   
   # Math
   "+" %::% (list(st("numeric"), st("numeric")) %->% st("numeric"))
@@ -159,7 +161,7 @@ create_func_set <- function(func_list, link){
   
   # Utilities
   #"create_vec" %::% (list(st("numeric"), st("numeric"), st("numeric")) %->% st("3integers")),
-  #"round2" %::% (list(st("numeric")) %->% st("integer")),
+  "as_integer" %::% (list(st("numeric")) %->% st("integer"))
   "link" %::% (list(st("numeric")) %->% st("prob"))
   
   rgp::functionSet(list = func_list, parentEnvironmentLevel = 1)
@@ -187,6 +189,7 @@ create_func_set <- function(func_list, link){
 #'  data or if that is not supplied, a data frame made up of the variables used 
 #'  in formula.
 #'@param loss Optional Character vector length one
+#'@param identity_outcome_type Optional Character vector length one only needed if \code{loss=="identity"}.
 #'@param link Optional Character vector length one
 #'@param func_list Optional List where each element is a length one character 
 #'  vector.
@@ -214,12 +217,15 @@ create_func_set <- function(func_list, link){
 estimate_program <- function(formula, data, 
                              subset = NULL,
                              loss = c("log_lik", "rmse", "identity", "identity_multi_class"),
+                             identity_outcome_type = c("integer", "character", "factor"),
                              link = c("logit", "probit", "cauchit", "identity"),
                              func_list = list("+", "-", "*", "divide", "exp", ">", "<",
                                               # Logical
                                               "&", "|", "!", "ifelse2",
                                               # Randomness
-                                              "one_rnorm"),
+                                              "one_rnorm",
+                                              # Utilties
+                                              "as_integer"),
                              # Timing params:
                              mins = 10, steps = 2000,
                              # Parallel params:
@@ -228,13 +234,12 @@ estimate_program <- function(formula, data,
                              # Optimization params:
                              enable_complexity = FALSE,
                              lambda = 50,
-                             crossover_probability = 0.5, 
-                             enable_age = FALSE){
+                             crossover_probability = 0.5){
   
   start_time <- as.numeric(proc.time()[[3]])
   call <- match.call()
   
-  loss <- match.arg(loss) 
+  loss <- match.arg(loss)
   loss_function <- create_loss_func(loss)
   link <- match.arg(link)
   
@@ -268,7 +273,7 @@ estimate_program <- function(formula, data,
                              data = temp)
     
     # To get this to work with interaction terms, which use ":", 
-    # we need variable names, and thus names of function args to not have ":"
+    # we need variable names to not have ":" so function args dont have ":"
     colnames(X) <- gsub(":", "I", colnames(X))
     
     xint <- match("(Intercept)", colnames(X), nomatch = 0)
@@ -287,8 +292,8 @@ estimate_program <- function(formula, data,
   # forced use of the globalenv for location of the constant set, I have to.
   e <- globalenv()
   e$booleanConstantFactory <- function() runif(1) > .5
-  e$numericConstantFactory <- function() runif(1, -1, 1)
-  #e$integerConstantFactory <- function() round(runif(1, 1, 100))
+  e$numericConstantFactory <- function() runif(1, -1e5, 1e5)
+  e$integerConstantFactory <- function() sample.int(2, 1)-1
   #e$integerVecConstantFactory <- function() round(runif(3, 1, 100))
   e$probConstantFactory <- function() runif(1, 0, 1)
   e$nonzeroConstantFactory <- function() {
@@ -299,8 +304,8 @@ estimate_program <- function(formula, data,
   constant_set <- rgp::constantFactorySet("booleanConstantFactory" %::% (list() %->% st("logical")),
                                           "numericConstantFactory" %::% (list() %->% st("numeric")),
                                           "nonzeroConstantFactory" %::% (list() %->% st("nonzero")),
-                                          "probConstantFactory" %::% (list() %->% st("prob"))
-                                          #"integerConstantFactory" %::% (list() %->% st("integer"))
+                                          "probConstantFactory" %::% (list() %->% st("prob")),
+                                          "integerConstantFactory" %::% (list() %->% st("integer"))
                                           #"integerVecConstantFactory" %::% (list() %->% st("3integers"))
   )
   
@@ -315,6 +320,11 @@ estimate_program <- function(formula, data,
   if (loss == "rmse"){
     type <-  rgp::st("numeric")
   }
+  if (loss == "identity"){
+    identity_outcome_type <- match.arg(identity_outcome_type)
+    type <-  rgp::st(identity_outcome_type)
+  }
+  
   function_set <- create_func_set(func_list, link)
   input_set <- create_fit_func(loss_function = loss_function,
                                X = X, y = y,
@@ -324,7 +334,7 @@ estimate_program <- function(formula, data,
   SH <- rgp::makeAgeFitnessComplexityParetoGpSearchHeuristic(lambda = lambda,
                                                              crossoverProbability = crossover_probability, 
                                                              enableComplexityCriterion = enable_complexity,
-                                                             enableAgeCriterion = enable_age)
+                                                             enableAgeCriterion = FALSE)
   full <- rgp::typedGeneticProgramming(fitnessFunction = fit_func, 
                                        type = type,
                                        functionSet = function_set,
@@ -349,23 +359,23 @@ estimate_program <- function(formula, data,
       best_func = out)
 }
 
-# # # Classification:
-#  data("iris", package = "datasets")
+# Classification:
+# data("iris", package = "datasets")
 # d <- iris
 # # Convert it to integer:
 # d$Species <- as.integer(d$Species)
 # # Convert it to a two-class problem:
 # d <- d[!d$Species==3, ]
 # d$Species[d$Species!=1] <- 0
-# res1 <- estimate_program(Species ~ ., d,mins = 1)
-# bestFunction1 <- res1@best_func; bestFunction1@func
-# paste0(mean(ifelse(round(predict(bestFunction1, d))==d$Species, 1, 0))*100, 
-#       "% accruacy on training.")
+# res1 <- estimate_program(Species ~ ., d, loss="identity", mins = 3)
+# res1@best_func@func
+# paste0(mean(ifelse(predict(res1, d, type="raw")==d$Species, 1, 0))*100, 
+#        "% accruacy on training data.")
 # # Because this often evolves a probabilistic function, we can replicate it many times 
 # # to get a sense of the function:
-# mean(replicate(100,predict(bestFunction1, d[50,])))
+# mean(replicate(100,predict(res1, d[50,])))
 # plot(density(replicate(1000, 
-#                 {obs <- 1; predict(bestFunction1, d[obs, ])})))
+#                 {obs <- 1; predict(res1, d[obs, ])})))
 
 
 # # Regression:

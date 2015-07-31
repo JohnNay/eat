@@ -75,12 +75,13 @@ setMethod("show", "estimate_program",
 #' @export
 setMethod("predict", "estimate_program",
           function(object, newdata, parallel = FALSE, cores = NULL,
-                   type = "prob", na.action = na.omit, ...){
+                   type = c("prob", "raw"), thresh = 0.5, na.action = na.omit, ...){
             
             object <- object@best_func
             
-            if(!(type %in% c("raw", "prob"))) 
-              stop("type must be either \"raw\" or \"prob\"")
+#             if(!(type %in% c("raw", "prob"))) 
+#               stop("type must be either \"raw\" or \"prob\"")
+            type <- match.arg(type)
             
             if(parallel) {
               forloop <- foreach::`%dopar%`
@@ -113,16 +114,18 @@ setMethod("predict", "estimate_program",
             mod <- object@func
             # n_args <- length(formals(mod))
             
-            if(type == "prob"){
-              out <- forloop(foreach::foreach(i=seq(nrow(X)), .combine='rbind'), {
-                do.call(mod, lapply(X[i, ], function(x) x))
-              })
-            } else {
-              # TODO out <- 
+            out <- forloop(foreach::foreach(i=seq(nrow(X)), .combine='rbind'), {
+              do.call(mod, lapply(X[i, ], function(x) x))
+            })
+            
+            if(identical(type, "prob")){
+              return(out)
+            } 
+            if(identical(type, "raw")){
+              return(ifelse(out > thresh, 1, 0))
             }
             #             obsLevels <- object@levels
             #             out <- out[, obsLevels, drop=FALSE]
-            out  
           }
 )
 

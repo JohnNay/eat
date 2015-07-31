@@ -13,7 +13,8 @@
 \S4method{show}{estimate_program}(object)
 
 \S4method{predict}{estimate_program}(object, newdata, parallel = FALSE,
-  cores = NULL, type = "prob", na.action = na.omit, ...)
+  cores = NULL, type = c("prob", "raw"), thresh = 0.5,
+  na.action = na.omit, ...)
 }
 \arguments{
 \item{x}{S4 estimate_program object}

@@ -64,12 +64,13 @@ setMethod("show", "estimate_program",
 )
 
 ################################################################################
-#' @describeIn estimate_program An S4 method for predicting with an estimate_program S4
-#'   object
+#' @describeIn estimate_program An S4 method for predicting with an
+#'   estimate_program S4 object
 #' @param newdata data.frame
 #' @param type Optional Character vector length one.
 #' @param na.action Optional function.
-#' @param ... ignored
+#' @param thresh Optional numeric vector length one -- the threshold value to
+#'   use for converting probabilities into discrete outcomes.
 #' @inheritParams estimate_program
 #' 
 #' @export

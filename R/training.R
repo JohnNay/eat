@@ -42,7 +42,7 @@ training <- function(trainData, features, Formula, k,
     doParallel::registerDoParallel(cores = num_cores)
   }
   
-  stopifnot(identical(length(features), k))
+  stopifnot(identical(length(features), as.integer(k)))
   # TODO: add error checking for terms in Formula == length(features) == k
     
   model <- as.list(rep(NA, k))
@@ -63,7 +63,7 @@ training <- function(trainData, features, Formula, k,
   ###############################################################################
   if(package=="glm"){
     for( i in seq(k)){
-      if(identical(i,k)) {
+      if(identical(i,as.integer(as.integer(k)))) {
         data_use <- trainData[trainData$period>=i, ]
       } else {
         data_use <- trainData[trainData$period==i, ]
@@ -78,7 +78,7 @@ training <- function(trainData, features, Formula, k,
   ###############################################################################
   if(package=="caretglm"){
     for( i in seq(k)){
-      if(identical(i,k)) {
+      if(identical(i,as.integer(k))) {
         data_use <- trainData[trainData$period>=i, ]
       } else {
         data_use <- trainData[trainData$period==i, ]
@@ -106,7 +106,7 @@ training <- function(trainData, features, Formula, k,
                             verboseIter =TRUE,
                             allowParallel= parallel)
     for(i in seq(k)){
-      if(identical(i,k)) {
+      if(identical(i,as.integer(k))) {
         data_use <- trainData[trainData$period>=i, ]
       } else {
         data_use <- trainData[trainData$period==i, ]
@@ -133,7 +133,7 @@ training <- function(trainData, features, Formula, k,
           verboseIter = FALSE)
         
     for( i in seq(k)){
-      if(identical(i,k)) {
+      if(identical(i,as.integer(k))) {
         data_use <- trainData[trainData$period>=i, ]
       } else {
         data_use <- trainData[trainData$period==i, ]
@@ -167,7 +167,7 @@ training <- function(trainData, features, Formula, k,
       verboseIter = TRUE)
     
     for( i in seq(k)){
-      if(identical(i,k)) {
+      if(identical(i,as.integer(k))) {
         data_use <- trainData[trainData$period>=i, ]
       } else {
         data_use <- trainData[trainData$period==i, ]
@@ -191,7 +191,7 @@ training <- function(trainData, features, Formula, k,
   if(package=="estimate_program"){
     for( i in seq(k)){
       trainData <- trainData
-      if(identical(i,k)) {
+      if(identical(i,as.integer(k))) {
         data_use <- trainData[trainData$period>=i, ]
       } else {
         data_use <- trainData[trainData$period==i, ]
@@ -210,7 +210,7 @@ training <- function(trainData, features, Formula, k,
   }
   ###############################################################################
   ###############################################################################
-  if(!identical(length(model),k))
+  if(!identical(length(model),as.integer(k)))
     stop("length(model) != k so list being returned is not the right length.")
   
   model

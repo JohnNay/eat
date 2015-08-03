@@ -149,8 +149,8 @@ create_func_set <- function(func_list, link){
   "*" %::% (list(st("numeric"), st("numeric")) %->% st("numeric"))
   "divide" %::% (list(st("numeric"), st("nonzero")) %->% st("numeric"))
   "exp" %::% (list(st("numeric")) %->% st("numeric"))
-  "logn" %::% (list(st("nonzero")) %->% st("numeric"))
-  "sqrtn" %::% (list(st("nonzero")) %->% st("numeric"))
+  "logn" %::% (list(st("positive")) %->% st("numeric"))
+  "sqrtn" %::% (list(st("positive")) %->% st("numeric"))
   ">" %::% (list(st("numeric"), st("numeric")) %->% st("logical"))
   "<" %::% (list(st("numeric"), st("numeric")) %->% st("logical"))
   
@@ -193,22 +193,24 @@ create_func_set <- function(func_list, link){
 #'  data or if that is not supplied, a data frame made up of the variables used 
 #'  in formula.
 #'@param loss Optional Character vector length one
-#'@param identity_outcome_type Optional Character vector length one only needed if \code{loss=="identity"}.
+#'@param identity_outcome_type Optional Character vector length one only needed
+#'  if \code{loss=="identity"}.
 #'@param link Optional Character vector length one
 #'@param func_list Optional List where each element is a length one character 
 #'  vector.
 #'@param mins Optional Integer vector length one
 #'@param steps Optional Integer vector length one
+#'@param repeats Optional Integer vector length one sepcifying how many times to
+#'  repeat the model fitting
 #'@param parallel Optional Logical vector length one. Default is \code{parallel 
 #'  = FALSE}; \code{parallel = TRUE} can be slower if the data set is small 
 #'  relative to the numner of population evolutions desired
 #'@param cores Optional Integer vector length one
 #'@param enable_complexity Optional logical vector length one
-#'@param lambda Optional integer vector length one for the number of children
+#'@param lambda Optional integer vector length one for the number of children 
 #'  rgp::typedGeneticProgramming() creates in each generation
-#'@param crossover_probability Optional numeric vector length one (default ==
+#'@param crossover_probability Optional numeric vector length one (default == 
 #'  0.5) for rgp::typedGeneticProgramming()
-#'@param enable_age Optional Logical vector length one. Default is \code{FALSE}.
 #'  
 #'@return The function returns an S4 object. See \linkS4class{estimate_program} 
 #'  for the details of the \code{slots} (objects) that this type of object will 
@@ -224,6 +226,7 @@ estimate_program <- function(formula, data,
                              identity_outcome_type = c("integer", "character", "factor"),
                              link = c("logit", "probit", "cauchit", "identity"),
                              func_list = list("+", "-", "*", "divide", "exp", ">", "<",
+                                              "logn", "sqrtn",
                                               # Logical
                                               "&", "|", "!", "ifelse2",
                                               # Randomness
@@ -232,6 +235,7 @@ estimate_program <- function(formula, data,
                                               ),
                              # Timing params:
                              mins = 10, steps = 2000,
+                             repeats = 2,
                              # Parallel params:
                              parallel = FALSE, 
                              cores = NULL,
@@ -300,6 +304,7 @@ estimate_program <- function(formula, data,
   e$integerConstantFactory <- function() sample.int(2, 1)-1
   #e$integerVecConstantFactory <- function() round(runif(3, 1, 100))
   e$probConstantFactory <- function() runif(1, 0, 1)
+  e$positiveConstantFactory <- function() runif(1, 1e-5, 1e5)
   e$nonzeroConstantFactory <- function() {
     r <- runif(1, -1, 1)
     while(r == 0) r <- runif(1, -1, 1)
@@ -308,6 +313,7 @@ estimate_program <- function(formula, data,
   constant_set <- rgp::constantFactorySet("booleanConstantFactory" %::% (list() %->% st("logical")),
                                           "numericConstantFactory" %::% (list() %->% st("numeric")),
                                           "nonzeroConstantFactory" %::% (list() %->% st("nonzero")),
+                                          "positiveConstantFactory" %::% (list() %->% st("positive")),
                                           "probConstantFactory" %::% (list() %->% st("prob")),
                                           "integerConstantFactory" %::% (list() %->% st("integer"))
                                           #"integerVecConstantFactory" %::% (list() %->% st("3integers"))
@@ -341,16 +347,25 @@ estimate_program <- function(formula, data,
                                                              crossoverProbability = crossover_probability, 
                                                              enableComplexityCriterion = enable_complexity,
                                                              enableAgeCriterion = FALSE)
-  full <- rgp::typedGeneticProgramming(fitnessFunction = fit_func, 
-                                       type = type,
-                                       functionSet = function_set,
-                                       inputVariables = input_set,
-                                       constantSet = constant_set,
-                                       stopCondition = rgp::orStopCondition(rgp::makeStepsStopCondition(steps), 
-                                                                            rgp::makeTimeStopCondition(mins*60)),
-                                       searchHeuristic = SH)
-  # We minimize loss, so the lowest fitness value is the best:
-  best <- full$population[[which.min(full$fitnessValues)]]
+  
+  candidates <- lapply(vector(mode="list", length=repeats), 
+                       function(x){
+                         full <- rgp::typedGeneticProgramming(fitnessFunction = fit_func, 
+                                                              type = type,
+                                                              functionSet = function_set,
+                                                              inputVariables = input_set,
+                                                              constantSet = constant_set,
+                                                              stopCondition = rgp::orStopCondition(rgp::makeStepsStopCondition(steps), 
+                                                                                                   rgp::makeTimeStopCondition(mins*60)),
+                                                              searchHeuristic = SH)
+                         # We minimize loss, so the lowest fitness value is the best:
+                         best <- full$population[[which.min(full$fitnessValues)]]
+                         score <- full$fitnessValues[which.min(full$fitnessValues)]
+                         list(full = full, best = best, score = score)})
+  
+  full <- candidates[[which.min(sapply(candidates, function(x)x$score))]]$full
+  best <- candidates[[which.min(sapply(candidates, function(x)x$score))]]$best
+  
   levels <- what_outcome(y)$levels
   out <- new("model_program",
              func = best,
@@ -365,7 +380,7 @@ estimate_program <- function(formula, data,
       best_func = out)
 }
 
-# Classification:
+# ## Classification:
 # data("iris", package = "datasets")
 # d <- iris
 # # Convert it to integer:
@@ -373,17 +388,17 @@ estimate_program <- function(formula, data,
 # # Convert it to a two-class problem:
 # d <- d[!d$Species==3, ]
 # d$Species[d$Species!=1] <- 0
-# res1 <- estimate_program(Species ~ ., d, loss="identity", mins = 3)
+# res1 <- eat::estimate_program(Species ~ ., d, loss="identity", 
+#                               repeats = 2, mins = 3)
 # res1@best_func@func
 # paste0(mean(ifelse(predict(res1, d, type="raw")==d$Species, 1, 0))*100, 
-#        "% accruacy on training data.")
+#         "% accruacy on training data with 'identity' loss function.")
 # res1 <- estimate_program(Species ~ ., d, loss="log_lik", mins = 3)
 # res1@best_func@func
 # paste0(mean(ifelse(predict(res1, d, type="raw")==d$Species, 1, 0))*100, 
-#        "% accruacy on training data.")
+#         "% accruacy on training data with 'log_lik' loss function.")
 # # Because this often evolves a probabilistic function, we can replicate it many times 
 # # to get a sense of the function:
-# mean(replicate(100,predict(res1, d[50,])))
 # plot(density(replicate(1000, 
 #                 {obs <- 1; predict(res1, d[obs, ])})))
 

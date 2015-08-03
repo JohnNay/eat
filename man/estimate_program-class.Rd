@@ -33,9 +33,10 @@ relative to the numner of population evolutions desired}
 
 \item{type}{Optional Character vector length one.}
 
-\item{na.action}{Optional function.}
+\item{thresh}{Optional numeric vector length one -- the threshold value to
+use for converting probabilities into discrete outcomes.}
 
-\item{...}{ignored}
+\item{na.action}{Optional function.}
 }
 \description{
 An S4 class to return the results of using the estimate_program function
@@ -46,8 +47,8 @@ An S4 class to return the results of using the estimate_program function
 
 \item \code{show}: An S4 method for showing a estimate_program S4 object
 
-\item \code{predict}: An S4 method for predicting with an estimate_program S4
-object
+\item \code{predict}: An S4 method for predicting with an
+estimate_program S4 object
 }}
 \section{Slots}{
 

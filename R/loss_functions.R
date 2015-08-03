@@ -22,6 +22,8 @@ compute_log_lik <- function(prediction, actual){
   #missings <- sum(is.na(prediction))
   
   if(anyNA(prediction)){
+    # Must throw away the whole thing if anyNA b/c cannot compare population of predictions of different length  
+    # based on log likelihood b/c it is not scaled to size of prediction vector like accuracy is.
     log.likelihood <- -Inf
   } else {
     

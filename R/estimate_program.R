@@ -138,6 +138,8 @@ create_func_set <- function(func_list, link){
   create_vec <- function(x,y,z) sapply(c(x,y,z), round)
   
   divide <- function(a,b) a/b
+  logn <- function(x) log(x)
+  sqrtn <- function(x) sqrt(x)
   
   as_integer <- function(x) as.integer(x)
   
@@ -147,6 +149,8 @@ create_func_set <- function(func_list, link){
   "*" %::% (list(st("numeric"), st("numeric")) %->% st("numeric"))
   "divide" %::% (list(st("numeric"), st("nonzero")) %->% st("numeric"))
   "exp" %::% (list(st("numeric")) %->% st("numeric"))
+  "logn" %::% (list(st("nonzero")) %->% st("numeric"))
+  "sqrtn" %::% (list(st("nonzero")) %->% st("numeric"))
   ">" %::% (list(st("numeric"), st("numeric")) %->% st("logical"))
   "<" %::% (list(st("numeric"), st("numeric")) %->% st("logical"))
   
@@ -157,7 +161,7 @@ create_func_set <- function(func_list, link){
   rgp::pw("ifelse2" %::% (list(st("logical"), st("numeric"), st("numeric")) %->% st("numeric")), 0.5)
   
   # Randomness
-  rgp::pw("one_rnorm" %::% (list(st("numeric")) %->% st("numeric")), 2.5)
+  rgp::pw("one_rnorm" %::% (list(st("numeric")) %->% st("numeric")), 1.5)
   
   # Utilities
   #"create_vec" %::% (list(st("numeric"), st("numeric"), st("numeric")) %->% st("3integers")),
@@ -223,9 +227,9 @@ estimate_program <- function(formula, data,
                                               # Logical
                                               "&", "|", "!", "ifelse2",
                                               # Randomness
-                                              "one_rnorm",
+                                              "one_rnorm"
                                               # Utilties
-                                              "as_integer"),
+                                              ),
                              # Timing params:
                              mins = 10, steps = 2000,
                              # Parallel params:
@@ -313,14 +317,16 @@ estimate_program <- function(formula, data,
   fit_func <- create_fit_func(loss_function = loss_function,
                               X = X, y = y,
                               parallel = parallel)$fit_func
-  if (loss == "log_lik"){
+  if (identical(loss, "log_lik")){
     func_list <- append(func_list, "link")
     type <-  rgp::st("prob")
   }
-  if (loss == "rmse"){
+  if (identical(loss, "rmse")){
     type <-  rgp::st("numeric")
   }
-  if (loss == "identity"){
+  if (identical(loss, "identity")){
+    func_list <- append(func_list, "as_integer")
+    
     identity_outcome_type <- match.arg(identity_outcome_type)
     type <-  rgp::st(identity_outcome_type)
   }
@@ -371,6 +377,10 @@ estimate_program <- function(formula, data,
 # res1@best_func@func
 # paste0(mean(ifelse(predict(res1, d, type="raw")==d$Species, 1, 0))*100, 
 #        "% accruacy on training data.")
+# res1 <- estimate_program(Species ~ ., d, loss="log_lik", mins = 3)
+# res1@best_func@func
+# paste0(mean(ifelse(predict(res1, d, type="raw")==d$Species, 1, 0))*100, 
+#        "% accruacy on training data.")
 # # Because this often evolves a probabilistic function, we can replicate it many times 
 # # to get a sense of the function:
 # mean(replicate(100,predict(res1, d[50,])))
@@ -401,23 +411,22 @@ estimate_program <- function(formula, data,
 # # TODO: get this to take in a factor and internally do this like what glm does
 # d$Class <- as.integer(d$Class)
 # d$Class[d$Class!=1] <- 0
-# # 
 # res1 <- estimate_program(Class ~., 
 #                          d,
 #                          loss = "log_lik",
-#                          link = "logit",
-#                          func_list = list("+", "-", "*", "divide", "exp", ">", "<",
-#                                           # Logical
-#                                           "&", "|", "!", "ifelse2",
-#                                           # Randomness
-#                                           "one_rnorm"),
-#                          mins = 60, steps = 60000,
+#                          #                         link = "logit",
+#                          #                          func_list = list("+", "-", "*", "divide", "exp", ">", "<",
+#                          #                                           # Logical
+#                          #                                           "&", "|", "!", "ifelse2",
+#                          #                                           # Randomness
+#                          #                                           "one_rnorm"),
+#                          mins = 100, steps = 60000,
 #                          parallel = TRUE, cores = 6,
-#                          enable_complexity = FALSE, crossover_probability = 0.5)
+#                          enable_complexity = FALSE, crossover_probability = 0.7)
 # bestFunction1 <- res1@best_func
 # bestFunction1@func # It has named arguments, but can use positions, if we want.
-# mean(ifelse(round(predict(bestFunction1, d))==d$Class, 1, 0))
-# table(predict(bestFunction1, d), useNA = "ifany")
+# mean(ifelse(round(predict(res1, d))==d$Class, 1, 0))
+# table(predict(res1, d), useNA = "ifany")
 # # Because this often evolves a probabilistic function, we can replicate it many times 
 # # to get a sense of the function:
 # mean(replicate(100,predict(bestFunction1, d[50,])))

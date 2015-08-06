@@ -25,8 +25,8 @@
 #'  is an estimated model (estimated agent decision function).
 #'  @export
 
-training <- function(trainData, features, Formula, k, 
-                     sampling = FALSE, sampling_size = 1000, outcome_var_name = "action",
+training <- function(trainData, features, Formula,
+                     sampling = FALSE, sampling_size = 1000,
                      package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn",
                                  "estimate_program"),
                      tune_length = 10, mins = 10,
@@ -42,6 +42,11 @@ training <- function(trainData, features, Formula, k,
     doParallel::registerDoParallel(cores = num_cores)
   }
   
+  if(!(identical(length(features), length(Formula))))
+    stop("identical(length(features), length(Formula)) should be TRUE, but it's FALSE.")
+  
+  k <- length(Formula)
+  
   stopifnot(identical(length(features), as.integer(k)))
   # TODO: add error checking for terms in Formula == length(features) == k
     
@@ -49,6 +54,7 @@ training <- function(trainData, features, Formula, k,
   
   if (sampling){
     training_index <- TRUE
+    outcome_var_name <- all.vars(eval(parse(text=Formula[[1]])))[1]
     for(i in unique(trainData$group)){
       prop_for_train <- 1/(nrow(trainData[trainData$group==i, ])/sampling_size)
       train_index <- caret::createDataPartition(trainData[trainData$group==i, outcome_var_name], 

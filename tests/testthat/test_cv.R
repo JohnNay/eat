@@ -54,7 +54,7 @@ test_that("cv_abm() returns correct type of object", {
   Formula <- as.list(rep(NA, k)) # create list to fill
   Formula[[1]] <- "outcome ~ my.decision1 + other.decision1"
   # Call cv_abm():
-  res <- cv_abm(cdata, features, Formula, k, agg_patterns,
+  res <- cv_abm(cdata, features, Formula, agg_patterns,
                 abm_simulate = simulate_abm,
                 abm_vars = list(values = c(0.3, 0.5)),
                 iters = 1000,
@@ -123,7 +123,7 @@ test_that("cv_abm() throws warnings and errors when appropriate", {
   Formula <- as.list(rep(NA, k)) # create list to fill
   Formula[[1]] <- "outcome ~ my.decision1 + other.decision1"
   # Call cv_abm():
-  expect_error(cv_abm(cdata, features, Formula, k, agg_patterns,
+  expect_error(cv_abm(cdata, features, Formula, agg_patterns,
                         abm_simulate = simulate_abm,
                         abm_vars = list(values = c(0.3, 0.5)),
                         iters = 1000,

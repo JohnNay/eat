@@ -4,15 +4,15 @@
 \alias{cv_abm}
 \title{Estimate and Test an ABM}
 \usage{
-cv_abm(data, features, Formula, k, agg_patterns, abm_simulate, abm_vars, iters,
+cv_abm(data, features, Formula, agg_patterns, abm_simulate, abm_vars, iters,
   tseries_len, tp = rep(tseries_len, nrow(agg_patterns)),
   package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
-  sampling = FALSE, sampling_size = 1000, outcome_var_name = "action",
-  STAT = c("mean", "median"), saving = FALSE, filename = NULL,
-  abm_optim = c("GA", "DE"), validate = c("lgocv", "cv"),
-  folds = ifelse(validate == "lgocv", max(data$group), 10),
-  drop_nzv = FALSE, verbose = TRUE, predict_test_par = FALSE,
-  optimize_abm_par = FALSE, parallel_training = FALSE)
+  sampling = FALSE, sampling_size = 1000, STAT = c("mean", "median"),
+  saving = FALSE, filename = NULL, abm_optim = c("GA", "DE"),
+  validate = c("lgocv", "cv"), folds = ifelse(validate == "lgocv",
+  max(data$group), 10), drop_nzv = FALSE, verbose = TRUE,
+  predict_test_par = FALSE, optimize_abm_par = FALSE,
+  parallel_training = FALSE)
 }
 \arguments{
 \item{data}{\code{data.frame} with each row (obervational unit) being an
@@ -31,9 +31,6 @@ individual-level model.}
 that specifies a formula, e.g. \code{"y ~ x"}. The character vector makes
 sense in the context of the \code{features} and \code{data}. There are as
 many elements in the list as there are discrete models for different times.}
-
-\item{k}{numeric vector length one specifying the time periods that should
-estimate model, and thus also specifying the number of models to estimate.}
 
 \item{agg_patterns}{data.frame with rows (observational unit) being the group
 and columns: (a.) those aggregate level variables needed for the prediction
@@ -84,11 +81,6 @@ being too affected by groups with more observations.}
 observations from each group that \code{\link{training}} should sample to
 train the model, default is 1000. Only applicable when \code{sampling}
 argument is set to \code{TRUE}.}
-
-\item{outcome_var_name}{optional character vector length one, default is
-\code{"action"}. \code{\link{training}} uses it to sample to train the model
-with a balanced sampling based on \code{outcome_var_name}. Only applicable
-when \code{sampling} argument is set to \code{TRUE}.}
 
 \item{STAT}{optional character vector length one, default is \code{c("mean",
 "median")}.}
@@ -169,8 +161,7 @@ features[[1]] <- c("my.decision1", "other.decision1")
 Formula <- as.list(rep(NA, k)) # create list to fill
 Formula[[1]] <- "action ~ my.decision1 + other.decision1"
 # Call cv_abm():
-res <- cv_abm(cdata, features, Formula, k, agg_patterns,
-             outcome_var_name = "action",
+res <- cv_abm(cdata, features, Formula, agg_patterns,
              abm_simulate = simulate_abm,
              abm_vars = list(values = c(0.3, 0.5)),
              iters = 1000,

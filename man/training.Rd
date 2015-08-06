@@ -4,11 +4,10 @@
 \alias{training}
 \title{Estimate an Agent Model}
 \usage{
-training(trainData, features, Formula, k, sampling = FALSE,
-  sampling_size = 1000, outcome_var_name = "action",
-  package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn",
-  "estimate_program"), tune_length = 10, mins = 10, parallel = FALSE,
-  cores = NULL, cv_type = c("cv", "repeatedcv"))
+training(trainData, features, Formula, sampling = FALSE,
+  sampling_size = 1000, package = c("caretglm", "caretglmnet", "glm",
+  "caretnnet", "caretdnn", "estimate_program"), tune_length = 10, mins = 10,
+  parallel = FALSE, cores = NULL, cv_type = c("cv", "repeatedcv"))
 }
 \arguments{
 \item{trainData}{\code{data.frame} with each row (obervational unit) being an
@@ -27,9 +26,6 @@ that specifies a formula, e.g. \code{"y ~ x"}. The character vector makes
 sense in the context of the \code{features} and \code{data}. There are as
 many elements in the list as there are discrete models for different times.}
 
-\item{k}{numeric vector length one specifying the time periods that should
-estimate model, and thus also specifying the number of models to estimate.}
-
 \item{sampling}{optional logical vector length one, default is \code{FALSE}.
 If \code{sampling == TRUE}, we sample equal numbers of observations from
 each 'group' to reduce potential problems with the final estimated model
@@ -39,11 +35,6 @@ being too affected by groups with more observations.}
 observations from each group that \code{\link{training}} should sample to
 train the model, default is 1000. Only applicable when \code{sampling}
 argument is set to \code{TRUE}.}
-
-\item{outcome_var_name}{optional character vector length one, default is
-\code{"action"}. \code{\link{training}} uses it to sample to train the model
-with a balanced sampling based on \code{outcome_var_name}. Only applicable
-when \code{sampling} argument is set to \code{TRUE}.}
 
 \item{package}{optional character vector length one, default is
 \code{"caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"}.}

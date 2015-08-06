@@ -18,7 +18,7 @@
 #'  
 #'@export
 
-estimate_abm <- function(data, features, Formula, k, agg_patterns,
+estimate_abm <- function(data, features, Formula, agg_patterns,
                          abm_simulate,
                          abm_vars,
                          iters,
@@ -26,7 +26,7 @@ estimate_abm <- function(data, features, Formula, k, agg_patterns,
                          verbose = TRUE,
                          tp = rep(tseries_len, nrow(agg_patterns)),
                          package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
-                         sampling = FALSE, sampling_size = 1000, outcome_var_name = "action",
+                         sampling = FALSE, sampling_size = 1000,
                          STAT = c("mean", "median"),
                          abm_optim = c("GA", "DE"), 
                          optimize_abm_par = FALSE,
@@ -35,9 +35,12 @@ estimate_abm <- function(data, features, Formula, k, agg_patterns,
   # Extract the desired function object while avoiding undesired matching to objects of other types:
   abm_simulate <- match.fun(abm_simulate, descend = FALSE)
   
+  if(!(identical(length(features), length(Formula))))
+    stop("identical(length(features), length(Formula)) should be TRUE, but it's FALSE.")
+  
   #################################################################
   # Mandatory individual-level model training:
-  model <- training(data, features, Formula, k, 
+  model <- training(data, features, Formula,
                     sampling = sampling, sampling_size = sampling_size, outcome_var_name = outcome_var_name,
                     package = package,
                     parallel = parallel_training) # TRAINING

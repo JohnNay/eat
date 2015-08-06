@@ -19,8 +19,6 @@
 #'  that specifies a formula, e.g. \code{"y ~ x"}. The character vector makes 
 #'  sense in the context of the \code{features} and \code{data}. There are as 
 #'  many elements in the list as there are discrete models for different times.
-#'@param k numeric vector length one specifying the time periods that should
-#'  estimate model, and thus also specifying the number of models to estimate.
 #'@param agg_patterns data.frame with rows (observational unit) being the group 
 #'  and columns: (a.) those aggregate level variables needed for the prediction 
 #'  with the specified \code{formula} (with same names as the variables in the 
@@ -62,10 +60,6 @@
 #'  observations from each group that \code{\link{training}} should sample to 
 #'  train the model, default is 1000. Only applicable when \code{sampling} 
 #'  argument is set to \code{TRUE}.
-#'@param outcome_var_name optional character vector length one, default is 
-#'  \code{"action"}. \code{\link{training}} uses it to sample to train the model
-#'  with a balanced sampling based on \code{outcome_var_name}. Only applicable 
-#'  when \code{sampling} argument is set to \code{TRUE}.
 #'@param STAT optional character vector length one, default is \code{c("mean", 
 #'  "median")}.
 #'@param saving optional logical vector length one, default is \code{FALSE}.
@@ -127,8 +121,7 @@
 #'Formula <- as.list(rep(NA, k)) # create list to fill
 #'Formula[[1]] <- "action ~ my.decision1 + other.decision1"
 #'# Call cv_abm():
-#'res <- cv_abm(cdata, features, Formula, k, agg_patterns,
-#'              outcome_var_name = "action",
+#'res <- cv_abm(cdata, features, Formula, agg_patterns,
 #'              abm_simulate = simulate_abm,
 #'              abm_vars = list(values = c(0.3, 0.5)),
 #'              iters = 1000,
@@ -147,14 +140,14 @@
 #'
 #'@export
 
-cv_abm <- function(data, features, Formula, k, agg_patterns,
+cv_abm <- function(data, features, Formula, agg_patterns,
                    abm_simulate,
                    abm_vars,
                    iters,
                    tseries_len,
                    tp = rep(tseries_len, nrow(agg_patterns)),
                    package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
-                   sampling = FALSE, sampling_size = 1000, outcome_var_name = "action",
+                   sampling = FALSE, sampling_size = 1000,
                    STAT = c("mean", "median"),
                    saving = FALSE, filename = NULL,
                    abm_optim = c("GA", "DE"), 
@@ -188,6 +181,11 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
   package <- match.arg(package)
   STAT <- match.arg(STAT)
   
+  if(!(identical(length(features), length(Formula))))
+    stop("identical(length(features), length(Formula)) should be TRUE, but it's FALSE.")
+  
+  k <- length(Formula)
+    
   predicted_patterns <- lapply(as.list(rep(NA, max(data$group))), 
                                function(x) list(predicted=NA, actual=NA,
                                                 dynamics=rep(NA, tseries_len), simdata=data.frame()))
@@ -257,8 +255,8 @@ cv_abm <- function(data, features, Formula, k, agg_patterns,
     if (verbose) cat("Training data has ", nrow(training_data), " rows. And has groups ", paste(sort(unique(training_data$group)), collapse = ", "), ".\n", sep="")
     msg <- paste0(msg, "Training data has ", nrow(training_data), " rows. And has groups ", paste(sort(unique(training_data$group)), collapse = ", "), ".\n")
     
-    model <- training(training_data, features, training_Formula, k, 
-                      sampling = sampling, sampling_size = sampling_size, outcome_var_name = outcome_var_name,
+    model <- training(training_data, features, training_Formula,
+                      sampling = sampling, sampling_size = sampling_size,
                       package = package,
                       parallel = parallel_training) # TRAINING
     

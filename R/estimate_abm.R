@@ -35,6 +35,8 @@ estimate_abm <- function(data, features, Formula, agg_patterns,
   # Extract the desired function object while avoiding undesired matching to objects of other types:
   abm_simulate <- match.fun(abm_simulate, descend = FALSE)
   
+  package <- match.arg(package)
+  
   if(!(identical(length(features), length(Formula))))
     stop("identical(length(features), length(Formula)) should be TRUE, but it's FALSE.")
   

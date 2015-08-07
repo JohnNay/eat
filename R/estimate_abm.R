@@ -130,8 +130,10 @@ estimate_abm <- function(data, features, Formula, agg_patterns,
   }
   #################################################################
   
-  # Build abm with predictive models trained and used as agent models.
+  # Build abm with predictive models we have trained to be used as agent models:
   function(parameters, out, iterations = iters){
+    if(! out %in% c("action_avg", "dynamics"))
+      stop("Character vector supplied as value for 'out' argument must be in either 'action_avg' or 'dynamics'.")
     if(out=="action_avg"){
       abm_simulate(parameters,
                    model = model, features = features,
@@ -139,7 +141,8 @@ estimate_abm <- function(data, features, Formula, agg_patterns,
                    time_len = tseries_len,
                    iterations = iterations,
                    STAT = "mean")$action_avg
-    } else {
+    } 
+    if(out=="dynamics"){
       abm_simulate(parameters,
                    model = model, features = features,
                    tuning_parameters = abm_vars$value, 

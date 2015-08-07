@@ -41,7 +41,7 @@ estimate_abm <- function(data, features, Formula, agg_patterns,
   #################################################################
   # Mandatory individual-level model training:
   model <- training(data, features, Formula,
-                    sampling = sampling, sampling_size = sampling_size, outcome_var_name = outcome_var_name,
+                    sampling = sampling, sampling_size = sampling_size,
                     package = package,
                     parallel = parallel_training) # TRAINING
   

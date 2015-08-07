@@ -197,7 +197,7 @@ cv_abm <- function(data, features, Formula, agg_patterns,
   #     }
   group_folds <- caret::createFolds(y = unique(data$group), k = folds, list = FALSE)
   
-  if(length(group_folds) != length(unique(data$group))) stop("Assignment of groups to folds didnt work.")
+  if(length(group_folds) != length(unique(data$group))) stop("Assignment of groups to folds didn't work.")
   if(length(unique(group_folds)) != folds) stop("Assignment of groups to folds didnt work.")
   if(verbose) cat("Group folds:", group_folds ,"\n")
   msg <- paste0(msg, "Group folds: ", paste(group_folds, collapse = ", "), "\n")

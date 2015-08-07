@@ -137,14 +137,14 @@ estimate_abm <- function(data, features, Formula, agg_patterns,
                    model = model, features = features,
                    tuning_parameters = abm_vars$value, 
                    time_len = tseries_len,
-                   iterations,
+                   iterations = iterations,
                    STAT = "mean")$action_avg
     } else {
       abm_simulate(parameters,
                    model = model, features = features,
                    tuning_parameters = abm_vars$value, 
                    time_len = tseries_len,
-                   iterations,
+                   iterations = iterations,
                    STAT = "mean")$dynamics
     }
   }

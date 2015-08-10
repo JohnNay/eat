@@ -4,9 +4,9 @@
 \alias{sobol_sa}
 \title{Conduct a Sobol Sensitivity Analysis of a Simulation Model}
 \usage{
-sobol_sa(abm, input_values, out, sample_count = 100, constraints = "none",
-  sobol_nboot = 1000, iterations = NULL, parallel = FALSE, cores = NULL,
-  verbose = TRUE)
+sobol_sa(abm, input_values, out = "action_avg", sample_count = 100,
+  constraints = "none", sobol_nboot = 1000, iterations = NULL,
+  parallel = FALSE, cores = NULL, verbose = TRUE)
 }
 \arguments{
 \item{abm}{A function that takes as input values for each of the
@@ -14,7 +14,7 @@ sobol_sa(abm, input_values, out, sample_count = 100, constraints = "none",
 
 \item{input_values}{List}
 
-\item{out}{Character vector length one to be passed an argument to the
+\item{out}{Optional Character vector length one to be passed an argument to the
 \code{abm} function to specify what outcome measure to use.}
 
 \item{sample_count}{Optional Numeric vector length one. Default is 100.}
@@ -37,7 +37,7 @@ parallel::detectCores().}
 \item{verbose}{Optional logical vector.}
 }
 \value{
-Returns a sobol objects that can be plotted by functions
+Returns an S4 object that can be plotted by its plot method.
 }
 \description{
 \code{sobol_sa} conducts a global variance decomposition.

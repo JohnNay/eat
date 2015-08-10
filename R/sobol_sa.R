@@ -9,7 +9,7 @@
 #'@param abm A function that takes as input values for each of the 
 #'  \code{input_values}
 #'@param input_values List
-#'@param out Character vector length one to be passed an argument to the 
+#'@param out Optional Character vector length one to be passed an argument to the 
 #'  \code{abm} function to specify what outcome measure to use.
 #'@param sample_count  Optional Numeric vector length one. Default is 100.
 #'@param constraints Optional Character vector that is either "none" or is using
@@ -24,7 +24,7 @@
 #'  parallel::detectCores().
 #'@param verbose Optional logical vector.
 #'  
-#'@return Returns a sobol objects that can be plotted by functions
+#'@return Returns an S4 object that can be plotted by its plot method.
 #'  
 #' @examples
 #' # Unconstrained Analysis
@@ -72,7 +72,7 @@
 
 sobol_sa <- function(abm, 
                      input_values,
-                     out, 
+                     out = "action_avg", 
                      sample_count = 100,
                      constraints = "none",
                      sobol_nboot = 1000, 

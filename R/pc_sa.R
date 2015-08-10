@@ -39,6 +39,7 @@ get_rsquare <- function(x, y, on.ranks) {
 #'@param cores Optional Numeric vector length one. Default is 
 #'  parallel::detectCores().
 #'@param verbose Optional logical vector.
+#'@param extra_verbose Optional logical vector, default is FALSE.
 #'@param rank Optional logical vector.
 #'@param method Optional character vector that is either "src" (Standardized 
 #'  Regression Coefficient) or "pcc" (Partial Correlation Coefficient)
@@ -58,7 +59,8 @@ get_rsquare <- function(x, y, on.ranks) {
 #'                                   ARGS = list(min = 0, max = 1)))
 #' pc_sa(fake_abm, inputs, "sq")
 #' pc_sa(fake_abm, inputs, "sq", method = "pcc", rank = FALSE)
-#' pc_sa(fake_abm, inputs, "sq", method = "src", rank = FALSE)
+#' res <- pc_sa(fake_abm, inputs, "sq", method = "src")
+#' plot(res); res@@r_squared
 #' 
 #' # Constrained Analysis
 #' fake_abm <- function(params, out) {
@@ -70,7 +72,7 @@ get_rsquare <- function(x, y, on.ranks) {
 #' inputs <- lapply(list(param1 = NA, param2 = NA), 
 #'                  function(x) list(random_function = "qunif",
 #'                                   ARGS = list(min = 0, max = 1)))
-#' pc_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.1 & param2 < 0.9")
+#' res <- pc_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.1 & param2 < 0.9")
 #' 
 #'@references G. Pujol et al., Sensitivity: Sensitivity Analysis (2014), 
 #'  (available at
@@ -94,7 +96,7 @@ pc_sa <- function(abm,
                   iterations = NULL,
                   parallel = FALSE,
                   cores = NULL,
-                  verbose = TRUE,
+                  verbose = TRUE, extra_verbose = FALSE,
                   rank = TRUE,
                   method = c("src", "pcc")){
   
@@ -113,6 +115,7 @@ pc_sa <- function(abm,
   # Create samples, removing samples violating constraints, until you have enough:
   input.set <- create_set(input_values, input_names, sample_count, constraints)
   if(verbose) cat("Done with input set creation.\n")
+  if(extra_verbose) print(input.set)
   
   ##################################################
   # Simulation runs with generated input factor sets:
@@ -128,6 +131,7 @@ pc_sa <- function(abm,
     })
   }
   if(verbose) cat("Done with simulations.\n")
+  if(extra_verbose) print(pc_sim)
   
   if (method == "src"){
     result <- sensitivity::src(X = input.set, y = pc_sim, nboot = nboot, rank = rank)
@@ -139,6 +143,8 @@ pc_sa <- function(abm,
     result <- sensitivity::pcc(X = input.set, y = pc_sim, nboot = nboot, rank = rank)
     r_squared <- "Not relevant to this method. Only relevant to the 'src' method."
   }
+  
+  if(extra_verbose) print(result)
   
   new("pcSA",
       call = call,

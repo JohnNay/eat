@@ -6,8 +6,8 @@
 \usage{
 pc_sa(abm, input_values, out = "action_avg", sample_count = 100,
   constraints = "none", nboot = 1000, iterations = NULL,
-  parallel = FALSE, cores = NULL, verbose = TRUE, rank = TRUE,
-  method = c("src", "pcc"))
+  parallel = FALSE, cores = NULL, verbose = TRUE, extra_verbose = FALSE,
+  rank = TRUE, method = c("src", "pcc"))
 }
 \arguments{
 \item{abm}{A function that takes each of the \code{input_values} as arguments.}
@@ -35,6 +35,8 @@ that subsets sampled.}
 parallel::detectCores().}
 
 \item{verbose}{Optional logical vector.}
+
+\item{extra_verbose}{Optional logical vector, default is FALSE.}
 
 \item{rank}{Optional logical vector.}
 
@@ -65,7 +67,8 @@ inputs <- lapply(list(param1 = NA, param2 = NA),
                                   ARGS = list(min = 0, max = 1)))
 pc_sa(fake_abm, inputs, "sq")
 pc_sa(fake_abm, inputs, "sq", method = "pcc", rank = FALSE)
-pc_sa(fake_abm, inputs, "sq", method = "src", rank = FALSE)
+res <- pc_sa(fake_abm, inputs, "sq", method = "src")
+plot(res); res@r_squared
 
 # Constrained Analysis
 fake_abm <- function(params, out) {
@@ -77,7 +80,7 @@ fake_abm <- function(params, out) {
 inputs <- lapply(list(param1 = NA, param2 = NA),
                  function(x) list(random_function = "qunif",
                                   ARGS = list(min = 0, max = 1)))
-pc_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.1 & param2 < 0.9")
+res <- pc_sa(fake_abm, inputs, "sq", constraints = "param1 > 0.1 & param2 < 0.9")
 }
 \references{
 G. Pujol et al., Sensitivity: Sensitivity Analysis (2014),

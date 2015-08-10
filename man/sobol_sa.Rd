@@ -6,7 +6,7 @@
 \usage{
 sobol_sa(abm, input_values, out = "action_avg", sample_count = 100,
   constraints = "none", sobol_nboot = 1000, iterations = NULL,
-  parallel = FALSE, cores = NULL, verbose = TRUE)
+  parallel = FALSE, cores = NULL, verbose = TRUE, extra_verbose = FALSE)
 }
 \arguments{
 \item{abm}{A function that takes as input values for each of the
@@ -35,6 +35,8 @@ that subsets sampled.}
 parallel::detectCores().}
 
 \item{verbose}{Optional logical vector.}
+
+\item{extra_verbose}{Optional logical vector, default is FALSE.}
 }
 \value{
 Returns an S4 object that can be plotted by its plot method.

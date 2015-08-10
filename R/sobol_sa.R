@@ -23,6 +23,7 @@
 #'@param cores Optional Numeric vector length one. Default is 
 #'  parallel::detectCores().
 #'@param verbose Optional logical vector.
+#'@param extra_verbose Optional logical vector, default is FALSE.
 #'  
 #'@return Returns an S4 object that can be plotted by its plot method.
 #'  
@@ -79,7 +80,7 @@ sobol_sa <- function(abm,
                      iterations = NULL,
                      parallel = FALSE,
                      cores = NULL,
-                     verbose = TRUE){
+                     verbose = TRUE, extra_verbose = FALSE){
   
   # Get names of input factors:
   input_names <- names(input_values)
@@ -101,6 +102,7 @@ sobol_sa <- function(abm,
   input.sets.2  <- input.sets.2[seq(rows), ]
   stopifnot(nrow(input.sets.1) == nrow(input.sets.2) & nrow(input.sets.2) > 0)
   if(verbose) cat("Done making them same size \n")
+  if(extra_verbose) print(input.sets.1); print(input.sets.2)
   
   ##################################################
   # Simulation runs with generated input factor sets:
@@ -123,6 +125,8 @@ sobol_sa <- function(abm,
     })
   }
   if(verbose) cat("Done with simulations \n")
+  if(extra_verbose) print(sobol_sim)
+  
   # add simulation results (as vector) to sobol object
   sensitivity::tell(sobol_aggregate, sobol_sim)
   

@@ -135,20 +135,20 @@ estimate_abm <- function(data, features, Formula, agg_patterns,
     if(! out %in% c("action_avg", "dynamics"))
       stop("Character vector supplied as value for 'out' argument must be in either 'action_avg' or 'dynamics'.")
     if(out=="action_avg"){
-      abm_simulate(parameters,
+      return(abm_simulate(parameters,
                    model = model, features = features,
                    tuning_parameters = abm_vars$value, 
                    time_len = tseries_len,
                    iterations = iterations,
-                   STAT = "mean")$action_avg
+                   STAT = "mean")$action_avg)
     } 
     if(out=="dynamics"){
-      abm_simulate(parameters,
+      return(abm_simulate(parameters,
                    model = model, features = features,
                    tuning_parameters = abm_vars$value, 
                    time_len = tseries_len,
                    iterations = iterations,
-                   STAT = "mean")$dynamics
+                   STAT = "mean")$dynamics)
     }
   }
   

@@ -20,13 +20,13 @@ get_rsquare <- function(x, y, on.ranks) {
 #'\code{pc_sa} conducts a partial correlation analysis.
 #'
 #'This is function of the \strong{eat} package. It takes an abm in function form
-#'and a list of input values. Helper function for extracting R-sqaured is from 
-#'Thiele et al. (2014).
+#'and a list of input values. Helper function for extracting R-sqaured is
+#'adapted from Thiele et al. (2014).
 #'
 #'@param abm A function that takes each of the \code{input_values} as arguments.
 #'@param input_values List
-#'@param out Character vector length one to be passed an argument to the 
-#'  \code{abm} function to specify what outcome measure to use.
+#'@param out Optional Character vector length one to be passed an argument to
+#'  the \code{abm} function to specify what outcome measure to use.
 #'@param sample_count  Optional Numeric vector length one. Default is 100.
 #'@param constraints Optional Character vector that is either "none" or is using
 #'  only variable names that are specified in the input_values List argument. 
@@ -87,7 +87,7 @@ get_rsquare <- function(x, y, on.ranks) {
 
 pc_sa <- function(abm, 
                   input_values,
-                  out, 
+                  out = "action_avg", 
                   sample_count = 100,
                   constraints = "none",
                   nboot = 1000, 

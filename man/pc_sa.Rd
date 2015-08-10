@@ -4,17 +4,18 @@
 \alias{pc_sa}
 \title{Partial Correlation Analysis of a Simulation Model}
 \usage{
-pc_sa(abm, input_values, out, sample_count = 100, constraints = "none",
-  nboot = 1000, iterations = NULL, parallel = FALSE, cores = NULL,
-  verbose = TRUE, rank = TRUE, method = c("src", "pcc"))
+pc_sa(abm, input_values, out = "action_avg", sample_count = 100,
+  constraints = "none", nboot = 1000, iterations = NULL,
+  parallel = FALSE, cores = NULL, verbose = TRUE, rank = TRUE,
+  method = c("src", "pcc"))
 }
 \arguments{
 \item{abm}{A function that takes each of the \code{input_values} as arguments.}
 
 \item{input_values}{List}
 
-\item{out}{Character vector length one to be passed an argument to the
-\code{abm} function to specify what outcome measure to use.}
+\item{out}{Optional Character vector length one to be passed an argument to
+the \code{abm} function to specify what outcome measure to use.}
 
 \item{sample_count}{Optional Numeric vector length one. Default is 100.}
 
@@ -48,8 +49,8 @@ Returns a sensitivity object that can be plotted by functions.
 }
 \details{
 This is function of the \strong{eat} package. It takes an abm in function form
-and a list of input values. Helper function for extracting R-sqaured is from
-Thiele et al. (2014).
+and a list of input values. Helper function for extracting R-sqaured is
+adapted from Thiele et al. (2014).
 }
 \examples{
 # Unconstrained Analysis

@@ -42,6 +42,11 @@ coef_var <- function(x, na.rm = FALSE){
 #'@param sample_count Optional numeric vector length one specifying the number 
 #'  of samples for a given \code{iters} value that is being tested. If 
 #'  \code{repeats} is very high then this does not need to be as high.
+#'@param model_data Optional data.frame with the data that was used to build the
+#'  model. This is used if one wants to ensure that all parameters tested are in
+#'  the convex hull of the data used to build the model that is now being
+#'  analyzed. This uses the WhatIf package in the Suggest field of the eat
+#'  description file.
 #'@param repeats Optional numeric vector length one specifying the number of
 #'  times to repeat the main loop of this algo. If \code{sample_count} is very 
 #'  high then this does not need to be as high.
@@ -98,6 +103,7 @@ compute_iters <- function(abm,
                           input_values,
                           out, 
                           sample_count = 20,
+                          model_data = NULL,
                           repeats = 30,
                           thresh = 0.05,
                           initial_iters = 5,
@@ -125,7 +131,7 @@ compute_iters <- function(abm,
     
     repeat{
       # Create sample, removing samples violating constraints, until you have one:
-      input.set <- create_set(input_values, input_names, 1, constraints)
+      input.set <- create_set(input_values, input_names, 1, constraints, model_data)
       if(verbose) cat("Done with input set creation.\n")
       
       if (parallel) {

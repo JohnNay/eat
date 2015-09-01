@@ -4,8 +4,8 @@
 \alias{compute_iters}
 \title{Determine Number of Iterations to Simulate a Stochastic Model}
 \usage{
-compute_iters(abm, input_values, out, sample_count = 20, repeats = 30,
-  thresh = 0.05, initial_iters = 5, max_iters = 1000,
+compute_iters(abm, input_values, out, sample_count = 20, model_data = NULL,
+  repeats = 30, thresh = 0.05, initial_iters = 5, max_iters = 1000,
   constraints = "none", parallel = FALSE, cores = NULL, verbose = FALSE,
   measure = c("coef_var", "var", "sd"))
 }
@@ -26,6 +26,12 @@ around their abm simulation function.}
 \item{sample_count}{Optional numeric vector length one specifying the number
 of samples for a given \code{iters} value that is being tested. If
 \code{repeats} is very high then this does not need to be as high.}
+
+\item{model_data}{Optional data.frame with the data that was used to build the
+model. This is used if one wants to ensure that all parameters tested are in
+the convex hull of the data used to build the model that is now being
+analyzed. This uses the WhatIf package in the Suggest field of the eat
+description file.}
 
 \item{repeats}{Optional numeric vector length one specifying the number of
 times to repeat the main loop of this algo. If \code{sample_count} is very

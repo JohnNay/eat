@@ -6,11 +6,11 @@
 \alias{keep_satisfied}
 \title{Create set of samples by sampling with LHS and then checking constraints.}
 \usage{
-create_set(input_values, input_names, sample_count, constraints)
+create_set(input_values, input_names, sample_count, constraints, model_data)
 
 create_sample(input_values, input_names, sample_count)
 
-keep_satisfied(sampled, constraints)
+keep_satisfied(sampled, constrained)
 }
 \arguments{
 \item{input_values}{List}
@@ -20,12 +20,20 @@ keep_satisfied(sampled, constraints)
 \item{sample_count}{Numeric vector length one.}
 
 \item{constraints}{Character vector that is either "none" of is using only
- variable names that are specified in the input_values List argument. This
- character vector is evaluated in an environment created for the sampled data
- on the variables, and its evaluation results in a Logical vector that that
- subsets sampled.}
+variable names that are specified in the input_values List argument. This
+character vector is evaluated in an environment created for the sampled data
+on the variables, and its evaluation results in a Logical vector that that
+subsets sampled.}
+
+\item{model_data}{Optional data.frame with the data that was used to build the
+ model. This is used if one wants to ensure that all parameters tested are in
+ the convex hull of the data used to build the model that is now being
+ analyzed. This uses the WhatIf package in the Suggest field of the eat
+ description file.}
 
 \item{sampled}{Output of create sample_sample}
+
+\item{constrained}{Logical vector}
 }
 \value{
 Returns a \code{data.frame} of samples.

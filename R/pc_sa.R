@@ -25,7 +25,7 @@ get_rsquare <- function(x, y, on.ranks) {
 #'
 #'@param abm A function that takes each of the \code{input_values} as arguments.
 #'@param input_values List
-#'@param out Optional Character vector length one to be passed an argument to
+#'@param out Optional Character vector length one to be passed an argument to 
 #'  the \code{abm} function to specify what outcome measure to use.
 #'@param sample_count  Optional Numeric vector length one. Default is 100.
 #'@param constraints Optional Character vector that is either "none" or is using
@@ -34,6 +34,11 @@ get_rsquare <- function(x, y, on.ranks) {
 #'  data on the variables, and its evaluation results in a Logical vector that 
 #'  that subsets sampled.
 #'@param nboot Optional Numeric vector length one. Default is 1000.
+#'@param model_data Optional data.frame with the data that was used to build the
+#'  model. This is used if one wants to ensure that all parameters tested are in
+#'  the convex hull of the data used to build the model that is now being
+#'  analyzed. This uses the WhatIf package in the Suggest field of the eat
+#'  description file.
 #'@param iterations Optional numeric vector length one.
 #'@param parallel Optional logical vector length one. Default is FALSE.
 #'@param cores Optional Numeric vector length one. Default is 
@@ -93,6 +98,7 @@ pc_sa <- function(abm,
                   sample_count = 100,
                   constraints = "none",
                   nboot = 1000, 
+                  model_data = NULL,
                   iterations = NULL,
                   parallel = FALSE,
                   cores = NULL,
@@ -100,12 +106,12 @@ pc_sa <- function(abm,
                   rank = TRUE,
                   method = c("src", "pcc")){
   
+  # Get names of input factors:
+  input_names <- names(input_values)
+  
   method <- match.arg(method)
   start_time <- as.numeric(proc.time()[[1]])
   call <- match.call()
-  
-  # Get names of input factors:
-  input_names <- names(input_values)
   
   if (parallel) {
     if (missing(cores)) cores <- parallel::detectCores() - 1
@@ -113,7 +119,7 @@ pc_sa <- function(abm,
   } # without registering the backend the %dopar% should just run sequentially as %do%
   
   # Create samples, removing samples violating constraints, until you have enough:
-  input.set <- create_set(input_values, input_names, sample_count, constraints)
+  input.set <- create_set(input_values, input_names, sample_count, constraints, model_data)
   if(verbose) cat("Done with input set creation.\n")
   if(extra_verbose) print(input.set)
   

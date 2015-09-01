@@ -18,6 +18,11 @@
 #'  data on the variables, and its evaluation results in a Logical vector that 
 #'  that subsets sampled.
 #'@param sobol_nboot Optional Numeric vector length one. Default is 1000.
+#'@param model_data Optional data.frame with the data that was used to build the
+#'  model. This is used if one wants to ensure that all parameters tested are in
+#'  the convex hull of the data used to build the model that is now being
+#'  analyzed. This uses the WhatIf package in the Suggest field of the eat
+#'  description file.
 #'@param iterations Optional numeric vector length one.
 #'@param parallel Optional logical vector length one. Default is FALSE.
 #'@param cores Optional Numeric vector length one. Default is 
@@ -77,6 +82,7 @@ sobol_sa <- function(abm,
                      sample_count = 100,
                      constraints = "none",
                      sobol_nboot = 1000, 
+                     model_data = NULL,
                      iterations = NULL,
                      parallel = FALSE,
                      cores = NULL,
@@ -91,9 +97,9 @@ sobol_sa <- function(abm,
   if(parallel==TRUE & missing(cores)) cores <- parallel::detectCores()
   
   # Create two samples, removing samples violating constraints, until you have enough:
-  input.sets.1 <- create_set(input_values, input_names, sample_count, constraints)
+  input.sets.1 <- create_set(input_values, input_names, sample_count, constraints, model_data)
   if(verbose) cat("Done with input set", 1,"\n")
-  input.sets.2 <- create_set(input_values, input_names, sample_count, constraints)
+  input.sets.2 <- create_set(input_values, input_names, sample_count, constraints, model_data)
   if(verbose) cat("Done with input set", 2,"\n")
   
   # Make sets the same size:

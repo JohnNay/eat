@@ -14,7 +14,8 @@ Depends:
 License: MIT + file LICENSE
 LazyData: true
 Suggests: testthat,
-    knitr
+    knitr,
+    WhatIf
 Imports: caret,
     lhs,
     DEoptim,

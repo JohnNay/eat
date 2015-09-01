@@ -10,17 +10,38 @@
 #'  character vector is evaluated in an environment created for the sampled data
 #'  on the variables, and its evaluation results in a Logical vector that that 
 #'  subsets sampled.
+#'@param model_data Optional data.frame with the data that was used to build the
+#'  model. This is used if one wants to ensure that all parameters tested are in
+#'  the convex hull of the data used to build the model that is now being
+#'  analyzed. This uses the WhatIf package in the Suggest field of the eat
+#'  description file.
 #'  
 #'@return Returns a \code{data.frame} of samples.
 #'  
 #'@export
-create_set <- function(input_values, input_names, sample_count, constraints){
+create_set <- function(input_values, input_names, sample_count, constraints,
+                       model_data){
+  
+  if(!is.null(model_data)){
+    if (!requireNamespace("WhatIf", quietly = TRUE)) {
+      stop("The WhatIf package is needed to ensure that all parameters tested are in the convex hull of the data you have provided. Please install it.",
+           call. = FALSE)
+    }
+    if(!identical(sort(input_names), sort(colnames(model_data))))
+      stop("Names of the input_values are not identical to the names of the columns in the model_data.")
+  }
   
   input.sets <- create_sample(input_values, input_names, sample_count)
   
   # Discard input factor sets that violate constraints:
   if(constraints != "none") {
     constrained <- with(input.sets, eval(parse(text=constraints)))
+    input.sets <- keep_satisfied(input.sets, constrained)
+  }
+  if(!is.null(model_data)){
+    constrained <- WhatIf::whatif(data = model_data[sort(colnames(model_data))], 
+                                  cfact = input.sets[sort(colnames(input.sets))],
+                                  choice = "hull")$in.hull
     input.sets <- keep_satisfied(input.sets, constrained)
   }
   
@@ -32,6 +53,12 @@ create_set <- function(input_values, input_names, sample_count, constraints){
     # Discard input factor sets that violate constraints:
     if(constraints != "none") {
       constrained <- with(input.sets, eval(parse(text=constraints)))
+      input.sets <- keep_satisfied(input.sets, constrained)
+    }
+    if(!is.null(model_data)){
+      constrained <- WhatIf::whatif(data = model_data[sort(colnames(model_data))], 
+                                    cfact = input.sets[sort(colnames(input.sets))],
+                                    choice = "hull")$in.hull
       input.sets <- keep_satisfied(input.sets, constrained)
     }
   }
@@ -75,6 +102,7 @@ create_sample <- function(input_values, input_names, sample_count) {
 #'@describeIn create_set Stay within constraints.
 #'  
 #'@param sampled Output of create sample_sample
+#'@param constrained Logical vector
 #'  
 #'@return Returns a data.frame of samples thats the same or less rows as input.
 #'  
@@ -86,9 +114,9 @@ create_sample <- function(input_values, input_names, sample_count) {
 #'
 #'@export
 
-keep_satisfied <- function(sampled, constraints){
-  result <- data.frame(sampled[constraints, , drop=FALSE])
+keep_satisfied <- function(sampled, constrained){
+  stopifnot(identical(nrow(sampled), length(constrained)))
+  result <- data.frame(sampled[constrained, , drop=FALSE])
   stopifnot(nrow(result) <= nrow(sampled))
   result
 }
-

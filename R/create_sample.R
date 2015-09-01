@@ -45,22 +45,26 @@ create_set <- function(input_values, input_names, sample_count, constraints,
     input.sets <- keep_satisfied(input.sets, constrained)
   }
   
-  while(nrow(input.sets) < sample_count) { 
+  needed <- sample_count - nrow(input.sets)
+  
+  while(needed > 0) { 
     # Create input factor sets by latin hypercube sampling:
-    input.sets <- rbind(input.sets,
-                        create_sample(input_values, input_names, sample_count))  
+    to_add <- create_sample(input_values, input_names, needed)
     
-    # Discard input factor sets that violate constraints:
+    # Discard input sets that violate constraints:
     if(constraints != "none") {
-      constrained <- with(input.sets, eval(parse(text=constraints)))
-      input.sets <- keep_satisfied(input.sets, constrained)
+      constrained <- with(to_add, eval(parse(text=constraints)))
+      to_add <- keep_satisfied(to_add, constrained)
     }
     if(!is.null(model_data)){
       constrained <- WhatIf::whatif(data = model_data[sort(colnames(model_data))], 
-                                    cfact = input.sets[sort(colnames(input.sets))],
+                                    cfact = to_add[sort(colnames(to_add))],
                                     choice = "hull")$in.hull
-      input.sets <- keep_satisfied(input.sets, constrained)
+      to_add <- keep_satisfied(to_add, constrained)
     }
+    
+    input.sets <- rbind(input.sets, to_add)
+    needed <- sample_count - nrow(input.sets)
   }
   
   input.sets

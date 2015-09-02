@@ -86,14 +86,12 @@ create_set <- function(input_values, input_names, sample_count, constraints,
 #'@export
 
 create_sample <- function(input_values, input_names, sample_count) {
-  # will create values from 0 to 1 and must be transformed afterwards, if need be.
   
   # create a random sample of input factor sets with Latin Hypercube Sampling
   lhs_design <- lhs::improvedLHS(sample_count, length(input_values))
   
-  # transform the standardized random values to the real input value range (if need be)
-  # and apply the desired random distribution
-  lhs_design <- lapply(seq(1,length(input_values)), function(i) {
+  # apply random distribution
+  lhs_design <- lapply(seq(length(input_values)), function(i) {
     input_values[[i]]$ARGS$p <- as.vector(lhs_design[ ,i])
     do.call(input_values[[i]]$random_function, input_values[[i]]$ARGS)
   })

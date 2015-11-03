@@ -154,6 +154,8 @@ pc_sa <- function(abm,
   
   new("pcSA",
       call = call,
+      input_set = input.set,
+      sims = pc_sim,
       result = result, 
       r_squared = r_squared,
       timing = as.numeric(proc.time()[[1]]) - start_time,

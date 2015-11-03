@@ -4,6 +4,8 @@ setClassUnion("numericOrchar", members = c("numeric", "character"))
 #' An S4 class to return the results of sensitivity analyses
 #' 
 #' @slot call Language from the call of the function \code{\link{cv_abm}}.
+#' @slot input_set data.frame of input set used
+#' @slot sims numeric vector with outcome of simulating model with input_set
 #' @slot result c("src", "pcc") s3 classes from \code{sensitivity} package.
 #' @slot r_squared Numeric vector length one.
 #' @slot timing Numeric vector length one with the total elapsed time it took 
@@ -15,6 +17,8 @@ setClassUnion("numericOrchar", members = c("numeric", "character"))
 
 setClass(Class = "pcSA",
          slots = c(call = "language",
+                   input_set = "data.frame",
+                   sims = "numeric",
                    result = "ANY", # "pcsens"
                    r_squared = "numericOrchar",
                    timing = "numeric",

@@ -53,6 +53,10 @@ Plots pcSA S4 object, a Partial Correlation Analysis of a Simulation Model
 \describe{
 \item{\code{call}}{Language from the call of the function \code{\link{cv_abm}}.}
 
+\item{\code{input_set}}{data.frame of input set used}
+
+\item{\code{sims}}{numeric vector with outcome of simulating model with input_set}
+
 \item{\code{result}}{c("src", "pcc") s3 classes from \code{sensitivity} package.}
 
 \item{\code{r_squared}}{Numeric vector length one.}

@@ -146,11 +146,11 @@ pc_sa <- function(abm,
   # simulation results for input factor sets (as matrix)
   if (is.null(iterations)){
     pc_sim <- forloop(foreach::foreach(i=seq(nrow(input.set)), .combine='c'), {
-      abm(as.numeric(input.set[i, ]), out = out)
+      tryCatch(abm(as.numeric(input.set[i, ]), out = out), error = function(e) NA)
     })
   } else {
     pc_sim <- forloop(foreach::foreach(i=seq(nrow(input.set)), .combine='c'), {
-      abm(as.numeric(input.set[i, ]), out = out, iterations = iterations)
+      tryCatch(abm(as.numeric(input.set[i, ]), out = out, iterations = iterations), error = function(e) NA)
     })
   }
   if(verbose) cat("Done with simulations.\n")

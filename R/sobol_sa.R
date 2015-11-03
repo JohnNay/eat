@@ -94,7 +94,7 @@ sobol_sa <- function(abm,
   start_time <- as.numeric(proc.time()[[1]])
   call <- match.call()
   
-  if(parallel==TRUE & missing(cores)) cores <- parallel::detectCores()
+  if(parallel==TRUE & is.null(cores)) cores <- parallel::detectCores()
   
   # Create two samples, removing samples violating constraints, until you have enough:
   input.sets.1 <- create_set(input_values, input_names, sample_count, constraints, model_data)
@@ -121,7 +121,7 @@ sobol_sa <- function(abm,
   if (parallel) {
     doParallel::registerDoParallel(cores = cores)
   } # without registering the backend the %dopar% should just run as %do%
-  if (missing(iterations)){
+  if (is.null(iterations)){
     sobol_sim <- foreach::`%dopar%`(foreach::foreach(i=seq(nrow(sobol_aggregate$X)), .combine='c'), {
       abm(as.numeric(sobol_aggregate$X[i, ]), out = out)
     })

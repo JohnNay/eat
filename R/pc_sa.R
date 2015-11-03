@@ -128,9 +128,12 @@ pc_sa <- function(abm,
   }
   
   if (parallel) {
-    if (missing(cores)) cores <- parallel::detectCores() - 1
+    if (is.null(cores)) cores <- parallel::detectCores() - 1
     doParallel::registerDoParallel(cores = cores)
-  } # without registering the backend the %dopar% should just run sequentially as %do%
+    forloop <- foreach::`%dopar%`
+  } else{
+    forloop <- foreach::`%do%`
+  }
   
   # Create samples, removing samples violating constraints, until you have enough:
   input.set <- create_set(input_values, input_names, sample_count, constraints, model_data)
@@ -141,12 +144,12 @@ pc_sa <- function(abm,
   # Simulation runs with generated input factor sets:
   if(verbose) cat("Starting simulations.\n")
   # simulation results for input factor sets (as matrix)
-  if (missing(iterations)){
-    pc_sim <- foreach::`%dopar%`(foreach::foreach(i=seq(nrow(input.set)), .combine='c'), {
+  if (is.null(iterations)){
+    pc_sim <- forloop(foreach::foreach(i=seq(nrow(input.set)), .combine='c'), {
       abm(as.numeric(input.set[i, ]), out = out)
     })
   } else {
-    pc_sim <- foreach::`%dopar%`(foreach::foreach(i=seq(nrow(input.set)), .combine='c'), {
+    pc_sim <- forloop(foreach::foreach(i=seq(nrow(input.set)), .combine='c'), {
       abm(as.numeric(input.set[i, ]), out = out, iterations = iterations)
     })
   }

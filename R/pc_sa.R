@@ -34,10 +34,17 @@ get_rsquare <- function(x, y, on.ranks) {
 #'  data on the variables, and its evaluation results in a Logical vector that 
 #'  that subsets sampled.
 #'@param nboot Optional Numeric vector length one. Default is 1000.
+#'@param previous_pc_sa Optional list where each element is an S4 object created
+#'  by using this function to previously run this analysis. The main use case is
+#'  when the previous analysis shows that we need to run more simulations to
+#'  reduce the uncertainty in the estimates. If this is provided, the simulation
+#'  outputs and the design matrix of parameter inputs will be addde to the
+#'  outputs and inputs used by the current call of the function and then the
+#'  sensitivity analysis will be computed with the previous and current results.
 #'@param model_data Optional data.frame with the data that was used to build the
 #'  model. This is used if one wants to ensure that all parameters tested are in
-#'  the convex hull of the data used to build the model that is now being
-#'  analyzed. This uses the WhatIf package in the Suggest field of the eat
+#'  the convex hull of the data used to build the model that is now being 
+#'  analyzed. This uses the WhatIf package in the Suggest field of the eat 
 #'  description file.
 #'@param iterations Optional numeric vector length one.
 #'@param parallel Optional logical vector length one. Default is FALSE.
@@ -97,7 +104,8 @@ pc_sa <- function(abm,
                   out = "action_avg", 
                   sample_count = 100,
                   constraints = "none",
-                  nboot = 1000, 
+                  nboot = 1000,
+                  previous_pc_sa = NULL,
                   model_data = NULL,
                   iterations = NULL,
                   parallel = FALSE,
@@ -112,6 +120,12 @@ pc_sa <- function(abm,
   method <- match.arg(method)
   start_time <- as.numeric(proc.time()[[1]])
   call <- match.call()
+  
+  if(!is.null(previous_pc_sa)){
+    input.set1 <- lapply(previous_pc_sa, function(x) x@input_set)
+    pc_sim1 <- lapply(previous_pc_sa, function(x) x@sims)
+    stopifnot(all(sapply(input.set1, function(x) input_names==colnames(x))))
+  }
   
   if (parallel) {
     if (missing(cores)) cores <- parallel::detectCores() - 1
@@ -138,6 +152,24 @@ pc_sa <- function(abm,
   }
   if(verbose) cat("Done with simulations.\n")
   if(extra_verbose) print(pc_sim)
+  
+#   # testing code:
+#   previous_pc_sa <- list(list(input_set = data.frame(a=c(1,2), b=c(1,2)), sims=  c(1,2)), 
+#                          list(input_set = data.frame(a=c(3,4), b=c(3,4)), sims=  c(3,4)),
+#                          list(input_set = data.frame(a=c(5,6), b=c(5,6)), sims=  c(5,6)))
+#   #previous_pc_sa <- list(list(input_set = data.frame(a=c(1,2), b=c(1,2)), sims=  c(1,2)))
+#   input.set1 <- lapply(previous_pc_sa, function(x) x$input_set)
+#   pc_sim1 <- lapply(previous_pc_sa, function(x) x$sims)
+#   stopifnot(all(sapply(input.set1, function(x) c("a","b")==colnames(x))))
+  
+  if(!is.null(previous_pc_sa)){
+    # combine all elements in the list if list has more than one element
+    input.set1 <- as.data.frame(do.call(rbind, input.set1))
+    pc_sim1 <- as.numeric(do.call(c, pc_sim1))
+    # add to the current results
+    input.set <- rbind(input.set1, input.set)
+    pc_sim <- c(pc_sim1, pc_sim)
+  }
   
   if (method == "src"){
     result <- sensitivity::src(X = input.set, y = pc_sim, nboot = nboot, rank = rank)

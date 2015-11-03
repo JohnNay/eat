@@ -5,9 +5,10 @@
 \title{Partial Correlation Analysis of a Simulation Model}
 \usage{
 pc_sa(abm, input_values, out = "action_avg", sample_count = 100,
-  constraints = "none", nboot = 1000, model_data = NULL,
-  iterations = NULL, parallel = FALSE, cores = NULL, verbose = TRUE,
-  extra_verbose = FALSE, rank = TRUE, method = c("src", "pcc"))
+  constraints = "none", nboot = 1000, previous_pc_sa = NULL,
+  model_data = NULL, iterations = NULL, parallel = FALSE, cores = NULL,
+  verbose = TRUE, extra_verbose = FALSE, rank = TRUE, method = c("src",
+  "pcc"))
 }
 \arguments{
 \item{abm}{A function that takes each of the \code{input_values} as arguments.}
@@ -26,6 +27,14 @@ data on the variables, and its evaluation results in a Logical vector that
 that subsets sampled.}
 
 \item{nboot}{Optional Numeric vector length one. Default is 1000.}
+
+\item{previous_pc_sa}{Optional list where each element is an S4 object created
+by using this function to previously run this analysis. The main use case is
+when the previous analysis shows that we need to run more simulations to
+reduce the uncertainty in the estimates. If this is provided, the simulation
+outputs and the design matrix of parameter inputs will be addde to the
+outputs and inputs used by the current call of the function and then the
+sensitivity analysis will be computed with the previous and current results.}
 
 \item{model_data}{Optional data.frame with the data that was used to build the
 model. This is used if one wants to ensure that all parameters tested are in

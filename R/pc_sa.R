@@ -176,10 +176,8 @@ pc_sa <- function(abm,
   
   if(anyNA(pc_sim)){
     warning(paste("You had", sum(is.na(pc_sim)), "NA's in your output of the simulation model."))
-    to_keep <- complete.cases(pc_sim)
-  } else {
-    to_keep <- length(pc_sim)
-  }
+  } 
+  to_keep <- complete.cases(pc_sim)
   
   if(length(pc_sim) != nrow(input.set)){
     warning("Could not return a sensitivity analysis result because length(simulated outcomes) != nrow(input set)")

@@ -174,15 +174,29 @@ pc_sa <- function(abm,
     pc_sim <- c(pc_sim1, pc_sim)
   }
   
-  if (method == "src"){
-    result <- sensitivity::src(X = input.set, y = pc_sim, nboot = nboot, rank = rank)
-    r_squared <- get_rsquare(x = input.set, y = pc_sim, 
-                             on.ranks = rank)
+  if(anyNA(pc_sim)){
+    warning(paste("You had", sum(is.na(pc_sim)), "NA's in your output of the simulation model."))
+    to_keep <- complete.cases(pc_sim)
+  } else {
+    to_keep <- length(pc_sim)
   }
   
-  if (method == "pcc"){
-    result <- sensitivity::pcc(X = input.set, y = pc_sim, nboot = nboot, rank = rank)
-    r_squared <- "Not relevant to this method. Only relevant to the 'src' method."
+  if(length(pc_sim) != nrow(input.set)){
+    warning("Could not return a sensitivity analysis result because length(simulated outcomes) != nrow(input set)")
+    # If we hadnt added this conditional, we would have errored out.
+    result <- NA
+    r_squared <- "No results."
+  } else {
+    if (method == "src"){
+      result <- sensitivity::src(X = input.set[to_keep, ], y = pc_sim[to_keep], nboot = nboot, rank = rank)
+      r_squared <- get_rsquare(x = input.set[to_keep, ], y = pc_sim[to_keep], 
+                               on.ranks = rank)
+    }
+    
+    if (method == "pcc"){
+      result <- sensitivity::pcc(X = input.set[to_keep, ], y = pc_sim[to_keep], nboot = nboot, rank = rank)
+      r_squared <- "Not relevant to this method. Only relevant to the 'src' method."
+    }
   }
   
   if(extra_verbose) print(result)

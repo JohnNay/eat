@@ -13,7 +13,7 @@
 \S4method{show}{pcSA}(object)
 
 \S4method{plot}{pcSA,ANY}(x, outcome_var = "Outcome", xlab = "Variable",
-  ylab = "Partial Rank Correlation Coefficient")
+  ylab = "Standardized Rank Regression Coefficient")
 }
 \arguments{
 \item{x}{The result slot of an object created by \code{pc_sa}.}
@@ -63,6 +63,8 @@ partial correlation analysis.
 \item{\code{result}}{c("src", "pcc") s3 classes from \code{sensitivity} package.}
 
 \item{\code{r_squared}}{Numeric vector length one.}
+
+\item{\code{rmse}}{Numeric vector length one.}
 
 \item{\code{timing}}{Numeric vector length one with the total elapsed time it took 
 \code{\link{cv_abm}} to execute.}

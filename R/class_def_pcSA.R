@@ -8,6 +8,7 @@ setClassUnion("numericOrchar", members = c("numeric", "character"))
 #' @slot sims numeric vector with outcome of simulating model with input_set
 #' @slot result c("src", "pcc") s3 classes from \code{sensitivity} package.
 #' @slot r_squared Numeric vector length one.
+#' @slot rmse Numeric vector length one.
 #' @slot timing Numeric vector length one with the total elapsed time it took 
 #'   \code{\link{cv_abm}} to execute.
 #' @slot session the results from calling \code{sessionInfo()} at end of
@@ -21,6 +22,7 @@ setClass(Class = "pcSA",
                    sims = "numeric",
                    result = "ANY", # "pcsens"
                    r_squared = "numericOrchar",
+                   rmse = "numericOrchar",
                    timing = "numeric",
                    session = "ANY")
 )
@@ -96,7 +98,7 @@ correct_bias <- function(x) {
 
 setMethod("plot", "pcSA",
           function(x, outcome_var = "Outcome", 
-                   xlab = "Variable", ylab = "Partial Rank Correlation Coefficient"){
+                   xlab = "Variable", ylab = "Standardized Rank Regression Coefficient"){
             x <- x@result
             ss <- correct_bias(x[[7]]) # $SRRC, $SRC, $PRCC, $PCC
             

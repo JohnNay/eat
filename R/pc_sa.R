@@ -1,18 +1,18 @@
-# Calculation of R^2. this function is adapted from:
-# J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models: 
-# A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
-get_rsquare <- function(x, y, on.ranks) {
+model_stats <- function(x, y, on.ranks) {
+  # The calculation of R^2 component of this function is adapted from:
+  # J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models: 
+  # A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
   data <- data.frame(Y = y, x)
   if (on.ranks) {
     for (i in seq(ncol(data))) {
       data[ ,i] <- rank(data[ ,i])
     }
   }
-  i <- seq(nrow(data))
-  d <- data[i, ]
-  lm.Y <- stats::lm(formula(paste(colnames(d)[1], "~", paste(colnames(d)[-1], collapse = "+"))), 
-                    data = d)
-  summary(lm.Y)$r.squared
+  lm.Y <- stats::lm(formula(paste(colnames(data)[1], "~", paste(colnames(data)[-1], collapse = "+"))), 
+                    data = data)
+  r.squared <- summary(lm.Y)$r.squared
+  rmse <- compute_rmse(y, stats::predict.lm(object = lm.Y, newdata = x))
+  list(r.squared=r.squared, rmse=rmse)
 }
 
 #'Partial Correlation Analysis of a Simulation Model
@@ -187,13 +187,16 @@ pc_sa <- function(abm,
   } else {
     if (method == "src"){
       result <- sensitivity::src(X = input.set[to_keep, ], y = pc_sim[to_keep], nboot = nboot, rank = rank)
-      r_squared <- get_rsquare(x = input.set[to_keep, ], y = pc_sim[to_keep], 
+      model_stat <- model_stats(x = input.set[to_keep, ], y = pc_sim[to_keep], 
                                on.ranks = rank)
+      r_squared <- model_stat$r.squared
+      rmse <- model_stat$rmse
     }
     
     if (method == "pcc"){
       result <- sensitivity::pcc(X = input.set[to_keep, ], y = pc_sim[to_keep], nboot = nboot, rank = rank)
       r_squared <- "Not relevant to this method. Only relevant to the 'src' method."
+      rmse <- "Not relevant to this method. Only relevant to the 'src' method."
     }
   }
   
@@ -205,6 +208,7 @@ pc_sa <- function(abm,
       sims = pc_sim,
       result = result, 
       r_squared = r_squared,
+      rmse = rmse,
       timing = as.numeric(proc.time()[[1]]) - start_time,
       session = sessionInfo())
 }

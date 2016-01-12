@@ -1,5 +1,5 @@
 model_stats <- function(x, y, on.ranks) {
-  # The calculation of R^2 component of this function is adapted from:
+  # The calculation of R^2 component of this function is adapted from a helper function associated with:
   # J. C. Thiele, W. Kurth, V. Grimm, Facilitating Parameter Estimation and Sensitivity Analysis of Agent-Based Models: 
   # A Cookbook Using NetLogo and R. Journal of Artificial Societies and Social Simulation. 17, 11 (2014).
   data <- data.frame(Y = y, x)
@@ -19,7 +19,7 @@ model_stats <- function(x, y, on.ranks) {
 #'
 #'\code{pc_sa} conducts a partial correlation analysis.
 #'
-#'This is function of the \strong{eat} package. It takes an abm in function form
+#'This is function of the \strong{eat} package. It takes a simulation model in function form
 #'and a list of input values. Helper function for extracting R-sqaured is
 #'adapted from Thiele et al. (2014).
 #'
@@ -156,7 +156,7 @@ pc_sa <- function(abm,
   if(verbose) cat("Done with simulations.\n")
   if(extra_verbose) print(pc_sim)
   
-#   # testing code:
+#   # testing code for using a previous object:
 #   previous_pc_sa <- list(list(input_set = data.frame(a=c(1,2), b=c(1,2)), sims=  c(1,2)), 
 #                          list(input_set = data.frame(a=c(3,4), b=c(3,4)), sims=  c(3,4)),
 #                          list(input_set = data.frame(a=c(5,6), b=c(5,6)), sims=  c(5,6)))

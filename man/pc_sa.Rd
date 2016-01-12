@@ -65,7 +65,7 @@ Returns a sensitivity object that can be plotted by functions.
 \code{pc_sa} conducts a partial correlation analysis.
 }
 \details{
-This is function of the \strong{eat} package. It takes an abm in function form
+This is function of the \strong{eat} package. It takes a simulation model in function form
 and a list of input values. Helper function for extracting R-sqaured is
 adapted from Thiele et al. (2014).
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/training.R
 \name{training}
 \alias{training}
-\title{Estimate an Agent Model}
+\title{Estimate an Agent Model with Supervised Learning}
 \usage{
 training(trainData, features, Formula, sampling = FALSE,
   sampling_size = 1000, package = c("caretglm", "caretglmnet", "glm",

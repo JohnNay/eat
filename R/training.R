@@ -1,4 +1,4 @@
-#'Estimate an Agent Model
+#'Estimate an Agent Model with Supervised Learning
 #'
 #'\code{training} uses a \code{caret::train} or \code{stats::glm} algorithm to 
 #'estimate an individual-level model and return a list where each element is 

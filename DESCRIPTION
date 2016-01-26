@@ -28,7 +28,6 @@ Imports:
     ggplot2,
     sensitivity,
     gtools,
-    Hmisc,
-    rgp
+    Hmisc
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1

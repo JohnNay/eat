@@ -27,8 +27,8 @@
 training <- function(trainData, features, Formula,
                      sampling = FALSE, sampling_size = 1000,
                      package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
-                     tune_length = 10, mins = 10,
-                     parallel = FALSE, cores = NULL,
+                     tune_length = 10, 
+                     parallel = FALSE, 
                      cv_type = c("cv", "repeatedcv")){
   # if sampling == TRUE, samples equal numbers of observations from each game structure
   

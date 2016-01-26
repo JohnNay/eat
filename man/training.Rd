@@ -6,8 +6,8 @@
 \usage{
 training(trainData, features, Formula, sampling = FALSE,
   sampling_size = 1000, package = c("caretglm", "caretglmnet", "glm",
-  "caretnnet", "caretdnn"), tune_length = 10, mins = 10, parallel = FALSE,
-  cores = NULL, cv_type = c("cv", "repeatedcv"))
+  "caretnnet", "caretdnn"), tune_length = 10, parallel = FALSE,
+  cv_type = c("cv", "repeatedcv"))
 }
 \arguments{
 \item{trainData}{\code{data.frame} with each row (obervational unit) being an 

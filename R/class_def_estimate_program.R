@@ -115,6 +115,7 @@ setMethod("predict", "estimate_program",
             mod <- object@func
             # n_args <- length(formals(mod))
             
+            i <- NULL # http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
             out <- forloop(foreach::foreach(i=seq(nrow(X)), .combine='rbind'), {
               do.call(mod, lapply(X[i, ], function(x) x))
             })

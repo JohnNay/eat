@@ -186,8 +186,8 @@ setMethod("plot", "cv_abm",
           function(x, y, ncol = 4){
             x <- performance(x, output = "plot")
             ggplot2::ggplot(data = x, 
-                            ggplot2::aes(x = Time, y = Action, color = Model)) +
-              ggplot2::geom_line(ggplot2::aes(linetype = Model), size = 1) + # stat="smooth", method = "loess", fill=NA, alpha=0.5
+                            ggplot2::aes_string(x = "Time", y = "Action", color = "Model")) +
+              ggplot2::geom_line(ggplot2::aes_string(linetype = "Model"), size = 1) + # stat="smooth", method = "loess", fill=NA, alpha=0.5
               ggplot2::scale_linetype_manual(values=c("solid", "dashed")) + # Change linetypes so predicted is solid and actual is dashed
               ggplot2::facet_wrap(~cors, ncol = ncol) +
               ggplot2::scale_y_continuous(limits=c(0, 1)) +

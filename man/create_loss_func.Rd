@@ -7,7 +7,7 @@
 create_loss_func(loss)
 }
 \arguments{
-\item{loss}{Character vector length one specifying which loss function you 
+\item{loss}{Character vector length one specifying which loss function you
 want.}
 }
 \value{

@@ -49,6 +49,7 @@ correct_sobol_bias <- function(x) {
   x[x > 1] <- 1
   cbind(var = row.names(x), x)
 }
+
 ################################################################################
 #'Plots pcSobol S4 object
 #'@describeIn pcSobol

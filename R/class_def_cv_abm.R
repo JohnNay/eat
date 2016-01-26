@@ -14,7 +14,6 @@
 #'    \code{\link{cv_abm}} function.
 #'   
 #' @export
-
 setClass(Class = "cv_abm",
          slots = c(call = "language",
                    predicted_patterns = "list",
@@ -28,7 +27,6 @@ setClass(Class = "cv_abm",
 #' @param x S4 cv_abm object
 #' @param ... ignored
 #'  @export
-
 setMethod("print", "cv_abm",
           function(x, ...) str(x)
 )
@@ -36,7 +34,6 @@ setMethod("print", "cv_abm",
 ################################################################################
 #' @describeIn cv_abm An S4 method for showing a cv_abm S4 object
 #'  @export
-
 setMethod("show", "cv_abm",
           function(object) {
             cat("An object of class \"cv_abm\"\n")
@@ -57,7 +54,6 @@ setMethod("show", "cv_abm",
 #' print, default is 3.
 #'
 #'  @export
-
 setMethod("summary", "cv_abm",
           function(object, digits = 3) {
             cat("                                    \n")
@@ -77,8 +73,6 @@ setMethod("summary", "cv_abm",
 #' @param output Optional character vector length one indicating what the 
 #'   desired output is, e.g. \code{c("MSE", "cor", "cor_pval", "SE", 
 #'   "plot")}.
-
-
 setGeneric("performance", function(results, output = character(1)){
   standardGeneric("performance")
 })
@@ -98,7 +92,6 @@ squared_loss <- function(x, s) sqrt(mean((x - s)^2))
 #'   "plot")}.
 #'   
 #' @export
-
 setMethod("performance", c("cv_abm", "character"),
           function(results, 
                    output = c("MSE", "cor", "cor_pval", "SE",
@@ -174,14 +167,15 @@ setMethod("performance", c("cv_abm", "character"),
 
 ################################################################################
 #' Plots cv_abm S4 object
-#' @describeIn cv_abm An S4 method for plotting a cv_abm S4 object
-#'   
+#' @describeIn cv_abm
+#'  
+#' Plots cv_abm results.
+#'  
 #' @param y not used.
 #' @param ncol optional numeric vector length one specifying number of columns 
 #'   of the faceted subsetted graphs, i.e. how many columns ggplot2 will use 
 #'   when wrapping the structures around.
-#' @export
-
+#' @exportMethod plot
 setMethod("plot", "cv_abm",
           function(x, y, ncol = 4){
             x <- performance(x, output = "plot")

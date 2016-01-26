@@ -3,7 +3,7 @@
 \docType{class}
 \name{computeIters-class}
 \alias{computeIters-class}
-\alias{plot,computeIters,ANY-method}
+\alias{plot,computeIters-method}
 \alias{print,computeIters-method}
 \alias{show,computeIters-method}
 \alias{summary,computeIters-method}
@@ -15,7 +15,7 @@
 
 \S4method{show}{computeIters}(object)
 
-\S4method{plot}{computeIters,ANY}(x, outcome_var = "Outcome",
+\S4method{plot}{computeIters}(x, outcome_var = "Outcome",
   xlab = "Iterations", ylab = NULL)
 }
 \arguments{

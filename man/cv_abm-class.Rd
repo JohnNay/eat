@@ -4,7 +4,7 @@
 \name{cv_abm-class}
 \alias{cv_abm-class}
 \alias{performance,cv_abm,character-method}
-\alias{plot,cv_abm,ANY-method}
+\alias{plot,cv_abm-method}
 \alias{print,cv_abm-method}
 \alias{show,cv_abm-method}
 \alias{summary,cv_abm-method}
@@ -20,7 +20,7 @@ ABM}
 \S4method{performance}{cv_abm,character}(results, output = c("MSE", "cor",
   "cor_pval", "SE", "plot"))
 
-\S4method{plot}{cv_abm,ANY}(x, y, ncol = 4)
+\S4method{plot}{cv_abm}(x, y, ncol = 4)
 }
 \arguments{
 \item{x}{S4 cv_abm object}
@@ -69,7 +69,7 @@ Plots cv_abm S4 object
 \item \code{performance}: An S4 method for extracting performance measures of an
 cv_abm S4 object
 
-\item \code{plot}: An S4 method for plotting a cv_abm S4 object
+\item \code{plot}: Plots cv_abm results.
 }}
 \section{Slots}{
 

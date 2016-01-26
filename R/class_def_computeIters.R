@@ -92,7 +92,7 @@ setMethod("plot", "computeIters",
             x <- x@plot_data
             
             ggplot2::ggplot(x, 
-                            ggplot2::aes(x = iters, y = measured)) + 
+                            ggplot2::aes_string(x = "iters", y = "measured")) + 
               ggplot2::geom_point() +
               ggplot2::geom_smooth(method = "loess") +
               ggplot2::xlab(xlab) + ggplot2::ylab(ylab) +

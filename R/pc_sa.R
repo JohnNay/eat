@@ -144,6 +144,7 @@ pc_sa <- function(abm,
   # Simulation runs with generated input factor sets:
   if(verbose) cat("Starting simulations.\n")
   # simulation results for input factor sets (as matrix)
+  i <- NULL # http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
   if (is.null(iterations)){
     pc_sim <- forloop(foreach::foreach(i=seq(nrow(input.set)), .combine='c'), {
       tryCatch(abm(as.numeric(input.set[i, ]), out = out), error = function(e) NA)

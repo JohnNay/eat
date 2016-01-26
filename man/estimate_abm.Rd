@@ -95,10 +95,10 @@ argument is set to \code{TRUE}.}
 }
 \value{
 Returns a function that has three arguments: \code{parameters, out, 
- iterations}. If \code{out=="action_avg"} for the returned function, the
- average of all the actions is returned by this function; otherwise, the
- vector of the average for each time is returned by this function. This
- returns a wrapper function around their abm simulation function to be used
+ iterations}. If \code{out=="action_avg"} for the returned function, the 
+ average of all the actions is returned by this function; otherwise, the 
+ vector of the average for each time is returned by this function. This 
+ returns a wrapper function around their abm simulation function to be used 
  for \code{\link{compute_iters}}, \code{\link{sobol_sa}}, and 
  \code{\link{pc_sa}}.
 }

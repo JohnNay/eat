@@ -5,14 +5,14 @@
 #'its global abm parameters or their specification. Then this can be used for 
 #'the \code{\link{compute_iters}}, \code{\link{sobol_sa}}, and 
 #'\code{\link{pc_sa}}.
-#'
+#'  
 #'@inheritParams cv_abm
 #'  
 #'@return Returns a function that has three arguments: \code{parameters, out, 
-#'  iterations}. If \code{out=="action_avg"} for the returned function, the
-#'  average of all the actions is returned by this function; otherwise, the
-#'  vector of the average for each time is returned by this function. This
-#'  returns a wrapper function around their abm simulation function to be used
+#'  iterations}. If \code{out=="action_avg"} for the returned function, the 
+#'  average of all the actions is returned by this function; otherwise, the 
+#'  vector of the average for each time is returned by this function. This 
+#'  returns a wrapper function around their abm simulation function to be used 
 #'  for \code{\link{compute_iters}}, \code{\link{sobol_sa}}, and 
 #'  \code{\link{pc_sa}}.
 #'  
@@ -73,9 +73,8 @@ estimate_abm <- function(data, features, Formula, agg_patterns,
         abm_predicted[u] <- abm_results$action_avg
         abm_dynamics[u, seq(tp[u])] <- abm_results$dynamics
       }
-      # leaving out groups in vec unique(test$group) in this comparison because it not used for the training, its the test.
-      avg_action_error <- compute_rmse(abm_predicted[-unique(test$group)], 
-                                       agg_patterns[-unique(test$group), which(names(agg_patterns) %in% "action")]) 
+      avg_action_error <- compute_rmse(abm_predicted, 
+                                       agg_patterns[ , which(names(agg_patterns) %in% "action")]) 
       if(is.na(avg_action_error)) 
         stop(paste("Fitness function tried to return an NA value for avg action error with param values as", parameter))
       dynamic_action_error <- rep(NA, nrow(agg_patterns))
@@ -85,10 +84,10 @@ estimate_abm <- function(data, features, Formula, agg_patterns,
                                                 as.numeric(agg_patterns[l, which(names(agg_patterns) %in% paste(seq(tp[l])))]))
       }
       
-      if(any(is.na(dynamic_action_error[-unique(test$group)])))
+      if(any(is.na(dynamic_action_error)))
         stop(paste("Fitness function tried to return an NA value for dynamic action error with param values as", 
                    paste(parameter, collapse = ", ")))
-      result <- -(avg_action_error + mean(dynamic_action_error[-unique(test$group)], na.rm=TRUE)) # MSE of the avg action + mean of the MSE's of the time series of all training data groups
+      result <- -(avg_action_error + mean(dynamic_action_error, na.rm=TRUE)) # MSE of the avg action + mean of the MSE's of the time series of all training data groups
       if(is.na(result)) stop(paste("Fitness function tried to return an NA value with param values as",
                                    paste(parameter, collapse = ", ")))
       if(length(result) != 1) stop(paste("Fitness function returned a result that is not of length one with param values as", 

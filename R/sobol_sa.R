@@ -121,6 +121,7 @@ sobol_sa <- function(abm,
   if (parallel) {
     doParallel::registerDoParallel(cores = cores)
   } # without registering the backend the %dopar% should just run as %do%
+  i <- NULL # http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
   if (is.null(iterations)){
     sobol_sim <- foreach::`%dopar%`(foreach::foreach(i=seq(nrow(sobol_aggregate$X)), .combine='c'), {
       abm(as.numeric(sobol_aggregate$X[i, ]), out = out)

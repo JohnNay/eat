@@ -61,7 +61,7 @@ g1 <- stats::glm(my.decision ~ 1, family = binomial,
 stopifnot(round(2 * compute_log_lik(as.numeric(predict(g1, dat, type="response")),
                                      dat$my.decision)) == 
             round(g1$deviance))
-rm(g1)
+rm(g1, dat)
 
 #' Compute Identity
 #' 

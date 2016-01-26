@@ -19,7 +19,6 @@
 #'@param cv_type optional character vector length one, default is \code{c("cv", 
 #'  "repeatedcv")}. Passed on to \code{caret::trainControl()}.
 #'@inheritParams cv_abm
-#'@inheritParams estimate_program
 #'  
 #'@return Returns a \code{list} length \code{k} where each element of the list 
 #'  is an estimated model (estimated agent decision function).
@@ -27,8 +26,7 @@
 
 training <- function(trainData, features, Formula,
                      sampling = FALSE, sampling_size = 1000,
-                     package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn",
-                                 "estimate_program"),
+                     package = c("caretglm", "caretglmnet", "glm", "caretnnet", "caretdnn"),
                      tune_length = 10, mins = 10,
                      parallel = FALSE, cores = NULL,
                      cv_type = c("cv", "repeatedcv")){
@@ -192,28 +190,28 @@ training <- function(trainData, features, Formula,
       cat("Done with", i, "out of", k, "models.\n") 
     }
   }
-  ###############################################################################
-  ###############################################################################
-  if(package=="estimate_program"){
-    for( i in seq(k)){
-      trainData <- trainData
-      if(identical(i,as.integer(k))) {
-        data_use <- trainData[trainData$period>=i, ]
-      } else {
-        data_use <- trainData[trainData$period==i, ]
-      }
-      model[[i]] <- estimate_program(
-        formula = eval(parse(text=Formula[[i]])),
-        data = data_use,
-        loss = "log_lik",
-        link = "logit",
-        mins = mins,
-        parallel = parallel,
-        cores = cores
-      )
-      cat("Done with", i, "out of", k, "models.\n") 
-    }
-  }
+#   ###############################################################################
+#   ###############################################################################
+#   if(package=="estimate_program"){
+#     for( i in seq(k)){
+#       trainData <- trainData
+#       if(identical(i,as.integer(k))) {
+#         data_use <- trainData[trainData$period>=i, ]
+#       } else {
+#         data_use <- trainData[trainData$period==i, ]
+#       }
+#       model[[i]] <- estimate_program(
+#         formula = eval(parse(text=Formula[[i]])),
+#         data = data_use,
+#         loss = "log_lik",
+#         link = "logit",
+#         mins = mins,
+#         parallel = parallel,
+#         cores = cores
+#       )
+#       cat("Done with", i, "out of", k, "models.\n") 
+#     }
+#   }
   ###############################################################################
   ###############################################################################
   if(!identical(length(model),as.integer(k)))

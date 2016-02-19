@@ -18,4 +18,5 @@
 NULL
 
 #' @importFrom methods setClass setGeneric setMethod setRefClass
+#' @importFrom graphics plot
 NULL

@@ -32,7 +32,7 @@ setMethod("print", "cv_abm",
 )
 
 ################################################################################
-#' @describeIn cv_abm An S4 method for showing a cv_abm S4 object
+#' @describeIn cv_abm
 #'  @export
 setMethod("show", "cv_abm",
           function(object) {
@@ -47,7 +47,7 @@ setMethod("show", "cv_abm",
 
 ################################################################################
 #' Prints (cat()) summary of cv_abm S4 object.
-#' @describeIn cv_abm An S4 method for summarizing a cv_abm S4 object
+#' @describeIn cv_abm
 #'
 #' @param object S4 cv_abm object
 #' @param digits Optional numeric vector length one for how many significant digits to

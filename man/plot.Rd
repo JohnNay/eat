@@ -13,7 +13,10 @@ plot(x, y, ...)
 
 \item{...}{...}
 }
+\value{
+Nothing
+}
 \description{
-Generic Plot
+This is the generic plotting function.
 }
 

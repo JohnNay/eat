@@ -37,7 +37,10 @@ setMethod("print", "pcSA",
 )
 
 ################################################################################
+#' Show
+#' 
 #' @describeIn pcSA An S4 method for showing a pcSA S4 object
+#' 
 #' @param object S4 pcSA object
 #' 
 #'  @export
@@ -61,6 +64,7 @@ correct_bias <- function(x) {
 }
 ################################################################################
 #'Plots pcSA S4 object, a Partial Correlation Analysis of a Simulation Model
+#'
 #'@describeIn pcSA
 #'  
 #'  This is function of the \strong{eat} package. \code{pc_sa} conducts a a 

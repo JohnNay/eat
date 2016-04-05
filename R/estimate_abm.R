@@ -3,8 +3,7 @@
 #'Using \code{\link{estimate_abm}} one can use their data and their abm function
 #'they are using for \code{\link{cv_abm}} to estimate an ABM via optimization of
 #'its global abm parameters or their specification. Then this can be used for 
-#'the \code{\link{compute_iters}}, \code{\link{sobol_sa}}, and 
-#'\code{\link{pc_sa}}.
+#'analysis.
 #'  
 #'@inheritParams cv_abm
 #'  
@@ -13,8 +12,7 @@
 #'  average of all the actions is returned by this function; otherwise, the 
 #'  vector of the average for each time is returned by this function. This 
 #'  returns a wrapper function around their abm simulation function to be used 
-#'  for \code{\link{compute_iters}}, \code{\link{sobol_sa}}, and 
-#'  \code{\link{pc_sa}}.
+#'  for analysis.
 #'  
 #'@export
 

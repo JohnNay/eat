@@ -1,9 +1,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![Build Status](https://magnum.travis-ci.com/JohnNay/eat.png?branch=master)](https://magnum.travis-ci.com/JohnNay/eat)
-
 This R package facilitates data-driven agent-based simulation modeling. eat stands for Empirical Agent Training.
 
-If you use this package, cite: "Nay, John J. (2016). eat: Empirical Agent Training Software for Data-Driven Modeling."
+If you use this package, cite: "Nay, John J. (2016). eat: Empirical Agent Training Software for Data-Driven Modeling. R package version 0.1. <https://github.com/JohnNay/eat>".
 
 Install and load the latest release of the package from GitHub:
 
@@ -12,3 +10,7 @@ Install and load the latest release of the package from GitHub:
 devtools::install_github("JohnNay/eat")
 library(eat)
 ```
+
+This package is designed for the situation where you have data on *agent* actions over time within multiple *groups*, where an agent is any entity that takes actions that can be aggregated across multiple agents to form some useful summmary statistics about group-level action outcomes (even as little as two agents can compose a group/population), and a group is a set of actions that are taken within a particular global variable setting. For example, an agent can be a farming household choosing what crop to grow and the group can be a community of farmers, where communities differ across relevant demographic and physical variables. We assume that the group-level variables affect the action outcomes. An analyst has the goal of estimating the size and direction of the global effects of those group-level variables on the relevant outcome(s).
+
+To accomplish this, the analyst needs a generative model that simulates (usually, time series of) relevant outcomes from just an initialization of global parameters. The agent-level models are estimated by `training()` them on individual-level data. The generative simulation model (provided to the `abm_simulate` argument of the `cv_abm()` and `estimate_abm()` functions) specifies how the agent-level model interacts with itself, conditional on the exogenous global variable setting. Outcomes of previous time periods feed into input for the agent-level models to determine their action for the next time period: there are endogenously determined dynamically evolving variables. The `cv_abm()` function can be used to systematically test how well this model works for new sets of global parameters that the model was not trained on. If the performance is sufficient (usually, compared to a baseline such as a random choice model), the model can be trained on all available data and deployed for sensitivity analyses (e.g. by using the sa package: <http://johnjnay.com/sa/>), which can quantify, with uncertainty, the effects of variables on the outcome(s) of interest.

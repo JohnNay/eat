@@ -30,17 +30,19 @@
       <section>
         
 
-<p><a href="https://magnum.travis-ci.com/JohnNay/eat"><img src="https://magnum.travis-ci.com/JohnNay/eat.png?branch=master" alt="Build Status"></a></p>
-
 <p>This R package facilitates data-driven agent-based simulation modeling. eat stands for Empirical Agent Training.</p>
 
-<p>If you use this package, cite: "Nay, John J. (2016). eat: Empirical Agent Training Software for Data-Driven Modeling."</p>
+<p>If you use this package, cite: "Nay, John J. (2016). eat: Empirical Agent Training Software for Data-Driven Modeling. R package version 0.1. <a href="https://github.com/JohnNay/eat">https://github.com/JohnNay/eat</a>".</p>
 
 <p>Install and load the latest release of the package from GitHub:</p>
 
 <div class="highlight highlight-source-r"><pre><span class="pl-c"># install.packages("devtools")</span>
 <span class="pl-e">devtools</span><span class="pl-k">::</span>install_github(<span class="pl-s"><span class="pl-pds">"</span>JohnNay/eat<span class="pl-pds">"</span></span>)
 library(<span class="pl-smi">eat</span>)</pre></div>
+
+<p>This package is designed for the situation where you have data on <em>agent</em> actions over time within multiple <em>groups</em>, where an agent is any entity that takes actions that can be aggregated across multiple agents to form some useful summmary statistics about group-level action outcomes (even as little as two agents can compose a group/population), and a group is a set of actions that are taken within a particular global variable setting. For example, an agent can be a farming household choosing what crop to grow and the group can be a community of farmers, where communities differ across relevant demographic and physical variables. We assume that the group-level variables affect the action outcomes. An analyst has the goal of estimating the size and direction of the global effects of those group-level variables on the relevant outcome(s).</p>
+
+<p>To accomplish this, the analyst needs a generative model that simulates (usually, time series of) relevant outcomes from just an initialization of global parameters. The agent-level models are estimated by <code>training()</code> them on individual-level data. The generative simulation model (provided to the <code>abm_simulate</code> argument of the <code>cv_abm()</code> and <code>estimate_abm()</code> functions) specifies how the agent-level model interacts with itself, conditional on the exogenous global variable setting. Outcomes of previous time periods feed into input for the agent-level models to determine their action for the next time period: there are endogenously determined dynamically evolving variables. The <code>cv_abm()</code> function can be used to systematically test how well this model works for new sets of global parameters that the model was not trained on. If the performance is sufficient (usually, compared to a baseline such as a random choice model), the model can be trained on all available data and deployed for sensitivity analyses (e.g. by using the sa package: <a href="http://johnjnay.com/sa/">http://johnjnay.com/sa/</a>), which can quantify, with uncertainty, the effects of variables on the outcome(s) of interest.</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/JohnNay">JohnNay</a></p>
